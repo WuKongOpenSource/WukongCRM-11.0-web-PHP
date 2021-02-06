@@ -110,6 +110,10 @@ PHP >= 5.6.0
 
 以下为悟空CRM9.0 部分功能系统截图
 
+![输入图片说明](https://images.gitee.com/uploads/images/2021/0206/112721_6e50397d_345098.png "0 (8).png")
+
+
+
 ![](https://images.gitee.com/uploads/images/2019/0520/132127_4ba5b87c_345098.png "g1.png")
 ![](https://images.gitee.com/uploads/images/2019/0520/132136_4668db82_345098.png "g2.png")
 ![](https://images.gitee.com/uploads/images/2019/0520/132145_93874d84_345098.png "g3.png")
