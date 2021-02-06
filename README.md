@@ -10,7 +10,7 @@
 
 官网地址：[http://www.5kcrm.com](http://www.5kcrm.com/)
 
-演示地址：(https://demo10.72crm.com/#/crm)  
+演示地址：(http://demo11.5kcrm.net/)  
 帐号：18688888888   密码：123456a
 
 
