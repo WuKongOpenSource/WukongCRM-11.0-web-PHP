@@ -16,7 +16,7 @@
 
 QQ群交流群⑩群：[486745026](https:////shang.qq.com/wpa/qunwpa?idkey=f4687b809bf63f08f707aa1c56dee8dbcb9526237c429c4532222021d65bf83c)
 
-JAVA版下载地址：[https://gitee.com/wukongcrm/72crm-java](https://gitee.com/wukongcrm/72crm-java)
+PHP版下载地址：[https://gitee.com/wukongcrm/72crm-java](https://gitee.com/wukongcrm/72crm-java)
 
 
 扫码添加小悟官方客服微信，邀您加入千人微信交流群：
