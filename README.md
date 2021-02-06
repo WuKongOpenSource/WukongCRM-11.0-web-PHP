@@ -1,7 +1,5 @@
 ﻿
 # 72CRM-11.0-web（PHP版）
-### 悟空CRM介绍
-
 
 ## 悟空CRM介绍
 
@@ -103,8 +101,6 @@ QQ群交流群⑩群：[1026560336](http:////shang.qq.com/wpa/qunwpa?idkey=13d5e
 #### 更新日志
 
 <a href="https://www.72crm.com/upgrade_log" target="_blank">点击查看更新日志</a>
-
-
 
 
 
