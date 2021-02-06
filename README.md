@@ -72,20 +72,20 @@ UI框架：Element-UI 2.6.3
 
 
 
-## 开发依赖（需个性化安装或调整前端代码请按照以下教程，一键安装用户可忽略）
+### 开发依赖（需个性化安装或调整前端代码请按照以下教程，一键安装用户可忽略）
 
-### 数据交互 
+#### 数据交互 
 数据交互通过axios以及RESTful架构来实现 
 用户校验通过登录返回的auth_key放在header 
 值得注意的一点是：跨域的情况下，会有预请求OPTION的情况
 
-### Server搭建 
+#### Server搭建 
 服务端使用的框架为thinkphp5.0.2，搭建前请确保拥有lamp/lnmp/wamp环境。
 
 这里所说的搭建其实就是把server框架放入WEB运行环境，并使用80端口。
 导入服务端根文件夹数据库文件public/sql/5kcrm.sql，并修改config/database.php配置文件。
 
-### 配置要求
+#### 配置要求
 PHP >= 5.6.0 
 当访问 http://localhost/, 出现“悟空软件”即代表后端接口搭建成功。
 ### 前端部署
@@ -97,7 +97,7 @@ PHP >= 5.6.0
 
 修改内部配置 修改请求地址或域名：config/dev.env.js里修改BASE_API（开发环境服务端地址，默认localhost） 修改自定义端口：config/index.js里面的dev对象的port参数（默认8080，不建议修改）
 
-### 运行前端
+#### 运行前端
 
      npm run dev
 
