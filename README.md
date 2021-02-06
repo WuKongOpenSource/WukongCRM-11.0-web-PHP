@@ -2,21 +2,21 @@
 # 72CRM-11.0-web（PHP版）
 ### 悟空CRM介绍
 
-悟空软件长期为企业提供企业管理软件(CRM/HRM/OA/ERP等)的研发、实施、营销、咨询、培训、服务于一体的信息化服务。悟空软件以高科技为起点，以技术为核心、以完善的售后服务为后盾，秉承稳固与发展、求实与创新的精神，已为国内外上千家企业提供服务。
 
-悟空的发展受益于开源，也会回馈于开源。2019年，悟空CRM会继续秉承“拥抱开放、合作共赢、创造价值”的理念，在开源的道路上继续砥砺前行，和更多的社区开发者一起为国内外开源做出积极贡献。
+## 悟空CRM介绍
 
-官网：[http://www.5kcrm.com](http://www.5kcrm.com/)
 
-官网：[http://www.72crm.com](http://www.72crm.com/)
+悟空CRM在中国的开源管理软件行业有较高的知名度。目前软件已达到千万级的用户量，开源系统下载量达到200多万次，已覆盖设计制造业、服务业、金融业、政府机构等多种行业。与阿里巴巴、腾讯、OPPO、航天信息、CCTV等多家知名企业达成战略合作。
 
-论坛：[http://bbs.72crm.net](http://bbs.72crm.net/)
+公司先后获得河南省高新技术企业、国家3A信用企业、IOS9001软件产品认证等20多项荣誉奖项。拥有50余项软件著作权。 获得20余家国内媒体报道。公司自成立以来，以高科技为起点，以技术为核心、 以完善的售后服务为后盾，秉承稳固与发展、求实与创新的精神，已为国内外上万家企业提供了服务。 在为实现企业价值最大化的过程中， 实现了自身的价值的提升，取得了最大程度的双赢合作，并获得了社会各界的广泛赞誉和认同。
 
-演示地址：[demo11.5kcrm.net](http://demo11.5kcrm.net/)(帐号：18888888888   密码：123456)
+官网地址：[http://www.5kcrm.com](http://www.5kcrm.com/)
 
-QQ群交流群⑩群：[486745026](https:////shang.qq.com/wpa/qunwpa?idkey=f4687b809bf63f08f707aa1c56dee8dbcb9526237c429c4532222021d65bf83c)
+演示地址：(https://demo10.72crm.com/#/crm)  
+帐号：18688888888   密码：123456a
 
-PHP版下载地址：[https://gitee.com/wukongcrm/72crm-java](https://gitee.com/wukongcrm/72crm-java)
+
+QQ群交流群⑩群：[1026560336](http:////shang.qq.com/wpa/qunwpa?idkey=13d5e5809eb9feb350336e55c8b7a00b9cb472078b09b4441222a52dd76b278e)
 
 
 扫码添加小悟官方客服微信，邀您加入千人微信交流群：
@@ -28,81 +28,83 @@ PHP版下载地址：[https://gitee.com/wukongcrm/72crm-java](https://gitee.com/
 <img src="https://images.gitee.com/uploads/images/2019/1202/135713_d3566c6a_345098.jpeg" width="200">
 
 
- :boom:  :boom:  :boom: 注：悟空CRM采用全新的前后端分离模式，本仓库代码中已集成前端vue打包后文件，  **可免去打包操作，无需运行前端** 。如需调整前端代码，请单独下载前端代码
 
-## 悟空CRM使用的主要技术栈
+```
 
-后端框架：ThinkPHP 5.0.2
+注：悟空CRM采用全新的前后端分离模式，本仓库代码中已集成前端vue打包后文件，可免去打包操作。如需调整前端代码，请单独下载前端代码
 
-前端MVVM框架：Vue.JS 2.5.x 
+```
 
-路由：Vue-Router 3.x 
-
-数据交互：Axios 
-
-UI框架：Element-UI 2.6.3 
-
-悟空crm11.0的运行环境要求PHP5.6以上
-
-## 悟空CRM使用项目架构图
-<img src="https://images.gitee.com/uploads/images/2020/0910/094237_e7cb3bca_1096736.jpeg" width="650">
-
-## 使用说明
-### 前置环境
-- Jdk1.8
-- Maven3.5.0+   
-- Mysql5.7.20 （<a href="https://gitee.com/wukongcrm/crm_pro/wikis/mysql配置说明" target="_blank">数据库安装注意事项</a>）
-- Redis(版本不限)
-- Elasticsearch 6.8.6 （<a href="https://gitee.com/wukongcrm/crm_pro/wikis/elasticsearch配置说明" target="_blank">环境配置注意事项</a>）
-- Seata（1.2.0）（<a href="https://gitee.com/wukongcrm/crm_pro/wikis/seata" target="_blank">配置说明</a>）
-- Sentinel（1.7.2）（项目中sentinel使用8079端口）
-- Nacos（1.2.1)
+(<a href="https://gitee.com/wukongcrm/crm_pro" target="_blank">查看JAVA后端仓库</a>) 
 
 
-### 一键安装
+#### 项目目录
+``` lua
+├── build -- webpack 配置文件
+├── config -- 项目配置文件
+├── src -- 源码目录
+│   ├── api -- axios请求接口
+│   ├── assets -- 静态图片资源文件
+│   ├── components -- 通用组件
+│   ├── directives -- 通用指令
+│   ├── filters -- 通用过滤器
+│   ├── mixins -- 通用混入
+│   ├── router -- vue-router路由配置
+│   ├── store -- vuex状态管理
+│   ├── styles -- 全局css样式
+│   ├── utils -- 工具类
+│   └── views -- 前端页面
+│       ├── addressBook -- 通讯录
+│       ├── admin -- 系统管理
+│       ├── bi -- 商业智能
+│       ├── calendar -- 日历
+│       ├── crm -- 客户管理
+│       ├── email -- 邮箱
+│       ├── hrm -- 人力资源
+│       ├── jxc -- 进销存
+│       ├── knowledge -- 知识库
+│       ├── layout -- 模块框架
+│       ├── login -- 登录
+│       ├── oa -- 办公
+│       ├── pm -- 项目管理
+│       ├── taskExamine -- 任务审批
+│       ├── user -- 个人中心
+│       └── workLog -- 工作日志
+└── static -- 静态资源
+```
 
-代码中已集成前端vue打包后文件，可免去打包操作：
-以本地（phpstudy集成环境）搭建举例：
-下载悟空CRM9.0开源版，在服务器根目录（www目录）下创建72crm文件夹，并放置代码； 浏览器访问
+#### 项目运行
 
-`http://localhost/72crm/index.php/admin/install/index.html `
+- 下载node并安装(LTS)：https://nodejs.org/;
+- 该项目为前后端分离项目，本地访问需搭建后台环境，请参考[后端项目](https://gitee.com/wukongcrm/crm_pro);
+- 访问线上接口无需搭建后台环境，只需将config/index.js文件中的dev下的proxyTable中的target改为线上地址即可;
+- 克隆源代码到本地，使用VSCode打开，并搜索”百度key“，将其替换为自己申请的。申请地址：[百度key](http://lbsyun.baidu.com/index.php?title=jspopularGL/guide/getkey);
+- 执行 npm install，下载相关依赖;
+- 执行 npm run dev，运行项目;
+- 执行成功，即可访问http://localhost:8090，查看悟空CRM;
 
-根据安装提示步骤，完成悟空CRM11.0 的部署安装
+#### 项目打包
+
+- 需将config/prod.env.js文件中的BASE_API，调整为自己需要的
+- 执行 npm run build
+- 打包完成，将自动生成dist文件夹
 
 
+#### 技术栈
+
+| 技术 | 说明 | 版本 |
+| --- | --- | --- |
+| [Vue](https://vuejs.org) | 框架 | 2.5.17 |
+| [Vue-router](https://router.vuejs.org) | 路由框架 | 3.0.1 |
+| [Vuex](https://vuex.vuejs.org) | 全局状态管理框架 | 3.0.1 |
+| [Element](https://element.eleme.io) | UI框架 | 2.12.0 |
+| [Axios](https://github.com/axios/axios) | HTTP框架 | 0.18.0 |
+
+#### 更新日志
+
+<a href="https://www.72crm.com/upgrade_log" target="_blank">点击查看更新日志</a>
 
 
-### 开发依赖（需个性化安装或调整前端代码请按照以下教程，一键安装用户可忽略）
-
-#### 数据交互 
-数据交互通过axios以及RESTful架构来实现 
-用户校验通过登录返回的auth_key放在header 
-值得注意的一点是：跨域的情况下，会有预请求OPTION的情况
-
-#### Server搭建 
-服务端使用的框架为thinkphp5.0.2，搭建前请确保拥有lamp/lnmp/wamp环境。
-
-这里所说的搭建其实就是把server框架放入WEB运行环境，并使用80端口。
-导入服务端根文件夹数据库文件public/sql/5kcrm.sql，并修改config/database.php配置文件。
-
-#### 配置要求
-PHP >= 5.6.0 
-当访问 http://localhost/, 出现“悟空软件”即代表后端接口搭建成功。
-#### 前端部署
-安装node.js 前端部分是基于node.js上运行的，所以必须先安装`node.js`，版本要求为6.0以上
-
-使用npm安装依赖 下载悟空CRM9.0前端代码； 可将代码放置在后端同级目录frontend，执行命令安装依赖：
-
-    npm install
-
-修改内部配置 修改请求地址或域名：config/dev.env.js里修改BASE_API（开发环境服务端地址，默认localhost） 修改自定义端口：config/index.js里面的dev对象的port参数（默认8080，不建议修改）
-
-#### 运行前端
-
-     npm run dev
-
-注意：前端服务启动，默认会占用8080端口，所以在启动前端服务之前，请确认8080端口没有被占用。
-程序运行之前需搭建好Server端
 
 
 
