@@ -30,7 +30,7 @@ JAVA版下载地址：[https://gitee.com/wukongcrm/72crm-java](https://gitee.com
 
  :boom:  :boom:  :boom: 注：悟空CRM采用全新的前后端分离模式，本仓库代码中已集成前端vue打包后文件，  **可免去打包操作，无需运行前端** 。如需调整前端代码，请单独下载前端代码
 
-## 主要技术栈
+## 悟空CRM使用的主要技术栈
 
 后端框架：ThinkPHP 5.0.2
 
@@ -42,10 +42,24 @@ JAVA版下载地址：[https://gitee.com/wukongcrm/72crm-java](https://gitee.com
 
 UI框架：Element-UI 2.6.3 
 
-悟空crm9.0的运行环境要求PHP5.6以上
+悟空crm11.0的运行环境要求PHP5.6以上
+
+## 悟空CRM使用项目架构图
 
 
-## 一键安装
+## 使用说明
+### 前置环境
+- Jdk1.8
+- Maven3.5.0+   
+- Mysql5.7.20 （<a href="https://gitee.com/wukongcrm/crm_pro/wikis/mysql配置说明" target="_blank">数据库安装注意事项</a>）
+- Redis(版本不限)
+- Elasticsearch 6.8.6 （<a href="https://gitee.com/wukongcrm/crm_pro/wikis/elasticsearch配置说明" target="_blank">环境配置注意事项</a>）
+- Seata（1.2.0）（<a href="https://gitee.com/wukongcrm/crm_pro/wikis/seata" target="_blank">配置说明</a>）
+- Sentinel（1.7.2）（项目中sentinel使用8079端口）
+- Nacos（1.2.1)
+
+
+### 一键安装
 
 代码中已集成前端vue打包后文件，可免去打包操作：
 以本地（phpstudy集成环境）搭建举例：
@@ -53,8 +67,7 @@ UI框架：Element-UI 2.6.3
 
 `http://localhost/72crm/index.php/admin/install/index.html `
 
-根据安装提示步骤，完成悟空CRM9.0 的部署安装
-
+根据安装提示步骤，完成悟空CRM11.0 的部署安装
 
 
 
