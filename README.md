@@ -106,9 +106,9 @@ PHP >= 5.6.0
 
 
 
-## 系统介绍
+## 悟空CRM功能模块预览
 
-以下为悟空CRM9.0 部分功能系统截图
+以下为悟空CRM11.0.0 部分功能系统截图
 
 ![仪表盘](https://images.gitee.com/uploads/images/2021/0206/112721_6e50397d_345098.png "仪表盘.png")
 ![客户列表](https://images.gitee.com/uploads/images/2021/0206/112822_4ab4eb50_345098.png "客户列表.png")
