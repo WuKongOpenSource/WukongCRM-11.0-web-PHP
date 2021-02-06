@@ -110,22 +110,13 @@ PHP >= 5.6.0
 
 以下为悟空CRM9.0 部分功能系统截图
 
-![仪表盘](https://images.gitee.com/uploads/images/2021/0206/112721_6e50397d_345098.png "0 (8).png")
-![客户列表](https://images.gitee.com/uploads/images/2021/0206/112822_4ab4eb50_345098.png "0 (7).png")
-![客户详情](https://images.gitee.com/uploads/images/2021/0206/112842_d69aff0f_345098.png "0 (6).png")
-![商机详情](https://images.gitee.com/uploads/images/2021/0206/112902_c38751fe_345098.png "0 (5).png")
-![任务详情](https://images.gitee.com/uploads/images/2021/0206/112924_175278e2_345098.png "0 (4).png")
-![商业智能](https://images.gitee.com/uploads/images/2021/0206/112938_0cbc95b7_345098.png "0 (3).png")
-![审批](https://images.gitee.com/uploads/images/2021/0206/113001_bfcbee0a_345098.png "0 (2).png")
-![自定义字段](https://images.gitee.com/uploads/images/2021/0206/113019_7894e7ed_345098.png "0.png")
-![字段授权](https://images.gitee.com/uploads/images/2021/0206/113030_cefa8932_345098.png "0 (1).png")
+![仪表盘](https://images.gitee.com/uploads/images/2021/0206/112721_6e50397d_345098.png "仪表盘.png")
+![客户列表](https://images.gitee.com/uploads/images/2021/0206/112822_4ab4eb50_345098.png "客户列表.png")
+![客户详情](https://images.gitee.com/uploads/images/2021/0206/112842_d69aff0f_345098.png "客户详情.png")
+![商机详情](https://images.gitee.com/uploads/images/2021/0206/112902_c38751fe_345098.png "商机详情.png")
+![任务详情](https://images.gitee.com/uploads/images/2021/0206/112924_175278e2_345098.png "任务详情.png")
+![商业智能](https://images.gitee.com/uploads/images/2021/0206/112938_0cbc95b7_345098.png "商业智能.png")
+![审批](https://images.gitee.com/uploads/images/2021/0206/113001_bfcbee0a_345098.png "审批.png")
+![自定义字段](https://images.gitee.com/uploads/images/2021/0206/113019_7894e7ed_345098.png "自定义字段.png")
+![字段授权](https://images.gitee.com/uploads/images/2021/0206/113030_cefa8932_345098.png "字段授权.png")
 
-
-![](https://images.gitee.com/uploads/images/2019/0520/132127_4ba5b87c_345098.png "g1.png")
-![](https://images.gitee.com/uploads/images/2019/0520/132136_4668db82_345098.png "g2.png")
-![](https://images.gitee.com/uploads/images/2019/0520/132145_93874d84_345098.png "g3.png")
-![](https://images.gitee.com/uploads/images/2019/0520/132156_aa1ccaaa_345098.png "g4.png")
-![](https://images.gitee.com/uploads/images/2019/0520/132206_c2afdfb5_345098.png "g5.png")
-![](https://images.gitee.com/uploads/images/2019/0520/132224_fd63c698_345098.png "g6.png")
-![](https://images.gitee.com/uploads/images/2019/0520/132233_d0a1d345_345098.png "g8.png")
-![](https://images.gitee.com/uploads/images/2019/0520/132250_e3599a75_345098.png "g9.png")
