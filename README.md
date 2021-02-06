@@ -45,7 +45,7 @@ UI框架：Element-UI 2.6.3
 悟空crm11.0的运行环境要求PHP5.6以上
 
 ## 悟空CRM使用项目架构图
-
+<img src="https://images.gitee.com/uploads/images/2020/0910/094237_e7cb3bca_1096736.jpeg" width="650">
 
 ## 使用说明
 ### 前置环境
