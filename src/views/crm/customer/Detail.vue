@@ -377,6 +377,7 @@ export default {
           this.loading = false
           const resData = res.data || {}
           this.detailData = resData
+          if (resData.dataAuth === 0) return
           this.firstContactsId = this.detailData.contacts_id
           // 公海权限
           // this.poolAuth = resData.poolAuthList || {}

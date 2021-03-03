@@ -116,7 +116,7 @@ export function crmReceivablesExcelExportAPI(data) {
 
 export function crmReceivablesExcelAllExportAPI(data) {
   return request({
-    url: 'crmReceivables/allExportExcel',
+    url: 'crm/receivables/excelExport',
     method: 'post',
     data: data,
     responseType: 'blob',

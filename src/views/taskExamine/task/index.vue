@@ -124,6 +124,7 @@ export default {
   props: {},
   data() {
     return {
+      first: true,
       tabsSelectValue: '0',
       // 任务类型 区分我的任务和下属任务
       taskType: '',
@@ -262,6 +263,7 @@ export default {
     },
 
     taskFilterSave(dueDate, priority, showDone, users) {
+      this.first = false
       this.priority = priority
       this.dueDate = dueDate
       this.showDone = showDone
@@ -280,7 +282,7 @@ export default {
         type: this.tabsSelectValue,
         priority: this.priority,
         dueDate: this.dueDate,
-        status: this.showDone ? '' : '1',
+        status: this.first ? '' : this.showDone ? '5' : '1',
         main_user_id: this.userList && this.userList.length ? this.userList[0].id : ''
       }
 
@@ -358,7 +360,7 @@ export default {
           type: this.tabsSelectValue,
           priority: this.priority,
           dueDate: this.dueDate,
-          status: this.showDone ? '' : '1'
+          status: this.first ? '' : this.showDone ? '5' : '1'
         }
 
         if (this.taskType != 1) {
@@ -395,7 +397,7 @@ export default {
         type: this.tabsSelectValue,
         priority: this.priority,
         dueDate: this.dueDate,
-        status: this.showDone ? '' : '1'
+        status: this.first ? '' : this.showDone ? '5' : '1'
       }
 
       if (this.taskType != 1) {

@@ -51,7 +51,7 @@
 
           <picture-list-view
             v-if="detail.imgList.length !== 0"
-            :list="detail.img" />
+            :list="detail.imgList" />
 
           <flexbox v-if="detail.sendUserList && detail.sendUserList.length" class="send-list">
             <span class="send-list__label">发送给：</span>
@@ -74,11 +74,11 @@
             <div class="section__hd">
               <i class="wukong wukong-file" />
               <span>附件</span>
-              <span>({{ detail.file.length }})</span>
+              <span>({{ detail.fileList.length }})</span>
             </div>
             <div class="section__bd">
               <file-cell
-                v-for="(file, fileIndex) in detail.file"
+                v-for="(file, fileIndex) in detail.fileList"
                 :key="fileIndex"
                 :data="file"
                 :list="detail.file"
@@ -174,7 +174,7 @@
 import {
   journalQueryByIdAPI,
   journalQueryRecordCountAPI,
-  journalQueryBulletinByTypeAPI } from '@/api/oa/journal'
+  journalQueryBulletinByTypeAPI, journalQueryActivityCountAPI } from '@/api/oa/journal'
 import {
   queryCommentListAPI,
   setjournalCommentAPI
@@ -268,7 +268,7 @@ export default {
         placeholder: '',
         crmType: '',
         request: null,
-        recordRequest: journalQueryBulletinByTypeAPI,
+        recordRequest: journalQueryRecordCountAPI,
         params: null,
         paging: true,
         sortable: false
@@ -395,15 +395,15 @@ export default {
           this.fieldReportList = [
             {
               label: '模块',
-              prop: 'crmType',
+              prop: 'types',
               width: 300
             },
             {
               label: '新增跟进记录数',
-              prop: 'count'
+              prop: 'dataCount'
             }
           ]
-          this.reportData.request = journalQueryRecordCountAPI
+          this.reportData.request = journalQueryActivityCountAPI
           this.reportData.paging = false
           this.reportData.sortable = false
         } else {

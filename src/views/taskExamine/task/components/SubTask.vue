@@ -149,7 +149,7 @@ export default {
       }
 
       if (this.xhUserData.length) {
-        if (this.xhUserData[0].userId != this.subData.mainUser.userId) {
+        if (this.xhUserData[0].id != this.subData.mainUser.id) {
           return true
         }
       }

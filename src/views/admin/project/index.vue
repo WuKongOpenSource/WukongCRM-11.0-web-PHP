@@ -143,7 +143,7 @@ export default {
         this.jurisdictionCreateShow = true
       } else if (type === 'delete') {
         // 启用停用
-        this.$confirm('您确定要删除吗?', '提示', {
+        this.$confirm('删除权限以后，使用了该权限的项目将默认变为只读权限，确认删除?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'

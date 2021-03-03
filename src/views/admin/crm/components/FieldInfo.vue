@@ -308,21 +308,21 @@ export default {
      */
     isDisabledHidden() {
       if (this.field.types == 'crm_leads') {
-        return ['leads_id', 'leads_name', 'level', 'name'].includes(this.field.field)
+        return ['leads_id', 'leads_name', 'name'].includes(this.field.field)
       } else if (this.field.types == 'crm_customer') {
-        return ['customer_name', 'level'].includes(this.field.field)
+        return ['customer_name', 'name'].includes(this.field.field)
       } else if (this.field.types == 'crm_contacts') {
-        return ['customer_id', 'name'].includes(this.field.field)
+        return ['name'].includes(this.field.field)
       } else if (this.field.types == 'crm_product') {
-        return ['name', 'category_id', 'price', 'status'].includes(this.field.field)
+        return ['name', 'category_id', 'price', 'status', 'num'].includes(this.field.field)
       } else if (this.field.types == 'crm_business') {
-        return ['business_name', 'contract_id'].includes(this.field.field)
+        return ['business_name', 'name'].includes(this.field.field)
       } else if (this.field.types == 'crm_contract') {
         return ['customer_id', 'business_id', 'num', 'money', 'order_date'].includes(this.field.field)
       } else if (this.field.types == 'crm_receivables') {
-        return ['customer_id', 'contract_id', 'number', 'plan_id'].includes(this.field.field)
+        return ['number', 'plan_id'].includes(this.field.field)
       } else if (this.field.types == 'crm_visit') {
-        return ['customer_id', 'contract_id'].includes(this.field.field)
+        return ['customer_id', 'contract_id', 'number'].includes(this.field.field)
       }
     }
   },

@@ -141,7 +141,8 @@ import Repeat from './Repeat'
 import { mapGetters } from 'vuex'
 import {
   canlendarSaveAPI,
-  canlendarUpdateAPI
+  canlendarUpdateAPI,
+  canlendarQueryTypeListAPI
 } from '@/api/calendar'
 export default {
   components: {
@@ -168,12 +169,12 @@ export default {
         return []
       }
     },
-    cusCheck: {
-      type: Array,
-      default: () => {
-        return []
-      }
-    },
+    // cusCheck: {
+    //   type: Array,
+    //   default: () => {
+    //     return []
+    //   }
+    // },
     todayDetailData: {
       type: Object,
       default: () => {
@@ -247,7 +248,8 @@ export default {
         disabledDate(time) {
           return time.getTime() <= (Date.now() - 24 * 60 * 60 * 1000)
         }
-      }
+      },
+      cusCheck: []
     }
   },
   computed: {
@@ -302,8 +304,7 @@ export default {
       deep: true
     }
   },
-  mounted() {
-  },
+  mounted() {},
   methods: {
     /**
      * 关闭
@@ -323,6 +324,7 @@ export default {
      * 详情
      */
     getDetail() {
+      this.getCusCheck()
       const length = Object.keys(this.todayDetailData).length
       if (length !== 0) {
         this.form = {
@@ -380,8 +382,8 @@ export default {
             defaultList.push(item)
           }
         })
-        this.colorItem = defaultList[0].color
-        this.form.schedule_id = defaultList[0].type_id
+        this.colorItem = defaultList[0] && defaultList[0].color
+        this.form.schedule_id = defaultList[0] && defaultList[0].type_id
         this.businessRelation = {}
       }
     },
@@ -581,6 +583,12 @@ export default {
           return time.getTime() <= template - 24 * 60 * 60 * 1000
         }
       }
+    },
+    getCusCheck() {
+      canlendarQueryTypeListAPI().then(res => {
+        this.cusCheck = res.data.list
+      }
+      ).catch()
     }
   }
 }

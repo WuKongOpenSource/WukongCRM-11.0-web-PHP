@@ -150,10 +150,10 @@ export default {
     getList() {
       const params = { work_id: this.workId }
       if (this.conditionData) {
-        params.mainUserId = this.conditionData.userIds
-        params.stopTimeType = this.conditionData.timeId
-        params.labelId = this.conditionData.tagIds
-        params.taskName = this.conditionData.search
+        params.main_user_id = this.conditionData.userIds
+        params.stop_time_type = this.conditionData.timeId
+        params.lable_id = this.conditionData.tagIds
+        params.search = this.conditionData.search
       }
 
       this.loading = true

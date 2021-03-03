@@ -290,7 +290,9 @@ export default {
           contacts_name: 'contacts_id',
           order_user_name: 'order_user_id',
           category_name: 'category_id',
-          contract_num: 'contract_id'
+          contract_num: 'contract_id',
+          contract_number: 'contract_id',
+          plan_id_info: 'plan_id'
         }[this.sortData.prop] || this.sortData.prop
         params.order_type = this.sortData.order == 'ascending' ? 'asc' : 'desc'
       }

@@ -310,17 +310,24 @@ export default {
           if (this.isOpenExamine) {
             /** 验证审批数据 */
             if (isDraft) {
-              // 不验证数据
-              const params = this.getSubmiteParams(this.baseFields, this.fieldForm)
-              if (
-                this.examineInfo.config === 0 &&
-                this.examineInfo.hasOwnProperty('value') &&
-                this.examineInfo.value.length
-              ) {
-                params['check_user_id'] = this.examineInfo.value[0].id
-              }
-              params.is_draft = 1
-              this.submiteParams(params)
+              // 不验证数据 验证审批人
+              this.$refs.examineInfo.validateField((result) => {
+                if (result) {
+                  const params = this.getSubmiteParams(this.baseFields, this.fieldForm)
+                  if (
+                    this.examineInfo.config === 0 &&
+                    this.examineInfo.hasOwnProperty('value') &&
+                    this.examineInfo.value.length
+                  ) {
+                    params['check_user_id'] = this.examineInfo.value[0].id
+                  }
+                  params['examineStatus'] = this.examineInfo.examineStatus
+                  params.is_draft = 1
+                  this.submiteParams(params)
+                } else {
+                  this.loading = false
+                }
+              })
             } else {
               this.$refs.examineInfo.validateField((result) => {
                 if (result) {

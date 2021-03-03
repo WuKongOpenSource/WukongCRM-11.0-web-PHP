@@ -199,7 +199,7 @@ export default {
       if (this.isImportType) {
         // title 是总数 content 是错误数据 valid 错误文件是否有效 1 有效 0 失效
         const list = this.data.content.split(',') || []
-        const errSize = Number(list[0] || 0)
+        const errSize = Number(list[3] || 0)
         if (errSize > 0) {
           return this.data.valid === 0 ? '已失效' : '点击下载错误数据'
         }
@@ -332,7 +332,7 @@ export default {
       const list = content.split(',') || []
 
       const updateSize = Number(list[1] || '0')
-      const errSize = Number(list[0] || '0')
+      const errSize = Number(list[3] || '0')
       return `覆盖${updateSize}条，导入成功${Number(list[2] || '0')}条，导入失败${errSize}条。`
     }
   }

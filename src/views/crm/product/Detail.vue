@@ -234,7 +234,12 @@ export default {
     previewImage(list, index) {
       this.$bus.emit('preview-image-bus', {
         index: index,
-        data: list
+        data: list.map(item => {
+          if (item.file_path) {
+            item.url = item.file_path
+          }
+          return item
+        })
       })
     }
   }

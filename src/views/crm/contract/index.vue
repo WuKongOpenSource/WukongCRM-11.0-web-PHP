@@ -160,11 +160,11 @@ export default {
               contractMoney = floatAdd(contractMoney, parseFloat(element.money || 0))
             }
             if (canCheckReceivedMoney) {
-              receivedMoney = floatAdd(receivedMoney, parseFloat(element.receivedMoney || 0))
+              receivedMoney = floatAdd(receivedMoney, parseFloat(element.done_money || 0))
             }
 
             if (canCheckUnReceivedMoney) {
-              unReceivedMoney = floatAdd(unReceivedMoney, parseFloat(element.unreceivedMoney || 0))
+              unReceivedMoney = floatAdd(unReceivedMoney, parseFloat(element.un_money || 0))
             }
           }
         }

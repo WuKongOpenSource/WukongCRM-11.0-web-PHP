@@ -39,7 +39,7 @@
         width="150"
         label="操作">
         <template slot-scope="scope">
-          <template v-if="scope.row.done > 0">
+          <template v-if="scope.row.total > 0">
             <el-button
               v-if="scope.row.valid == 1"
               type="text"

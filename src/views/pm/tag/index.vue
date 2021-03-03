@@ -68,7 +68,7 @@
               class="wukong wukong-subproject"/>
             <span
               slot="title"
-              class="title">{{ item.name }}</span>
+              class="title">{{ item.work_name }}</span>
             <task-cell
               v-for="(taskItem, taskIndex) in item.list"
               :key="taskIndex"

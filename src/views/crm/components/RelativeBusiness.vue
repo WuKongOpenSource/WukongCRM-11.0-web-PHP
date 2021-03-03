@@ -201,7 +201,7 @@ export default {
           type: 'warning'
         })
           .then(() => {
-            const params = { contacts_id: this.id, is_relation: 1 }
+            const params = { contacts_id: this.id, is_relation: 0 }
             params.business_id = this.selectionList
               .map(item => {
                 return item.business_id

@@ -102,7 +102,7 @@ export default {
           this.rowID = row.customer_id
           this.rowType = 'customer'
           this.showDview = true
-        } else if (column.property === 'business_name') {
+        } else if (column.property === 'name') {
           this.rowID = row.business_id
           this.rowType = 'business'
           this.showDview = true

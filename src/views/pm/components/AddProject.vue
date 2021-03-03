@@ -326,7 +326,7 @@ export default {
 
       if (this.coverImg.custom) {
         params.is_system_cover = 0
-        params.batchId = this.batchId
+        // params.batchId = this.batchId
         params.cover_url = this.coverImg.url
       } else {
         params.is_system_cover = 1
@@ -444,7 +444,7 @@ export default {
         .then(res => {
           this.projectRoleList = res.data || []
           if (this.projectRoleList.length) {
-            this.ownerRole = this.projectRoleList[0].id
+            this.ownerRole = this.ownerRole || this.projectRoleList[0].id
           }
           this.loading = false
         })

@@ -118,7 +118,7 @@ export default {
         return 'XhDate'
       } else if (form_type == 'datetime') {
         return 'XhDateTime'
-      } else if (form_type == 'user') {
+      } else if (form_type == 'user' || form_type == 'single_user') {
         return 'XhUserCell'
       } else if (form_type == 'structure') {
         return 'XhStructureCell'

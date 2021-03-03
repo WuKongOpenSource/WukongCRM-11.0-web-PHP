@@ -210,14 +210,14 @@ export default {
           return ''
         }
       } else if (column.property === 'userList') {
-        const structures = row['deptList'] || []
+        const structures = row['structure_ids_info'] || []
         let strName = structures
           .map(item => {
             return item.name
           })
           .join('、')
 
-        const users = row['userList'] || []
+        const users = row['user_ids_info'] || []
         const userName = users
           .map(item => {
             return item.realname

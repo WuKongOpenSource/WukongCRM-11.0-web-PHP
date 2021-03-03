@@ -97,8 +97,8 @@ export default {
      * 获取name value 对象展示值
      */
     getNameValue(data) {
-      const obj = data.setting.find(item => item.value === data.value)
-      return obj ? obj.name : ''
+      const obj = data.setting.find(item => item === data.value)
+      return obj || ''
     },
 
     /**

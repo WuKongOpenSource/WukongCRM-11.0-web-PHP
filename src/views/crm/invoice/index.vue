@@ -331,7 +331,8 @@ export default {
             contacts_name: 'contacts_id',
             order_user_name: 'order_user_id',
             category_name: 'category_id',
-            contract_num: 'contract_id'
+            contract_num: 'contract_id',
+            plan_id_info: 'plan_id'
           }[element.type] || element.type] = element
           // delete params[element.type].type
         })

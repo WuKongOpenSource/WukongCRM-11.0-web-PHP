@@ -388,7 +388,7 @@ export default {
           }
         }
       }
-      params.data = params.data.filter(item => item.name != '回访人')
+
       // 请求
       const request = this.$route.params.type === 'oa_examine' ? oaFieldHandleAPI : customFieldHandleAPI
       request(params)
@@ -525,7 +525,7 @@ export default {
             if (array) {
               array.push({
                 label: element.name,
-                value: element.fieldId
+                value: element.field
               })
             }
           }

@@ -108,7 +108,7 @@ export default [
   },
   {
     ...layout({
-      permissions: ['crm', 'receivables']
+      permissions: ['crm', 'receivables', 'index']
     }),
     children: [{
       path: 'receivables', // 回款列表

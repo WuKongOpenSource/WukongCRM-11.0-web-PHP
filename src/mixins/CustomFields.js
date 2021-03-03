@@ -3,7 +3,7 @@ import { filedValidatesAPI } from '@/api/crm/common'
 import { isArray, isEmpty, isObject } from '@/utils/types'
 import { objDeepCopy } from '@/utils'
 import GenerateRulesMixin from '@/components/NewCom/WkForm/GenerateRules'
-
+import moment from 'moment'
 export default {
   mixins: [GenerateRulesMixin],
 
@@ -47,17 +47,21 @@ export default {
         }
       } else if (item.form_type == 'single_user') {
         if (type === 'update') {
-          return isObject(item.value) && item.value.userId
-            ? item.value.userId
+          return isObject(item.value) && item.value.id
+            ? item.value.id
             : ''
         } else {
-          return isArray(item.default_value) && item.default_value.length > 0
-            ? objDeepCopy(item.default_value[0]).userId
+          return isObject(item.default_value) && item.default_value.id
+            ? objDeepCopy(item.default_value.id)
             : ''
         }
       } else if (item.form_type == 'user' ||
             item.form_type == 'structure' ||
-            item.form_type == 'file') {
+            item.form_type == 'file' ||
+            item.formType == 'user' ||
+            item.formType == 'structure' ||
+            item.formType == 'file'
+      ) {
         if (type === 'update') {
           return item.value ? objDeepCopy(item.value) : []
         } else {
@@ -149,10 +153,10 @@ export default {
      * user single_user structure
      */
     getItemRadio(field, data) {
-      if (field.formType == 'user' || field.formType == 'structure' || field.form_type == 'user' || field.form_type == 'structure') {
-        data.radio = false
-      } else if (field.formType == 'single_user') {
+      if (field.formType == 'single_user') {
         data.radio = true
+      } else if (field.formType == 'user' || field.formType == 'structure' || field.form_type == 'user' || field.form_type == 'structure') {
+        data.radio = false
       }
     },
 
@@ -293,6 +297,12 @@ export default {
       } else if (field.form_type == 'date') {
         if (dataValue) {
           return dataValue
+        }
+        delete data[field.field]
+        return
+      } else if (field.form_type == 'datetime') {
+        if (dataValue) {
+          return moment(dataValue).unix()
         }
         delete data[field.field]
         return

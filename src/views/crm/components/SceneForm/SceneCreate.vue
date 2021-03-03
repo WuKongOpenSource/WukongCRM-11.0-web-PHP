@@ -74,19 +74,19 @@
             <el-col :span="1">&nbsp;</el-col>
             <el-col :span="formItem.form_type === 'datetime' || formItem.form_type === 'date' || formItem.form_type === 'map_address' ? 13 : 8">
               <el-select
-                v-if="formItem.form_type === 'check_status'
-                  || formItem.form_type === 'deal_status'
+                v-if="(formItem.form_type === 'check_status' && getSettingValueType(formItem.setting) != 'string')
+                  || (formItem.form_type === 'deal_status ' && getSettingValueType(formItem.setting) != 'string' )
                 || (formItem.form_type === 'select' && getSettingValueType(formItem.setting) != 'string')"
                 v-model="formItem.value"
                 placeholder="请选择筛选条件">
                 <el-option
                   v-for="item in formItem.setting"
-                  :key="item"
-                  :label="item"
-                  :value="item"/>
+                  :key="item.value"
+                  :label="item.value"
+                  :value="item.value"/>
               </el-select>
               <el-select
-                v-else-if="formItem.form_type === 'select' || formItem.form_type === 'checkbox'"
+                v-else-if="formItem.form_type === 'select' || formItem.form_type === 'checkbox' || formItem.form_type === 'check_status' || formItem.form_type === 'deal_status'"
                 v-model="formItem.value"
                 multiple
                 placeholder="请选择筛选条件">
@@ -759,6 +759,14 @@ export default {
             // value: [value.join(',')],
             value: o.address,
             // type: 1,
+            form_type: o.form_type,
+            name: o.name,
+            type: o.field
+          })
+        } else if (o.form_type == 'deal_status') {
+          obj.push({
+            condition: o.condition,
+            value: o.value,
             form_type: o.form_type,
             name: o.name,
             type: o.field

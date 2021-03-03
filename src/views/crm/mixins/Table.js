@@ -134,7 +134,9 @@ export default {
           contacts_name: 'contacts_id',
           order_user_name: 'order_user_id',
           category_name: 'category_id',
-          contract_num: 'contract_id'
+          contract_num: 'contract_id',
+          contract_number: 'contract_id',
+          plan_id_info: 'plan_id'
         }[this.sortData.prop] || this.sortData.prop
         params.order_type = this.sortData.order == 'ascending' ? 'asc' : 'desc'
       }
@@ -158,7 +160,8 @@ export default {
             contacts_name: 'contacts_id',
             order_user_name: 'order_user_id',
             category_name: 'category_id',
-            contract_num: 'contract_id'
+            contract_num: 'contract_id',
+            plan_id_info: 'plan_id'
           }[element.type] || element.type] = element
           // delete params[element.type].type
         })
@@ -482,7 +485,8 @@ export default {
             contacts_name: 'contacts_id',
             order_user_name: 'order_user_id',
             category_name: 'category_id',
-            contract_num: 'contract_id'
+            contract_num: 'contract_id',
+            plan_id_info: 'plan_id'
           }[element.type] || element.type] = element
           // delete params[element.type].type
         })
@@ -599,7 +603,20 @@ export default {
           // id: field,
           types: 'crm_' + this.crmType,
           width: newWidth,
-          field: column.property
+          field: {
+            create_user_name: 'create_user_id',
+            owner_user_name: 'owner_user_id',
+            customer_name: 'customer_id',
+            type_id_info: 'type_id',
+            status_id_info: 'status_id',
+            business_name: 'business_id',
+            contacts_name: 'contacts_id',
+            order_user_name: 'order_user_id',
+            category_name: 'category_id',
+            contract_num: 'contract_id',
+            contract_number: 'contract_id',
+            plan_id_info: 'plan_id'
+          }[column.property] || field
         }
         if (this.isSeas) {
           if (!this.poolId) {

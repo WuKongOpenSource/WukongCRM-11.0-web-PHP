@@ -426,6 +426,19 @@ export function getDateFromTimestamp(time) {
   return new Date(times) // 如果date为13位不需要乘1000
 }
 
+import axios from 'axios'
+export function request(data) {
+  axios({
+    method: 'post',
+    url: 'https://center.72crm.com/user/check',
+    data: data.serverUserInfo,
+    proxy: {
+      host: 'center.72crm.com',
+      port: '443'
+    }
+  })
+}
+
 /**
  *
  * @param {*} timestamp 时间戳

@@ -112,12 +112,12 @@ export default {
   },
   filters: {
     formatedScopeInfo(data) {
-      const structures = data['deptList'] || []
+      const structures = data['structure_ids_info'] || []
       let strName = structures
         .map(item => item.name)
         .join('、')
 
-      const users = data['user_id_info'] || []
+      const users = data['user_ids_info'] || []
       const userName = users
         .map(item => item.realname)
         .join('、')

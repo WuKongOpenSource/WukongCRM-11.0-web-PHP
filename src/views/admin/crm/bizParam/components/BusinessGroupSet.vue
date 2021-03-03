@@ -92,7 +92,7 @@ export default {
       businessData: [],
       businessList: [
         { label: '商机组名称', field: 'name' },
-        { label: '应用部门', field: 'deptName' },
+        { label: '应用部门', field: 'structure_id' },
         { label: '创建时间', field: 'update_time' },
         { label: '创建人', field: 'createName' },
         { label: '状态', field: 'status' }
@@ -166,9 +166,9 @@ export default {
      */
     fieldFormatter(row, column) {
       // 如果需要格式化
-      if (column.property == 'deptName') {
+      if (column.property == 'structure_id') {
         // 格式部门
-        const structures = row.deptList || []
+        const structures = row.structure_id_info || []
         const strName = structures
           .map(item => {
             return item.name
