@@ -76,7 +76,7 @@ export default {
     // 展示取消关联
     showFoot: {
       type: Boolean,
-      default: false
+      default: true
     },
     showAdd: {
       type: Boolean,

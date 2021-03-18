@@ -134,7 +134,7 @@ export function taskDeleteLabelAPI(data) {
  */
 export function taskOaExportAPI(data) {
   return request({
-    url: 'work/task/excelExport',
+    url: 'oa/task/excelExport',
     method: 'post',
     data: data,
     responseType: 'blob',

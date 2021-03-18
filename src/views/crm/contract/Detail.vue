@@ -277,6 +277,7 @@ export default {
           // 创建回款计划的时候使用
           const resData = res.data || {}
           this.detailData = resData
+          if (this.detailData.dataAuth === 0) return
 
           this.headDetails[0].value = resData.num
           this.headDetails[1].value = resData.customer_id_info.name

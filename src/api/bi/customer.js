@@ -27,7 +27,7 @@ export function biCustomerTotalListAPI(data) {
 
 export function biCustomerTotalListExportAPI(data) {
   return request({
-    url: 'bi/contract/excelExport',
+    url: 'bi/customer/excelExport',
     method: 'post',
     data: data,
     responseType: 'blob',
@@ -69,7 +69,7 @@ export function biCustomerRecordListAPI(data) {
 
 export function biCustomerRecordListExportAPI(data) {
   return request({
-    url: 'bi/contract/excelExport',
+    url: 'bi/customer/excelExport',
     method: 'post',
     data: data,
     responseType: 'blob',
@@ -96,7 +96,7 @@ export function biCustomerRecordModeAPI(data) {
 
 export function biCustomerRecordModeExportAPI(data) {
   return request({
-    url: 'bi/contract/excelExport',
+    url: 'bi/customer/excelExport',
     method: 'post',
     data: data,
     responseType: 'blob',
@@ -169,7 +169,7 @@ export function biCustomerPoolListAPI(data) {
 
 export function biCustomerPoolListExportAPI(data) {
   return request({
-    url: 'bi/contract/excelExport',
+    url: 'bi/customer/excelExport',
     method: 'post',
     data: data,
     responseType: 'blob',
@@ -196,7 +196,7 @@ export function biCustomerUserCycleAPI(data) {
 
 export function biCustomerUserCycleExportAPI(data) {
   return request({
-    url: 'bi/contract/excelExport',
+    url: 'bi/customer/excelExport',
     method: 'post',
     data: data,
     responseType: 'blob',
@@ -234,7 +234,7 @@ export function biCustomerAddressCycleAPI(data) {
 
 export function biCustomerAddressCycleExportAPI(data) {
   return request({
-    url: 'bi/contract/excelExport',
+    url: 'bi/customer/excelExport',
     method: 'post',
     data: data,
     responseType: 'blob',
@@ -261,7 +261,7 @@ export function biCustomerProductCycleAPI(data) {
 
 export function biCustomerProductCycleExportAPI(data) {
   return request({
-    url: 'bi/contract/excelExport',
+    url: 'bi/customer/excelExport',
     method: 'post',
     data: data,
     responseType: 'blob',
@@ -288,7 +288,7 @@ export function biCustomerSatisfactionTableAPI(data) {
 
 export function biCustomerSatisfactionTableExportAPI(data) {
   return request({
-    url: 'bi/contract/excelExport',
+    url: 'bi/customer/excelExport',
     method: 'post',
     data: data,
     responseType: 'blob',
@@ -315,7 +315,7 @@ export function biCustomerProductSatisfactionTableAPI(data) {
 
 export function biCustomerProductSatisfactionExportAPI(data) {
   return request({
-    url: 'bi/contract/excelExport',
+    url: 'bi/customer/excelExport',
     method: 'post',
     data: data,
     responseType: 'blob',

@@ -37,8 +37,8 @@
               @submite="setSubmite"
               @handle="projectSettingsHandle"
               @click="projectHandleShow = false"/>
-            <!-- <p v-if="permission.excelImport" @click="taskImportShow = true">导入任务</p>
-            <p v-if="permission.excelExport" @click="exportClick">导出任务</p> -->
+            <p v-if="permission.excelImport" @click="taskImportShow = true">导入任务</p>
+            <p v-if="permission.excelExport" @click="exportClick">导出任务</p>
             <p
               v-if="permission.archiveTask && permission.setWork"
               @click="archiveProject">归档项目</p>
@@ -447,7 +447,11 @@ export default {
       this.projectHandleShow = false
       this.loading = true
       workTaskExportAPI({
-        work_id: this.work_id
+        work_id: this.work_id,
+        search: this.taskConditionObj.search,
+        owner_user_id: this.taskConditionObj.userIds,
+        time_type: this.taskConditionObj.timeId,
+        label_id: this.taskConditionObj.tagIds
       })
         .then(res => {
           downloadExcelWithResData(res)

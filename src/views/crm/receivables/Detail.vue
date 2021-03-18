@@ -169,6 +169,8 @@ export default {
           this.loading = false
           this.name = res.data.number
           this.detailData = res.data
+          if (this.detailData.dataAuth === 0) return
+
           //   // 负责人
           this.headDetails[0].value = res.data.customer_id_info.name
           this.headDetails[1].value = separator(res.data.contract_id_info.money || 0)

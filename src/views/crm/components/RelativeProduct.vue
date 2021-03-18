@@ -109,7 +109,7 @@ export default {
       })
       this.fieldList.push({ prop: 'unit', width: '200', label: '单位' })
       this.fieldList.push({ prop: 'price', width: '200', label: '标准价格' })
-      this.fieldList.push({ prop: 'salesPrice', width: '200', label: '售价' })
+      this.fieldList.push({ prop: 'sales_price', width: '200', label: '售价' })
       this.fieldList.push({ prop: 'num', width: '200', label: '数量' })
       this.fieldList.push({
         prop: 'discount',
@@ -120,7 +120,7 @@ export default {
     },
 
     fieldFormatter(row, column) {
-      if (column.property == 'price' || column.property == 'salesPrice') {
+      if (column.property == 'price' || column.property == 'sales_price') {
         return separator(row[column.property] || 0)
       }
       return row[column.property]

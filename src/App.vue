@@ -18,6 +18,7 @@
       :cache-done="cacheDone"
       @status="crmImportChange"
       @close="crmImportClose"/>
+    <xr-upgrade-dialog v-if="upgradeDialogShow" :visible.sync="upgradeDialogShow" />
   </div>
 </template>
 
@@ -26,6 +27,7 @@
 import VuePictureViewer from '@/components/VuePictureViewer/index'
 import XrImport from '@/components/XrImport'
 import XrImportMixins from '@/components/XrImport/XrImportMixins'
+import XrUpgradeDialog from '@/components/XrUpgradeDialog'
 import CRMImport from '@/components/CRMImport'
 import { mapGetters } from 'vuex'
 import cache from '@/utils/cache'
@@ -36,22 +38,31 @@ export default {
   components: {
     VuePictureViewer,
     XrImport,
-    CRMImport
+    CRMImport,
+    XrUpgradeDialog
   },
   mixins: [XrImportMixins],
   data() {
     return {
       showPreviewImg: false,
       previewIndex: 0,
-      previewImgs: []
+      previewImgs: [],
+      upgradeDialogShow: false
     }
   },
   computed: {
-    ...mapGetters(['activeIndex', 'userInfo'])
+    ...mapGetters(['activeIndex', 'addRouters', 'userInfo'])
   },
   watch: {
     $route(to, from) {
       this.showPreviewImg = false // 切换页面隐藏图片预览
+    },
+    addRouters() {
+      if (this.userInfo && this.userInfo.is_read_notice != 1) {
+        setTimeout(() => {
+          this.upgradeDialogShow = true
+        }, 5000)
+      }
     }
   },
   mounted() {

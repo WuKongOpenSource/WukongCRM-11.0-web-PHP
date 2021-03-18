@@ -162,7 +162,7 @@ export default {
       tabShowType: 'board',
       search: '',
       filterObj: {},
-      filterValue: 1,
+      filterValue: 4,
       filterList: [{
         label: '按最早创建',
         value: 1
@@ -172,6 +172,9 @@ export default {
       }, {
         label: '按最近更新',
         value: 3
+      }, {
+        label: '按手动拖动',
+        value: 4
       }],
       isCreate: false,
       list: [],

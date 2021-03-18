@@ -252,7 +252,7 @@ export default {
 
       filterForm: {
         category_id: 0,
-        send_user_id: ''
+        create_user_id: ''
       },
       userSelects: [],
 
@@ -364,7 +364,7 @@ export default {
     }
     this.filterForm = {
       category_id: 0,
-      send_user_id: ''
+      create_user_id: ''
     }
     this.userSelects = []
 
@@ -518,8 +518,8 @@ export default {
         }[this.logType]
       }
 
-      if (this.logType == 'send' && params.hasOwnProperty('send_user_id')) {
-        delete params.send_user_id
+      if (this.logType == 'send' && params.hasOwnProperty('create_user_id')) {
+        delete params.create_user_id
       }
 
       if (params.hasOwnProperty('category_id') && params.category_id === 0) {
@@ -649,11 +649,11 @@ export default {
     userChange(data) {
       this.userSelects = data.value || []
       if (data.value.length > 0) {
-        this.filterForm.send_user_id = data.value.map(item => {
+        this.filterForm.create_user_id = data.value.map(item => {
           return item.id
         })
       } else {
-        this.filterForm.send_user_id = ''
+        this.filterForm.create_user_id = ''
       }
     },
 
@@ -663,9 +663,9 @@ export default {
     checkUserHistory(user) {
       this.userSelects = user ? [user] : []
       if (user) {
-        this.filterForm.send_user_id = user.id
+        this.filterForm.create_user_id = user.id
       } else {
-        this.filterForm.send_user_id = ''
+        this.filterForm.create_user_id = ''
       }
     },
 

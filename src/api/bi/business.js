@@ -33,7 +33,20 @@ export function biBusinessTrendListAPI(data) {
     }
   })
 }
-
+/**
+ * 新增商机数与金额趋势分析 详情列表
+ * @param {*} data
+ */
+export function biBusinessConversionRateListAPI(data) {
+  return request({
+    url: 'bi/business/winList',
+    method: 'post',
+    data: data,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
 /**
  * 赢单机会转化率趋势分析
  * @param {*} data

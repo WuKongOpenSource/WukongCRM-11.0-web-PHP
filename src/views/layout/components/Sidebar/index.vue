@@ -56,7 +56,7 @@
       class="sidebar-bottom">
       <div class="sidebar-bottom-content">
         <div v-if="!collapse" class="copyright">
-          <img src="/favicon.ico" width="20px" >
+          <img src="@/assets/img/favicon.png" width="20px" >
           <span>Power by 悟空</span>
         </div>
         <img

@@ -513,7 +513,7 @@ export default {
       if (this.isSeas) {
         return false
       }
-      if (this.crmType == 'business' && ['statusName', 'typeName'].includes(item.form_type)) {
+      if (this.crmType == 'business' && ['business_type', 'business_status'].includes(item.form_type)) {
         return false
       } else if (this.crmType == 'contract' && ['business', 'contacts', 'customer'].includes(item.form_type)) {
         return false
@@ -578,7 +578,7 @@ export default {
     },
 
     editConfirm() {
-      // customerId    fieldId   fieldType  field  formType  value
+      // customerId    fieldId   fieldType  field  form_type  value
       // this.editCancel()
       this.$refs.editForm0[0].validate(valid => {
         if (valid) {
@@ -640,38 +640,38 @@ export default {
 
     getRealValue(element, value) {
       if (
-        element.formType == 'customer' ||
-        element.formType == 'contacts' ||
-        element.formType == 'business' ||
-        element.formType == 'leads' ||
-        element.formType == 'contract'
+        element.form_type == 'customer' ||
+        element.form_type == 'contacts' ||
+        element.form_type == 'business' ||
+        element.form_type == 'leads' ||
+        element.form_type == 'contract'
       ) {
         if (value && value.length) {
-          return value[0][`${element.formType}Id`]
+          return value[0][`${element.form_type}_id`]
         } else {
           return ''
         }
       } else if (
-        element.formType == 'user' ||
-        element.formType == 'single_user' ||
-        element.formType == 'structure'
+        element.form_type == 'user' ||
+        element.form_type == 'single_user' ||
+        element.form_type == 'structure'
       ) {
         return value
           .map(item => {
-            return (element.formType == 'user' || element.formType == 'single_user') ? item.userId : item.id
+            return (element.form_type == 'user' || element.form_type == 'single_user') ? item.id : item.id
           })
-          .join(',')
-      } else if (element.formType == 'file') {
+          // .join(',')
+      } else if (element.form_type == 'file') {
         if (value && value.length > 0) {
-          return value[0].batchId
+          return value.map(item => item.file_id)
         }
-        return ''
-      } else if (element.formType == 'category') {
+        return []
+      } else if (element.form_type == 'category') {
         if (value && value.length > 0) {
           return value[value.length - 1]
         }
         return ''
-      } else if (element.formType == 'checkbox') {
+      } else if (element.form_type == 'checkbox') {
         if (value && value.length > 0) {
           return value.join(',')
         }
@@ -766,12 +766,15 @@ export default {
       }
 
       // 验证唯一
-      if (item.isUnique == 1) {
+      if (item.is_unique == 1) {
         var validateUnique = (rule, value, callback) => {
           if ((isArray(value) && value.length == 0) || !value) {
             callback()
           } else {
-            var validatesParams = {}
+            var validatesParams = {
+              field: item.field,
+              types: 'crm_' + this.crmType
+            }
             validatesParams.fieldId = item.fieldId
             if (isArray(value)) {
               let postValue = ''
@@ -798,15 +801,15 @@ export default {
                   postValue = value.join(',')
                 }
               }
-              validatesParams.value = postValue
+              validatesParams.val = postValue
             } else {
-              validatesParams.value = value
+              validatesParams.val = value
             }
             validatesParams.batchId = this.detail.batchId
             filedValidatesAPI(validatesParams)
               .then(res => {
-                // status 1 通过 0
-                if (res.data.status === 1) {
+                // code 200 通过
+                if (res.code == 200) {
                   callback()
                 } else {
                   callback(new Error(item.name + '已存在'))
@@ -874,7 +877,7 @@ export default {
         tempList.push({
           validator: validateCRMMobile,
           item: item,
-          trigger: []
+          trigger: ['blur', 'change']
         })
       } else if (item.form_type == 'email') {
         var validateCRMEmail = (rule, value, callback) => {
@@ -890,7 +893,7 @@ export default {
         tempList.push({
           validator: validateCRMEmail,
           item: item,
-          trigger: []
+          trigger: ['blur', 'change']
         })
       }
       return tempList

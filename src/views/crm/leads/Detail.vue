@@ -194,6 +194,7 @@ export default {
       crmLeadsReadAPI({ id: this.id })
         .then(res => {
           this.detailData = res.data
+          if (this.detailData.dataAuth === 0) return
 
           this.headDetails[0].value = res.data.name
           this.headDetails[1].value = res.data.source

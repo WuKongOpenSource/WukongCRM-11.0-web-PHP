@@ -398,6 +398,8 @@ export default {
         .then(res => {
           this.loading = false
           this.detailData = res.data
+          if (this.detailData.dataAuth === 0) return
+
           this.firstContactsId = this.detailData.contacts_id
 
           this.headDetails[0].value = res.data.customer_id_info.name

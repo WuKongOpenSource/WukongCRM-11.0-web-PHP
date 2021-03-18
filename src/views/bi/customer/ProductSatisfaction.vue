@@ -8,10 +8,10 @@
       module-type="contract"
       @load="loading=true"
       @change="getDataList">
-      <!-- <el-button
+      <el-button
         class="export-button"
         type="primary"
-        @click.native="exportClick">导出</el-button> -->
+        @click.native="exportClick">导出</el-button>
     </filtrate-handle-view>
     <div class="content">
       <div class="table-content">

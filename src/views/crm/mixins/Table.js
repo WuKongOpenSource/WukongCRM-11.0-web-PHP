@@ -434,7 +434,7 @@ export default {
           this.rowID = row.customer_id
           this.rowType = 'customer'
           this.showDview = true
-        } else if (column.property === 'contract_number') {
+        } else if (column.property === 'contract_num') {
           this.rowID = row.contract_id
           this.rowType = 'contract'
           this.showDview = true

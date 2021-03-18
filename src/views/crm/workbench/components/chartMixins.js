@@ -46,17 +46,17 @@ export default {
       } else {
         if (this.filterValue.strucs.length) {
           params.isUser = 0
-          params.deptId = this.filterValue.strucs[0].id
+          params.structure_id = [this.filterValue.strucs[0].id]
         } else {
           params.isUser = 1
-          params.userId = this.filterValue.users.length ? this.filterValue.users[0].id : ''
+          params.user_id = this.filterValue.users.length ? this.filterValue.users[0].id : ''
         }
       }
 
       if (this.filterValue.timeLine.type) {
         if (this.filterValue.timeLine.type === 'custom') {
-          params.startTime = this.filterValue.timeLine.startTime.replace(/\./g, '-')
-          params.endTime = this.filterValue.timeLine.endTime.replace(/\./g, '-')
+          params.start_time = this.filterValue.timeLine.startTime.replace(/\./g, '-')
+          params.end_time = this.filterValue.timeLine.endTime.replace(/\./g, '-')
         } else {
           params.type = this.filterValue.timeLine.value || ''
         }

@@ -123,7 +123,7 @@ export default {
             // temp.value = item.value
             const canEdit = this.getItemIsCanEdit(item, this.action.type)
             // 是否能编辑权限
-            if (this.action.type !== 'update') {
+            if (canEdit) {
               fieldRules[temp.field] = this.getRules(item)
             }
 

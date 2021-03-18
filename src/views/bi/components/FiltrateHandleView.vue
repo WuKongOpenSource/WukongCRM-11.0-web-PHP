@@ -120,7 +120,7 @@ import XhUserCell from '@/components/CreateCom/XhUserCell'
 import TimeTypeSelect from '@/components/TimeTypeSelect'
 
 import moment from 'moment'
-
+import { mapGetters } from 'vuex'
 export default {
   name: 'FiltrateHandleView', // 筛选条件
   components: {
@@ -214,9 +214,11 @@ export default {
     }
   },
   computed: {
+    ...mapGetters(['userInfo']),
     showUserStrucSelect() {
       return this.showUserSelect
     }
+
   },
   watch: {},
   mounted() {
@@ -321,7 +323,7 @@ export default {
       const params = {}
       if (this.showUserStrucSelect) {
         if (this.dataSelect == 1) {
-          params.structure_id = this.structuresSelectValue.length > 0 ? this.structuresSelectValue[0].id : '1'
+          params.structure_id = this.structuresSelectValue.length > 0 ? this.structuresSelectValue[0].id : this.userInfo.structure_id
         }
       } else {
         params.structure_id = this.structuresSelectValue.length > 0 ? this.structuresSelectValue[0].id : '1'

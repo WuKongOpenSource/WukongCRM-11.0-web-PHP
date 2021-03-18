@@ -47,7 +47,8 @@
 <script>
 import {
   biBusinessWinAPI,
-  biBusinessTrendListAPI
+  // biBusinessTrendListAPI
+  biBusinessConversionRateListAPI
 } from '@/api/bi/business'
 
 import ReportList from '@/views/crm/workbench/components/ReportList'
@@ -176,7 +177,7 @@ export default {
     handleRowClick(row, column, event) {
       if (column.property != 'name' && row[column.property].replace('%', '') > 0) {
         this.reportData.title = `${column.label}详情`
-        this.reportData.request = biBusinessTrendListAPI
+        this.reportData.request = biBusinessConversionRateListAPI
         const params = { ...this.postParams }
         params.type = column.label
         this.reportData.params = params

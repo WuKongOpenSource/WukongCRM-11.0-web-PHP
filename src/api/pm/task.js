@@ -137,7 +137,7 @@ export function workTaskRecoverAPI(data) {
  */
 export function taskWorkbenchExportAPI(data) {
   return request({
-    url: 'oa/task/excelExport',
+    url: 'work/task/excelExport',
     method: 'post',
     data: data,
     responseType: 'blob'

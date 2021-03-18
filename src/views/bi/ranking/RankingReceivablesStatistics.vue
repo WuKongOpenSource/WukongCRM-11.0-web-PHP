@@ -19,9 +19,9 @@
       </div>
       <div class="table-content">
         <div class="handle-bar">
-          <!-- <el-button
+          <el-button
             class="export-btn"
-            @click="exportClick">导出</el-button> -->
+            @click="exportClick">导出</el-button>
         </div>
         <el-table
           :data="list"

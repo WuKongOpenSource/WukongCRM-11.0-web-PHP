@@ -288,7 +288,7 @@ export default {
         })
           .then(() => {
             crmCustomerReceiveAPI({
-              ids: [data.id],
+              customer_id: [data.id],
               poolId: data.poolAuthList.poolId
             })
               .then(res => {
@@ -299,7 +299,7 @@ export default {
           })
           .catch(() => {})
       } else {
-        data['customerId'] = data.id
+        data['customer_id'] = data.id
         this.relationData = data
         this.allocDialogShow = true
       }

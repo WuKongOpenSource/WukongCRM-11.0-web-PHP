@@ -142,6 +142,7 @@ export default {
         .then(res => {
           this.loading = false
           this.detailData = res.data
+          if (this.detailData.dataAuth === 0) return
 
           this.headDetails[0].value = res.data.customer_name
           this.headDetails[1].value = res.data.visit_time

@@ -424,6 +424,8 @@ export default {
       this.$wkUploadFile.upload({
         file: file,
         params: {
+          module_id: this.id,
+          module: 'crm_' + this.crmType,
           type: type,
           batchId: this.batchId
         }

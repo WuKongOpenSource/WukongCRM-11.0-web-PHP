@@ -54,9 +54,9 @@
         <div class="result-info">
           <i class="wk wk-success result-info__icon" />
           <p class="result-info__des">数据导入完成</p>
-          <p v-if="resultData" class="result-info__detail">导入总数据<span class="result-info__detail--all">{{ resultData.totalSize }}</span>条，导入成功<span class="result-info__detail--suc">{{ resultData.totalSize - resultData.errSize }}</span>条，导入失败<span class="result-info__detail--err">{{ resultData.errSize }}</span>条</p>
+          <p v-if="resultData" class="result-info__detail">导入总数据<span class="result-info__detail--all">{{ resultData.total }}</span>条，导入成功<span class="result-info__detail--suc">{{ resultData.total - resultData.error }}</span>条，导入失败<span class="result-info__detail--err">{{ resultData.error }}</span>条</p>
           <el-button
-            v-if="resultData && resultData.errSize > 0"
+            v-if="resultData && resultData.error > 0"
             class="result-info__btn--err"
             type="text"
             @click="downloadErrData">下载错误数据</el-button>
@@ -88,7 +88,10 @@ import {
   workExcelImportAPI,
   workDownloadErrorExcelAPI
 } from '@/api/pm/project'
-
+import {
+  crmQueryImportNumAPI,
+  crmQueryImportInfoAPI
+} from '@/api/crm/common'
 
 import { downloadExcelWithResData, verifyFileTypeWithFileName } from '@/utils/index'
 
@@ -128,7 +131,16 @@ export default {
           status: 'wait'
         }
       ],
-      resultData: null
+      resultData: null,
+      processData: {
+        count: 0,
+        status: ''
+      },
+      messageId: null,
+      intervalTimer: null,
+
+      historyPopoverShow: false
+
     }
   },
   computed: {
@@ -172,16 +184,18 @@ export default {
           this.stepList[1].status = 'process'
           this.stepsActive = 2
           this.firstUpdateFile(res => {
-            this.stepList[1].status = 'finish'
-            this.stepsActive = 3
-            if (res.data) {
-              this.resultData = res.data
-              if (this.resultData.errSize > 0) {
-                this.stepList[2].status = 'error'
-              } else {
-                this.stepList[2].status = 'finish'
-              }
-            }
+            this.messageId = res.data
+            // this.stepList[1].status = 'finish'
+            // this.stepsActive = 3
+            // if (res.data) {
+            //   this.resultData = res.data
+            //   if (this.resultData.errSize > 0) {
+            //     this.stepList[2].status = 'error'
+            //   } else {
+            //     this.stepList[2].status = 'finish'
+            //   }
+            // }
+            this.loopSecondQueryNum()
           })
         } else {
           if (!this.file.name) {
@@ -207,8 +221,8 @@ export default {
           if (result) {
             result(res)
           }
-          this.loading = false
-          this.$emit('success')
+          // this.loading = false
+          // this.$emit('success')
         })
         .catch(() => {
           if (result) {
@@ -217,13 +231,64 @@ export default {
           this.loading = false
         })
     },
+    /**
+     * 第二步查询数量
+     */
+    loopSecondQueryNum() {
+      this.secondQueryNum()
+      this.intervalTimer = setInterval(() => {
+        if (this.processData.status == 'end') {
+          clearInterval(this.intervalTimer)
+          this.intervalTimer = null
+          this.thirdQueryResult()
+        } else {
+          this.secondQueryNum()
+        }
+      }, 2000)
+    },
 
+    secondQueryNum() {
+      crmQueryImportNumAPI({ messageId: this.messageId })
+        .then(res => {
+          if (res.data === '') {
+            this.processData.status = 'end'
+          } else {
+            this.processData.status = ''
+            this.processData.count = res.data
+          }
+        })
+        .catch(() => {
+          // this.processData.status = 'err'
+        })
+    },
+
+    /**
+     * 第三部 查询结果
+     */
+    thirdQueryResult() {
+      crmQueryImportInfoAPI({ messageId: this.messageId })
+        .then(res => {
+          this.loading = false
+          this.stepList[1].status = 'finish'
+          this.stepsActive = 3
+          this.$emit('status', 'finish')
+          if (res) {
+            this.resultData = res.data
+            if (res.data.error > 0) {
+              this.stepList[2].status = 'error'
+            } else {
+              this.stepList[2].status = 'finish'
+            }
+          }
+        })
+        .catch(() => {})
+    },
     /**
      * 下载错误模板
      */
     downloadErrData() {
       this.loading = true
-      workDownloadErrorExcelAPI({ token: this.resultData.token })
+      workDownloadErrorExcelAPI({ name: '导入错误数据', path: this.resultData.error_file_path })
         .then(res => {
           downloadExcelWithResData(res)
           this.loading = false

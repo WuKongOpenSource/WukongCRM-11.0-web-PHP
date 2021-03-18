@@ -363,7 +363,7 @@ export function workExcelImportAPI(data) {
  */
 export function workDownloadErrorExcelAPI(data) {
   return request({
-    url: 'work/work/downloadErrorExcel',
+    url: 'admin/file/download',
     method: 'post',
     data: data,
     responseType: 'blob'

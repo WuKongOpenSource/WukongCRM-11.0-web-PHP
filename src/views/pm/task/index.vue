@@ -8,7 +8,7 @@
       ft-top="0"
       @search="searchClick">
       <span slot="label">我的任务</span>
-      <!-- <el-popover
+      <el-popover
         slot="label"
         v-model="taskHandleShow"
         placement="bottom-start"
@@ -19,7 +19,7 @@
         <i
           slot="reference"
           class="wk wk-manage set-img" />
-      </el-popover> -->
+      </el-popover>
       <template slot="ft">
         <el-dropdown
           trigger="click"
@@ -523,6 +523,7 @@ export default {
       this.taskHandleShow = false
       this.loading = true
       taskWorkbenchExportAPI({
+        is_top: 5,
         search: this.search,
         sort_field: this.filterValue.sort,
         completed_task: this.filterValue.completed_task,

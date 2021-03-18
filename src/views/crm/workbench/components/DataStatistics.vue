@@ -27,7 +27,7 @@
           跟进汇总
         </div>
         <div class="info">
-          跟进客户<span class="bold">{{ data.activityNum }}</span>个，新增客户中未跟进<span class="bold">{{ data.allCustomer - data.activityRealNum }}</span>个
+          跟进客户<span class="bold">{{ data.activityNum }}</span>个，新增客户中未跟进<span class="bold">{{ data.allCustomer - data.activityNum }}</span>个
         </div>
       </div>
       <div class="list-item">

@@ -125,6 +125,7 @@
           <related-business
             :margin-left="'0'"
             :all-data="allData"
+            @unbind="unbindRelatedInfo"
             @checkInfos="checkInfos" />
         </div>
       </div>
@@ -310,6 +311,31 @@ export default {
     }
   },
   methods: {
+    /**
+     * 解绑详情信息
+     */
+    unbindRelatedInfo(field, item, index) {
+      this.$confirm('确认取消关联?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+        customClass: 'is-particulars'
+      })
+        .then(() => {
+          const tempRelatedListData = JSON.parse(JSON.stringify(this.allData))
+          tempRelatedListData[field].splice(index, 1)
+          this.allData = tempRelatedListData
+          var relevanceAll = {}
+          relevanceAll.business_ids = this.allData.business.map(item => item.business_id)
+          relevanceAll.contacts_ids = this.allData.contacts.map(item => item.contacts_id)
+          relevanceAll.contract_ids = this.allData.contract.map(item => item.contract_id)
+          relevanceAll.customer_ids = this.allData.customer.map(item => item.customer_id)
+          this.relevanceAll = relevanceAll
+        })
+        .catch(() => {
+          this.$message.info('已取消操作')
+        })
+    },
     /**
      * 获取图片内容
      */

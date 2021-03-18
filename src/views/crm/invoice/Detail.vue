@@ -170,6 +170,7 @@ export default {
           this.name = res.data.invoice_number
           this.detailData = res.data
           this.getBaseList(res.data)
+          if (this.detailData.dataAuth === 0) return
 
           //   // 负责人
           this.headDetails[0].value = res.data.customer_name

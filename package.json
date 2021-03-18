@@ -36,7 +36,7 @@
     "nprogress": "0.2.0",
     "numeral": "^2.0.6",
     "nzh": "^1.0.4",
-    "pinyin-match": "^1.0.9",
+    "pinyin-match": "1.0.9",
     "qrcodejs2": "0.0.2",
     "throttle-debounce": "^2.1.0",
     "vue": "2.5.17",

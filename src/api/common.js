@@ -354,7 +354,7 @@ export function downloadFileImageAPI(data) {
  */
 export function readUpdateNoticeAPI(data) {
   return request({
-    url: 'adminUser/readNotice',
+    url: 'admin/adminUser/readNotice',
     method: 'post',
     data: data
   })

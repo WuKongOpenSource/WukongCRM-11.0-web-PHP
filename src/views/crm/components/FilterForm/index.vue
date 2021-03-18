@@ -497,7 +497,8 @@ export default {
           o.form_type == 'single_user' ||
           o.form_type == 'structure' ||
           o.form_type == 'category' ||
-          o.form_type == 'checkbox'
+          o.form_type == 'checkbox' ||
+          o.form_type == 'select'
         ) {
           if (!o.value || o.value.length === 0) {
             if (o.condition != 'isNull' && o.condition != 'isNotNull') {

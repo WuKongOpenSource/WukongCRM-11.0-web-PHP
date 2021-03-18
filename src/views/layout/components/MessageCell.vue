@@ -115,7 +115,7 @@ export default {
       if (this.data.label && this.data.label <= 5) {
         key = ['task', 'log', 'examine', 'announcement', 'schedule'][this.data.label - 1]
       } else {
-        if ([1, 2, 3].includes(this.data.type)) {
+        if ([1, 2, 3, 27].includes(this.data.type)) {
           key = 'task'
         } else if ([4, 5, 34].includes(this.data.type)) {
           key = 'log'
@@ -166,14 +166,14 @@ export default {
         14: `${this.data.user_name}提交 `,
         15: `${this.data.user_name}拒绝您的`,
         16: `${this.data.user_name}已经审核通过您的`,
-        17: `${this.data.user_name}导入客户数据${this.data.title}条，${this.getImportContent(this.data)}`,
-        1500: `${this.data.user_name}取消导入客户数据，已导入${this.data.title}条，${this.getImportContent(this.data)}`,
-        18: `${this.data.user_name}导入联系人数据${this.data.title}条，${this.getImportContent(this.data)}`,
+        17: `${this.data.user_name}导入客户数据，${this.getImportContent(this.data)}`,
+        1500: `${this.data.user_name}取消导入客户数据，已导入，${this.getImportContent(this.data)}`,
+        18: `${this.data.user_name}导入联系人数据，${this.getImportContent(this.data)}`,
         1700: `${this.data.user_name}取消导入联系人数据，已导入${this.data.title}条，${this.getImportContent(this.data)}`,
-        19: `${this.data.user_name}导入线索数据${this.data.title}条，${this.getImportContent(this.data)}`,
-        1900: `${this.data.user_name}取消导入线索数据，已导入${this.data.title}条，${this.getImportContent(this.data)}`,
-        20: `${this.data.user_name}导入产品数据${this.data.title}条，${this.getImportContent(this.data)}`,
-        2100: `${this.data.user_name}取消导入产品数据，已导入${this.data.title}条，${this.getImportContent(this.data)}`,
+        19: `${this.data.user_name}导入线索数据，${this.getImportContent(this.data)}`,
+        1900: `${this.data.user_name}取消导入线索数据，已导入，${this.getImportContent(this.data)}`,
+        20: `${this.data.user_name}导入产品数据，${this.getImportContent(this.data)}`,
+        2100: `${this.data.user_name}取消导入产品数据，已导入，${this.getImportContent(this.data)}`,
         22: `${this.data.user_name}将您添加为商机`,
         21: `${this.data.user_name}将您添加为客户`,
         23: `${this.data.user_name}将您添加为合同`,
@@ -190,7 +190,7 @@ export default {
         25: `${this.data.user_name}拒绝您的`,
         26: `${this.data.user_name}已经审核通过您的`,
         24: `${this.data.user_name}提交了`,
-        27: `${this.data.user_name}项目任务导入`
+        27: `${this.data.user_name}项目任务导入数据，${this.getImportContent(this.data)}`
       }[this.data.type]
     },
 
@@ -222,7 +222,7 @@ export default {
      * 是导入type
      */
     isImportType() {
-      return this.data.type >= 17 && this.data.type <= 20 || this.data.type == 27
+      return (this.data.type >= 17 && this.data.type <= 20) || this.data.type == 27
     },
 
     rightContent() {
@@ -263,7 +263,7 @@ export default {
         32: `的团队`,
         33: `的团队`,
         34: `：“${this.data.content}”，请及时查看`,
-        25: `，拒绝理由：“${this.data.content}”，请及时处理`,
+        25: `发票审批，拒绝理由：“${this.data.content}”，请及时处理`,
         26: `发票，请及时查看`,
         24: `发票审批，请及时处理`,
         27: ``
@@ -325,7 +325,7 @@ export default {
     },
 
     getImportContent({ title, content }) {
-      const countList = [17, 1500, 18, 1700, 19, 1900, 20, 2100, 50]
+      const countList = [17, 1500, 18, 1700, 19, 1900, 20, 2100, 50, 27]
       if (!countList.includes(this.data.type)) {
         return
       }

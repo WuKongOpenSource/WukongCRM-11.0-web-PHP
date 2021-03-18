@@ -438,7 +438,7 @@ export default {
         params.type_id = this.selectionList
           .map(item => {
             let temp = []
-            const fieldKey = this.crmType === 'receivables_plan' ? 'planId' : `${this.crmType}_id`
+            const fieldKey = this.crmType === 'receivables_plan' ? 'plan_id' : `${this.crmType}_id`
             // temp.typeId = item[fieldKey]
             temp = item[fieldKey]
             // 待进入公海提醒 需要的公海id

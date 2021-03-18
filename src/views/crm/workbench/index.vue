@@ -231,7 +231,7 @@ export default {
 
       // 排序
       sortLeft: [
-        // { 'id': null, 'userId': null, 'modelId': 7, 'list': 1, 'sort': null, 'isHidden': 0, 'companyId': null, 'component': 'RankingStatistics' }, { 'id': null, 'userId': null, 'modelId': 5, 'list': 1, 'sort': null, 'isHidden': 0, 'companyId': null, 'component': 'SalesFunnel' }, { 'id': null, 'userId': null, 'modelId': 4, 'list': 1, 'sort': null, 'isHidden': 0, 'companyId': null, 'component': 'PerformanceChart' }, { 'id': null, 'userId': null, 'modelId': 2, 'list': 1, 'sort': null, 'isHidden': 0, 'companyId': null, 'component': 'DataStatistics' }, { 'id': null, 'userId': null, 'modelId': 6, 'list': 1, 'sort': null, 'isHidden': 0, 'companyId': null, 'component': 'ForgetRemind' }, { 'id': null, 'userId': null, 'modelId': 1, 'list': 1, 'sort': null, 'isHidden': 0, 'companyId': null, 'component': 'SaleStatistics' }
+        // { 'id': null, 'user_id': null, 'modelId': 7, 'list': 1, 'sort': null, 'isHidden': 0, 'companyId': null, 'component': 'RankingStatistics' }, { 'id': null, 'user_id': null, 'modelId': 5, 'list': 1, 'sort': null, 'isHidden': 0, 'companyId': null, 'component': 'SalesFunnel' }, { 'id': null, 'user_id': null, 'modelId': 4, 'list': 1, 'sort': null, 'isHidden': 0, 'companyId': null, 'component': 'PerformanceChart' }, { 'id': null, 'user_id': null, 'modelId': 2, 'list': 1, 'sort': null, 'isHidden': 0, 'companyId': null, 'component': 'DataStatistics' }, { 'id': null, 'user_id': null, 'modelId': 6, 'list': 1, 'sort': null, 'isHidden': 0, 'companyId': null, 'component': 'ForgetRemind' }, { 'id': null, 'user_id': null, 'modelId': 1, 'list': 1, 'sort': null, 'isHidden': 0, 'companyId': null, 'component': 'SaleStatistics' }
       ],
       sortRight: [],
       setSortShow: false
