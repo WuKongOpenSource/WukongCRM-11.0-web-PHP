@@ -8,14 +8,17 @@
 
 公司先后获得河南省高新技术企业、国家3A信用企业、IOS9001软件产品认证等20多项荣誉奖项。拥有50余项软件著作权。 获得20余家国内媒体报道。公司自成立以来，以高科技为起点，以技术为核心、 以完善的售后服务为后盾，秉承稳固与发展、求实与创新的精神，已为国内外上万家企业提供了服务。 在为实现企业价值最大化的过程中， 实现了自身的价值的提升，取得了最大程度的双赢合作，并获得了社会各界的广泛赞誉和认同。
 
-官网地址：[http://www.5kcrm.com](http://www.5kcrm.com/)
+官网：[http://www.5kcrm.com](https://www.5kcrm.com/)
 
-演示地址：(http://demo11.5kcrm.net/)  
-帐号：18688888888   密码：123456a
+官网：[http://www.72crm.com](https://www.72crm.com/)
 
+论坛：[http://bbs.72crm.net](https://bbs.72crm.net/)
 
-QQ群交流群⑩群：[1026560336](http:////shang.qq.com/wpa/qunwpa?idkey=13d5e5809eb9feb350336e55c8b7a00b9cb472078b09b4441222a52dd76b278e)
+演示地址：[demo11.5kcrm.net](http://demo11.5kcrm.net/)(帐号：18888888888   密码：123456a)
 
+码云gitee地址：[码云仓库地址](https://gitee.com/wukongcrm)
+
+QQ群交流群⑩群：[486745026](https:////shang.qq.com/wpa/qunwpa?idkey=f4687b809bf63f08f707aa1c56dee8dbcb9526237c429c4532222021d65bf83c)
 
 扫码添加小悟官方客服微信，邀您加入千人微信交流群：
 
@@ -26,14 +29,13 @@ QQ群交流群⑩群：[1026560336](http:////shang.qq.com/wpa/qunwpa?idkey=13d5e
 <img src="https://images.gitee.com/uploads/images/2019/1202/135713_d3566c6a_345098.jpeg" width="200">
 
 
-
 ```
 
 注：悟空CRM采用全新的前后端分离模式，本仓库代码中已集成前端vue打包后文件，可免去打包操作。如需调整前端代码，请单独下载前端代码
 
 ```
 
-(<a href="https://gitee.com/wukongcrm/crm_pro" target="_blank">查看PHP后端仓库</a>) 
+(<a href="https://github.com/72wukong/72crm-11.0-PHP" target="_blank">查看PHP后端仓库</a>) 
 
 
 #### 项目目录
