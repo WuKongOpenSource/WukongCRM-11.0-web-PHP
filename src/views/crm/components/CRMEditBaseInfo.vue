@@ -224,7 +224,7 @@ export default {
   props: {
     // 模块ID
     id: [String, Number],
-    poolId: [String, Number],
+    pool_id: [String, Number],
     isSeas: {
       type: Boolean,
       default: false
@@ -332,8 +332,8 @@ export default {
       }
 
       // 如果有公海id 需上传确定展示字段
-      if (this.poolId) {
-        params.poolId = this.poolId
+      if (this.pool_id) {
+        params.pool_id = this.pool_id
       }
 
       filedGetInformationAPI(params)
@@ -773,7 +773,8 @@ export default {
           } else {
             var validatesParams = {
               field: item.field,
-              types: 'crm_' + this.crmType
+              types: 'crm_' + this.crmType,
+              id: this.id
             }
             validatesParams.fieldId = item.fieldId
             if (isArray(value)) {

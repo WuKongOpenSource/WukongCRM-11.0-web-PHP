@@ -127,7 +127,7 @@ export default {
   },
   mounted() {
     // 线索和客户判断更多操作
-    if (this.crm[this.crmType] && this.crm[this.crmType].excelimport && !this.isSeas) {
+    if (this.crm[this.crmType] && this.crm[this.crmType].excelimport) {
       this.moreTypes.push({ type: 'enter', name: '导入', icon: 'import' })
     }
     if (this.crm[this.crmType] && this.crm[this.crmType].excelexport) {

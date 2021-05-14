@@ -27,22 +27,22 @@
         @row-click="handleRowClick">
         <el-table-column
           show-overflow-tooltip
-          prop="poolName"
+          prop="pool_name"
           width="150"
           label="公海名称"/>
         <el-table-column
           :formatter="fieldFormatter"
           show-overflow-tooltip
-          prop="adminUser"
+          prop="admin_user_names"
           label="公海管理员"/>
         <el-table-column
           :formatter="fieldFormatter"
           show-overflow-tooltip
-          prop="memberUser"
+          prop="user_names"
           label="公海成员"/>
         <el-table-column
           show-overflow-tooltip
-          prop="customerNum"
+          prop="customer_count"
           width="100"
           label="客户数量"/>
         <el-table-column
@@ -188,7 +188,7 @@ export default {
       })
         .then(res => {
           this.list = res.data.list
-          this.total = res.data.totalRow
+          this.total = res.data.count
           this.loading = false
         })
         .catch(() => {
@@ -200,34 +200,35 @@ export default {
      * 格式化字段
      */
     fieldFormatter(row, column) {
-      if (column.property === 'adminUser') {
-        const users = row['adminUser'] || []
-        return users
-          .map(item => {
-            return item.realname
-          })
-          .join('、')
-      } else if (column.property === 'memberUser') {
-        const structures = row['memberDept'] || []
-        let strName = structures
-          .map(item => {
-            return item.name
-          })
-          .join('、')
+      // if (column.property === 'admin_user_names') {
+      //   const users = row['admin_user_names'] || []
+      //   return users
+      //     .map(item => {
+      //       return item.realname
+      //     })
+      //     .join('、')
+      // } else if (column.property === 'user_names') {
+      //   const structures = row['memberDept'] || []
+      //   let strName = structures
+      //     .map(item => {
+      //       return item.name
+      //     })
+      //     .join('、')
 
-        const users = row['memberUser'] || []
-        const userName = users
-          .map(item => {
-            return item.realname
-          })
-          .join('、')
+      //   const users = row['user_names'] || []
+      //   const userName = users
+      //     .map(item => {
+      //       return item.realname
+      //     })
+      //     .join('、')
 
-        if (strName && userName) {
-          strName += '、'
-        }
-        const name = strName + userName
-        return name
-      } else if (column.property === 'status') {
+      //   if (strName && userName) {
+      //     strName += '、'
+      //   }
+      //   const name = strName + userName
+      //   return name
+      // } else
+      if (column.property === 'status') {
         if (row.status === 0) {
           return '停用'
         }
@@ -240,7 +241,7 @@ export default {
      * 通过回调控制class
      */
     cellClassName({ row, column, rowIndex, columnIndex }) {
-      if (column.property === 'poolName') {
+      if (column.property === 'pool_name') {
         return 'can-visit--underline'
       } else {
         return ''
@@ -262,8 +263,8 @@ export default {
      * 当某一行被点击时会触发该事件
      */
     handleRowClick(row, column, event) {
-      if (column.property === 'poolName') {
-        this.detailId = row.poolId
+      if (column.property === 'pool_name') {
+        this.detailId = row.pool_id
         this.detailShow = true
       }
     },
@@ -275,12 +276,12 @@ export default {
       if (type === 'edit') {
         this.createAction = {
           type: 'update',
-          id: scope.row.poolId,
+          id: scope.row.pool_id,
           data: scope.row
         }
         this.createShow = true
       } else if (type === 'transfer') {
-        this.detailId = scope.row.poolId
+        this.detailId = scope.row.pool_id
         this.transferShow = true
       } else if (type === 'delete') {
         this.$confirm('您确定要删除吗?', '提示', {
@@ -290,7 +291,7 @@ export default {
         })
           .then(() => {
             crmCustomerPoolSetDeleteAPI({
-              poolId: scope.row.poolId
+              pool_id: scope.row.pool_id
             })
               .then(res => {
                 this.list.splice(scope.$index, 1)
@@ -319,7 +320,7 @@ export default {
         )
           .then(() => {
             crmCustomerPoolSetChangeStatusAPI({
-              poolId: scope.row.poolId,
+              pool_id: scope.row.pool_id,
               status: scope.row.status === 0 ? 1 : 0
             })
               .then(res => {

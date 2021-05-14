@@ -23,7 +23,7 @@
           :detail="detailData"
           :head-details="headDetails"
           :id="id"
-          :pool-id="seasPoolId"
+          :pool_id="seasPoolId"
           :pool-auth="poolAuth"
           :crm-type="crmType"
           @handle="detailHeadHandle"
@@ -56,7 +56,7 @@
                 :detail="detailData"
                 :type-list="logTyps"
                 :id="id"
-                :pool-id="seasPoolId"
+                :pool_id="seasPoolId"
                 :handle="activityHandle"
                 :is-seas="isSeasDetail"
                 :crm-type="crmType"
@@ -77,7 +77,7 @@
                 <chiefly-contacts
                   :contacts-id="firstContactsId"
                   :id="id"
-                  :pool-id="seasPoolId"
+                  :pool_id="seasPoolId"
                   :crm-type="crmType"
                   :is-seas="isSeasDetail"
                   @add="addChieflyContacts" />
@@ -146,7 +146,7 @@ export default {
   props: {
     // 详情信息id
     id: [String, Number],
-    poolId: [String, Number],
+    pool_id: [String, Number],
     // 监听的dom 进行隐藏详情
     listenerIDs: {
       type: Array,
@@ -283,11 +283,10 @@ export default {
      * 公海id
      */
     seasPoolId() {
-      // if (this.poolAuth && this.poolAuth.poolId) {
-      //   return this.poolAuth.poolId
-      // }
-      // return this.poolId
-      return 1
+      if (this.poolAuth && this.poolAuth.pool_id) {
+        return this.poolAuth.pool_id
+      }
+      return this.pool_id
     },
 
     /**
@@ -365,12 +364,10 @@ export default {
         id: this.id
       }
 
-      if (this.poolId) {
-        params.poolId = this.poolId
+      if (this.pool_id) {
+        params.pool_id = this.pool_id
+        params.customer_id = this.id
       }
-      // if(this.isPool){
-
-      // }
 
       crmCustomerReadAPI(params)
         .then(res => {
@@ -381,9 +378,9 @@ export default {
 
           this.firstContactsId = this.detailData.contacts_id
           // 公海权限
-          // this.poolAuth = resData.poolAuthList || {}
+          this.poolAuth = resData.poolAuthList || {}
 
-          crmCustomerPoolQueryAuthAPI().then(res => {
+          crmCustomerPoolQueryAuthAPI({ pool_id: this.pool_id }).then(res => {
             this.poolAuth = res.data || {}
           })
 
@@ -416,7 +413,7 @@ export default {
           }
 
           this.headDetails[2].title = this.isSeasDetail ? '' : '负责人'
-          this.headDetails[2].value = this.detailData.owner_user_id_info.realname || ''
+          this.headDetails[2].value = this.isSeasDetail ? this.detailDatabefore_owner_user_name : this.detailData.owner_user_id_info.realname || ''
           this.headDetails[3].value = this.detailData.create_time
         })
         .catch(() => {

@@ -12,9 +12,9 @@
         <el-select v-model="selectId" >
           <el-option
             v-for="item in list"
-            :key="item.poolId"
-            :label="item.poolName"
-            :value="item.poolId"/>
+            :key="item.pool_id"
+            :label="item.pool_name"
+            :value="item.pool_id"/>
         </el-select>
       </flexbox>
     </div>
@@ -62,14 +62,14 @@ export default {
   computed: {
     list() {
       return this.allList.filter(item => {
-        return item.poolId != this.id
+        return item.pool_id != this.id
       })
     }
   },
   watch: {
     list: {
       handler() {
-        this.selectId = this.list && this.list.length > 0 ? this.list[0].poolId : ''
+        this.selectId = this.list && this.list.length > 0 ? this.list[0].pool_id : ''
       },
       immediate: true
     },
@@ -89,9 +89,9 @@ export default {
       const loading = Loading.service({
         target: document.querySelector(`.el-dialog[aria-label="转移"]`)
       })
-      crmCustomerPoolSetNameListAPI()
+      crmCustomerPoolSetNameListAPI({ limit: 9999 })
         .then(res => {
-          this.allList = res.data || []
+          this.allList = res.data.list || []
           loading && loading.close()
         })
         .catch(() => {
@@ -115,8 +115,8 @@ export default {
           target: document.querySelector(`.el-dialog[aria-label="转移"]`)
         })
         crmCustomerPoolSetTransferAPI({
-          prePoolId: this.id,
-          postPoolId: this.selectId
+          source_pool_id: this.id,
+          target_pool_id: this.selectId
         })
           .then(res => {
             this.$message({

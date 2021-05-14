@@ -12,9 +12,9 @@
         <el-select v-model="selectId" >
           <el-option
             v-for="item in list"
-            :key="item.poolId"
-            :label="item.poolName"
-            :value="item.poolId"/>
+            :key="item.pool_id"
+            :label="item.pool_name"
+            :value="item.pool_id"/>
         </el-select>
       </flexbox>
     </div>
@@ -31,7 +31,8 @@
 
 <script>
 import {
-  crmCustomerPutInPoolAPI
+  crmCustomerPutInPoolAPI,
+  crmCustomerPoolNameListAPI
 } from '@/api/crm/customer'
 
 import { Loading } from 'element-ui'
@@ -69,7 +70,7 @@ export default {
   watch: {
     list: {
       handler() {
-        this.selectId = this.list && this.list.length > 0 ? this.list[0].poolId : ''
+        this.selectId = this.list && this.list.length > 0 ? this.list[0].pool_id : ''
       },
       immediate: true
     },
@@ -86,20 +87,20 @@ export default {
      * 获取数据源
      */
     getList() {
-      // const loading = Loading.service({
-      //   target: document.querySelector(`.el-dialog[aria-label="放入公海"]`)
-      // })
+      const loading = Loading.service({
+        target: document.querySelector(`.el-dialog[aria-label="放入公海"]`)
+      })
       this.list = [
-        { 'poolId': 1, 'poolName': '系统默认公海', 'adminUserId': null, 'memberUserId': null, 'memberDeptId': null, 'status': null, 'preOwnerSetting': null, 'preOwnerSettingDay': null, 'receiveSetting': null, 'receiveNum': null, 'remindSetting': null, 'remindDay': null, 'putInRule': null, 'createUserId': null, 'createTime': null, 'companyId': null }
+        // { 'pool_id': 1, 'pool_name': '系统默认公海', 'adminUserId': null, 'memberUserId': null, 'memberDeptId': null, 'status': null, 'preOwnerSetting': null, 'preOwnerSettingDay': null, 'receiveSetting': null, 'receiveNum': null, 'remindSetting': null, 'remindDay': null, 'putInRule': null, 'createUserId': null, 'createTime': null, 'companyId': null }
       ]
-      // crmCustomerPoolNameListAPI()
-      //   .then(res => {
-      //     this.list = res.data || []
-      //     loading && loading.close()
-      //   })
-      //   .catch(() => {
-      //     loading && loading.close()
-      //   })
+      crmCustomerPoolNameListAPI()
+        .then(res => {
+          this.list = res.data || []
+          loading && loading.close()
+        })
+        .catch(() => {
+          loading && loading.close()
+        })
     },
 
     /**
@@ -118,8 +119,8 @@ export default {
           target: document.querySelector(`.el-dialog[aria-label="放入公海"]`)
         })
         crmCustomerPutInPoolAPI({
-          customer_id: this.selectionList.map(item => item.customer_id)
-          // poolId: this.selectId
+          customer_id: this.selectionList.map(item => item.customer_id),
+          pool_id: this.selectId
         })
           .then(res => {
             this.$message({

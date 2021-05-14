@@ -92,7 +92,7 @@ export function filedUpdateTableFieldAPI(data) {
  */
 export function filedGetPoolTableFieldAPI(data) {
   return request({
-    url: 'admin/field/getField',
+    url: 'crm/customerPool/field',
     method: 'post',
     data: data
   })
@@ -245,7 +245,7 @@ export function crmFieldConfigAPIIndexAPI(data) {
  */
 export function crmPoolFieldConfigIndexAPI(data) {
   return request({
-    url: 'admin/field/configIndex',
+    url: 'crm/customerPool/fieldConfig',
     method: 'post',
     data: data
   })
@@ -269,7 +269,7 @@ export function crmFieldConfigAPI(data) {
  */
 export function crmPoolFieldConfigAPI(data) {
   return request({
-    url: 'admin/field/config',
+    url: 'crm/customerPool/setFieldConfig',
     method: 'post',
     data: data
   })
@@ -296,7 +296,7 @@ export function crmFieldColumnWidthAPI(data) {
  */
 export function crmPoolFieldColumnWidthAPI(data) {
   return request({
-    url: 'crmField/setPoolFieldStyle',
+    url: 'crm/customerPool/setFieldWidth',
     method: 'post',
     data: data,
     headers: {

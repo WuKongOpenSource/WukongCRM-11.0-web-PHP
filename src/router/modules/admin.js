@@ -150,24 +150,24 @@ export default [
         permissions: ['manage', 'crm', 'field']
       }
     },
-    // {
-    //   path: 'customer',
-    //   component: () => import('@/views/admin/crm/customer'),
-    //   meta: {
-    //     title: '客户公海规则设置',
-    //     requiresAuth: true,
-    //     permissions: ['manage', 'crm', 'pool']
-    //   }
-    // },
-    { // 临时 使用 后期删除
+    {
       path: 'customer',
-      component: () => import('@/views/admin/crm/customerPool'),
+      component: () => import('@/views/admin/crm/customer'),
       meta: {
         title: '客户公海规则设置',
         requiresAuth: true,
         permissions: ['manage', 'crm', 'pool']
       }
     },
+    // { // 临时 使用 后期删除
+    //   path: 'customer',
+    //   component: () => import('@/views/admin/crm/customerPool'),
+    //   meta: {
+    //     title: '客户公海规则设置',
+    //     requiresAuth: true,
+    //     permissions: ['manage', 'crm', 'pool']
+    //   }
+    // },
     {
       path: 'print-templates',
       component: () => import('@/views/admin/crm/printTemplates'),
@@ -213,6 +213,39 @@ export default [
         activeMenu: '/manage/customer/custom-field',
         requiresAuth: true,
         permissions: ['manage', 'crm', 'field']
+      }
+    }]
+  },
+  {
+    ...layout({
+      permissions: ['manage', 'adminLog'],
+      title: '系统日志',
+      icon: 'record'
+    }, '/manage/log/'),
+    alwaysShow: true,
+    children: [{
+      path: 'handle',
+      component: () => import('@/views/admin/log/DataHandleLog'),
+      meta: {
+        title: '数据操作日志',
+        requiresAuth: true,
+        permissions: ['manage', 'adminLog', 'actionRecord']
+      }
+    }, {
+      path: 'sys',
+      component: () => import('@/views/admin/log/SysHandleLog'),
+      meta: {
+        title: '系统操作日志',
+        requiresAuth: true,
+        permissions: ['manage', 'adminLog', 'systemLog']
+      }
+    }, {
+      path: 'login',
+      component: () => import('@/views/admin/log/LoginLog'),
+      meta: {
+        title: '登录日志',
+        requiresAuth: true,
+        permissions: ['manage', 'adminLog', 'loginLog']
       }
     }]
   },

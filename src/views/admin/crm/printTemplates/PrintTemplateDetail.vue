@@ -32,7 +32,7 @@
           <div
             v-for="(item, index) in menuList"
             :key="index"
-            :class="{'is-select' : item.fieldName == menuIndex}"
+            :class="{'is-select' : item.field == menuIndex}"
             class="menu-item"
             @click="menuSelect(item, index)">
             {{ item.name }}
@@ -122,7 +122,7 @@ export default {
     getDetail() {
       this.loading = true
       printTemplateByIdAPI({
-        templateId: this.$route.query.templateId
+        id: this.$route.query.templateId
       }).then(res => {
         const data = res.data || {}
         this.content = data.content
@@ -178,9 +178,9 @@ export default {
 
     menuSelect(item, index) {
       // console.log(this.editor.selection.getNode())
-      this.menuIndex = item.fieldName
+      this.menuIndex = item.field
       // 整单折扣 产品总金额 不能插入
-      if (this.activeTab == 'product' && item.fieldName != 'discount_rate' && item.fieldName != 'total_price') {
+      if (this.activeTab == 'product' && item.field != 'discount_rate' && item.field != 'total_price') {
         const tableParent = this.getCurrentParentByTag('table[data-wk-table-tag="table"]')
         if (tableParent) {
           const headerTr = this.editor.dom.select('tr[data-wk-table-tr-tag="header"]', tableParent)
@@ -201,7 +201,7 @@ export default {
           // 产品下字段 整单折扣 产品总金额 用商机和合同的
 
           // const parentPNode = this.getCurrentParentByTag('p')
-          if (this.activeTab == 'product' && (item.fieldName == 'discount_rate' || item.fieldName == 'total_price')) {
+          if (this.activeTab == 'product' && (item.field == 'discount_rate' || item.field == 'total_price')) {
             this.editor.insertContent(this.getSpanNode(item, '', crmTypeModel.convertTypeToKey(this.type)))
             // this.editor.dom.add(parentPNode, 'span', this.getSpanNodeAttrsByType(item, '', crmTypeModel.convertTypeToKey(this.type)), `{${item.name}}`)
           } else {
@@ -244,7 +244,7 @@ export default {
     getSpanNodeAttrsByType(item, tag = '', type) {
       const attrs = {}
       const dataKey = `data-wk${tag ? `-${tag}` : ''}-tag`
-      const dataValue = `${type}.${item.fieldName}`
+      const dataValue = `${type}.${item.field}`
 
       attrs[dataKey] = dataValue
       attrs.class = `wk-print-tag-wukong ${this.getSpanColorClass()}`
@@ -253,7 +253,7 @@ export default {
     },
 
     getSpanNode(item, tag = '', type = this.activeTab) {
-      return `<span data-wk${tag ? `-${tag}` : ''}-tag="${type}.${item.fieldName}" class="wk-print-tag-wukong ${this.getSpanColorClass()}" contenteditable="false">{${item.name}}</span>`
+      return `<span data-wk${tag ? `-${tag}` : ''}-tag="${type}.${item.field}" class="wk-print-tag-wukong ${this.getSpanColorClass()}" contenteditable="false">{${item.name}}</span>`
     },
 
     /**
@@ -281,13 +281,13 @@ export default {
       const request = this.isCreate ? printAddTemplateAPI : printUpdateTemplateAPI
       const data = this.$route.query
       const params = {
-        name: data.templateName,
+        name: data.name,
         type: data.type,
         content: this.content
       }
 
       if (!this.isCreate) {
-        params.templateId = data.templateId
+        params.id = data.templateId
       }
 
       request(params)

@@ -17,6 +17,7 @@
         <template slot-scope="{ data }">
           <xh-prouct-cate
             v-if="data && data.formType == 'category'"
+            :disabled="data.disabled"
             :value="fieldForm[data.field]"
             @value-change="otherChange($event, data)"
           />

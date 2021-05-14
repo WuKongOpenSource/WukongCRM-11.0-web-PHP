@@ -68,12 +68,12 @@
           <div class="sections__title">四、请选择公海</div>
           <div class="content">
             <div class="user-cell">
-              <el-select v-model="poolId" placeholder="请选择">
+              <el-select v-model="pool_id" placeholder="请选择">
                 <el-option
                   v-for="item in poolList"
-                  :key="item.poolId"
-                  :label="item.poolName"
-                  :value="item.poolId"/>
+                  :key="item.pool_id"
+                  :label="item.pool_name"
+                  :value="item.pool_id"/>
               </el-select>
             </div>
           </div>
@@ -153,7 +153,9 @@ import {
 import {
   crmCustomerExcelImportAPI,
   crmCustomerDownloadExcelAPI,
-  crmCustomerPoolExcelImportAPI
+  crmCustomerPoolExcelImportAPI,
+  crmCustomerPoolNameListAPI,
+  crmCustomerPoolDownloadExcelAPI
 } from '@/api/crm/customer'
 import {
   crmLeadsExcelImportAPI,
@@ -228,7 +230,7 @@ export default {
       user: [],
 
       // 公海数据
-      poolId: '',
+      pool_id: '',
       poolList: [],
 
       stepsActive: 1,
@@ -422,7 +424,7 @@ export default {
       params.file = this.file
       params.owner_user_id = this.user.length > 0 ? this.user[0].id : ''
       if (this.config.poolSelectShow) {
-        params.poolId = this.poolId
+        params.pool_id = this.pool_id
       }
 
       const request = this.config.importRequest || {
@@ -517,12 +519,12 @@ export default {
     // 下载模板操作
     download() {
       const request = this.config.templateRequest || {
-        customer: crmCustomerDownloadExcelAPI,
+        customer: this.config.poolSelectShow ? crmCustomerPoolDownloadExcelAPI : crmCustomerDownloadExcelAPI,
         leads: crmLeadsDownloadExcelAPI,
         contacts: crmContactsDownloadExcelAPI,
         product: crmProductDownloadExcelAPI
       }[this.crmType]
-      request()
+      request({ pool_id: this.config.poolSelectShow && this.pool_id })
         .then(res => {
           downloadExcelWithResData(res)
         })
@@ -571,17 +573,13 @@ export default {
      * 公海数据
      */
     getPoolList() {
-      // crmCustomerPoolNameListAPI()
-      //   .then(res => {
-      //     this.poolList = res.data || []
-      //     this.poolId = this.poolList.length > 0 ? this.poolList[0].poolId : ''
-      //   })
-      //   .catch(() => {
-      //   })
-      this.poolList = [
-        { 'poolId': 1, 'poolName': '系统默认公海', 'adminUserId': null, 'memberUserId': null, 'memberDeptId': null, 'status': null, 'preOwnerSetting': null, 'preOwnerSettingDay': null, 'receiveSetting': null, 'receiveNum': null, 'remindSetting': null, 'remindDay': null, 'putInRule': null, 'createUserId': null, 'createTime': null, 'companyId': null }
-      ]
-      this.poolId = 1
+      crmCustomerPoolNameListAPI()
+        .then(res => {
+          this.poolList = res.data || []
+          this.pool_id = this.poolList.length > 0 ? this.poolList[0].pool_id : ''
+        })
+        .catch(() => {
+        })
     },
 
     // 关闭操作

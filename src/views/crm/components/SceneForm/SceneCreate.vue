@@ -189,6 +189,7 @@ import VDistpicker from '@/components/VDistpicker'
 
 import { objDeepCopy } from '@/utils'
 import AdvancedFilterMixin from '@/mixins/AdvancedFilter'
+import { isArray } from '@/utils/types'
 
 /**
  * fieldList: 高级筛选的字段
@@ -312,15 +313,16 @@ export default {
                 item.value = []
                 this.getProductCategoryValue(item, element.value[0])
               } else if (element.form_type == 'map_address') {
-                const addressArr = element.value[0].split(',')
-                item.address = {
-                  state: addressArr.length > 0 ? addressArr[0] : '',
-                  city: addressArr.length > 1 ? addressArr[1] : '',
-                  area: addressArr.length > 2 ? addressArr[2] : ''
-                }
+                const addressArr = element.value
+                item.address = addressArr
+                // item.address = {
+                //   state: addressArr.length > 0 ? addressArr[0] : '',
+                //   city: addressArr.length > 1 ? addressArr[1] : '',
+                //   area: addressArr.length > 2 ? addressArr[2] : ''
+                // }
               } else {
                 item.setting = element.setting
-                item.value = element.value
+                item.value = isArray(element.value) ? element.value.join(';') : element.value
               }
 
               this.form.push(item)
@@ -386,7 +388,7 @@ export default {
           const users = res.data || []
           for (let index = 0; index < users.length; index++) {
             const user = users[index]
-            if (user.userId == id) {
+            if (user.id == id) {
               item.value = [user]
               break
             }
@@ -776,6 +778,8 @@ export default {
           if (typeof o.value === 'string') {
             const temp = o.value.replace(/；/g, ';')
             value = temp.split(';').filter(item => item !== '' && item !== null)
+          } else if (Object.prototype.toString.call(o.value) === '[object Array]') {
+            value = o.value
           } else {
             value = [o.value]
           }

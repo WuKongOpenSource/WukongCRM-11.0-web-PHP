@@ -34,6 +34,7 @@
           <xh-receivables-plan
             v-if="data && data.formType == 'receivables_plan'"
             :value="fieldForm[data.field]"
+            :disabled="data.disabled"
             :receivables-id="editId"
             :relation="data.relation"
             @value-change="otherChange($event, data)"

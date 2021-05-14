@@ -398,7 +398,7 @@ export default {
             fromlist: fromlist.map(item => {
               return item.task_id
             }),
-            fromTopId: fromTop,
+            from_top_id: fromTop,
             tolist: tolist.map(item => {
               return item.task_id
             }),

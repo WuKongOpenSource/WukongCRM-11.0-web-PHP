@@ -53,7 +53,7 @@ export default {
       type: String,
       default: ''
     },
-    poolId: [String, Number],
+    pool_id: [String, Number],
     /** 转移数据 */
     selectionList: {
       type: Array,
@@ -103,8 +103,8 @@ export default {
         this.$message.error('请选择负责人')
       } else {
         const params = {
-          owner_user_id: this.usersList[0].id
-          // poolId: this.poolId
+          user_id: this.usersList[0].id,
+          pool_id: this.pool_id
         }
         params.customer_id = this.selectionList.map(item => item[this.crmType + '_id'])
         this.loading = true

@@ -258,6 +258,11 @@ export default {
               name: '更新时间',
               // formType: 'text',
               value: data.essential.update_time
+            },
+            {
+              name: '审核状态',
+              // formType: 'text',
+              value: data.essential.check_status
             }
           ]
         },

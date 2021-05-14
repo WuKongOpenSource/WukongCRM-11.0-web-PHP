@@ -148,7 +148,7 @@ export default {
       this.formData = {
         title: this.action.data.title,
         content: this.action.data.content,
-        dep: { staff: this.action.data.ownerUserList, dep: this.action.data.deptList }
+        dep: { staff: this.action.data.ownerUserList, dep: this.action.data.structureList }
       }
     }
   },

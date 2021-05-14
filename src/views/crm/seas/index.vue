@@ -34,7 +34,7 @@
       <c-r-m-table-head
         ref="crmTableHead"
         :is-seas="isSeas"
-        :pool-id="poolId"
+        :pool_id="pool_id"
         :pool-auth="poolAuth"
         :sort-data="sortData"
         crm-type="customer"
@@ -44,13 +44,13 @@
         <template slot="custom">
           <div>公海：</div>
           <el-select
-            v-model="poolId"
+            v-model="pool_id"
             @change="poolChange">
             <el-option
               v-for="item in poolList"
-              :key="item.poolId"
-              :label="item.poolName"
-              :value="item.poolId"/>
+              :key="item.pool_id"
+              :label="item.pool_name"
+              :value="item.pool_id"/>
           </el-select>
         </template>
       </c-r-m-table-head>
@@ -109,7 +109,7 @@
             <field-set
               :is-seas="isSeas"
               :crm-type="crmType"
-              :pool-id="poolId"
+              :pool_id="pool_id"
               @change="setSave"/>
           </template>
         </el-table-column>
@@ -131,7 +131,7 @@
     <customer-detail
       v-if="showDview"
       :id="rowID"
-      :pool-id="poolId"
+      :pool_id="pool_id"
       :is-seas="isSeas"
       class="d-view"
       @handle="handleHandle"
@@ -165,7 +165,7 @@ export default {
     return {
       crmType: 'customer',
       isSeas: true, // 是公海
-      poolId: '',
+      pool_id: '',
       poolAuth: {},
       poolList: []
     }
@@ -201,7 +201,7 @@ export default {
     }
   },
   watch: {
-    poolId: {
+    pool_id: {
       handler(newVal) {
         if (newVal) {
           this.getCustomerPoolAuth(newVal)
@@ -215,10 +215,10 @@ export default {
     this.getPoolList()
   },
   activated() {
-    // if (this.isRequested) {
-    //   this.getList()
-    // }
-    this.getFieldList()
+    if (this.isRequested) {
+      // this.getList()
+    }
+    // this.getFieldList()
   },
   deactivated() {
     this.$refs.elMenu.activeIndex = 'seas'
@@ -227,12 +227,13 @@ export default {
     /**
      * 获取公海权限
      */
-    getCustomerPoolAuth(poolId) {
+    getCustomerPoolAuth(pool_id) {
       crmCustomerPoolQueryAuthAPI({
-        poolId: poolId
+        pool_id: pool_id
       })
         .then(res => {
           this.poolAuth = res.data || {}
+          this.getFieldList()
         })
         .catch(() => {
           // this.poolAuth = { receive: true, excelexport: true, index: true, distribute: true, delete: true }
@@ -253,12 +254,9 @@ export default {
       crmCustomerPoolNameListAPI()
         .then(res => {
           this.poolList = res.data || []
-          // this.poolId = this.poolList.length > 0 ? this.poolList[0].poolId : ''
-          this.poolId = 1
+          this.pool_id = this.poolList.length > 0 ? this.poolList[0].pool_id : ''
         })
         .catch(() => {
-          this.poolList = [{ 'poolId': 1, 'poolName': '系统默认公海', 'adminUserId': null, 'memberUserId': null, 'memberDeptId': null, 'status': null, 'preOwnerSetting': null, 'preOwnerSettingDay': null, 'receiveSetting': null, 'receiveNum': null, 'remindSetting': null, 'remindDay': null, 'putInRule': null, 'createUserId': null, 'createTime': null, 'companyId': null }]
-          this.poolId = 1
         })
     },
 

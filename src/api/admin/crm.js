@@ -413,7 +413,7 @@ export function printTemplateListAPI(data) {
  */
 export function printTemplateByIdAPI(data) {
   return request({
-    url: 'crmPrint/queryPrintTemplateById',
+    url: 'admin/printing/read',
     method: 'post',
     data: data
   })
@@ -488,7 +488,7 @@ export function printQueryFieldsAPI(data) {
  */
 export function printPrintAPI(data) {
   return request({
-    url: 'crmPrint/print',
+    url: 'crm/printing/printingData',
     method: 'post',
     data: data
   })
@@ -514,7 +514,7 @@ export function printCopyTemplateAPI(data) {
  */
 export function printSaveRecordAPI(data) {
   return request({
-    url: 'crmPrint/savePrintRecord',
+    url: 'crm/printing/setRecord',
     method: 'post',
     data: data,
     headers: {
@@ -530,7 +530,7 @@ export function printSaveRecordAPI(data) {
  */
 export function printQueryPrintRecordAPI(data) {
   return request({
-    url: 'crmPrint/queryPrintRecord',
+    url: 'crm/printing/getRecord',
     method: 'post',
     data: data
   })
@@ -543,7 +543,7 @@ export function printQueryPrintRecordAPI(data) {
  */
 export function printRecordDetailAPI(data) {
   return request({
-    url: 'crmPrint/queryPrintRecordById',
+    url: 'crm/printing/printingData',
     method: 'post',
     data: data
   })
@@ -556,7 +556,7 @@ export function printRecordDetailAPI(data) {
  */
 export function printPreviewAPI(data) {
   return request({
-    url: 'crmPrint/preview',
+    url: 'crm/printing/preview',
     method: 'post',
     data: data
   })

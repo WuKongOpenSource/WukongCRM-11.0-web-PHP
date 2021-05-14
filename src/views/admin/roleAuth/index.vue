@@ -171,13 +171,13 @@
                         style="height: 0;"
                         empty-text=""
                         default-expand-all>
-                        <!-- <span
+                        <span
                           slot-scope="{ node }"
                           :class="{ 'node-label': node.level == 1 || node.level == 2} ">{{ node.label }}<el-button
                             v-if="node.level == 2 && canSetField(node.data.name) && node.data.title!='公海管理'"
                             icon="wk wk-manage"
                             type="text"
-                            @click="fieldSetClick(node)" >字段授权</el-button></span> -->
+                            @click="fieldSetClick(node)" >字段授权</el-button></span>
                       </el-tree>
                     </div>
                   </div>

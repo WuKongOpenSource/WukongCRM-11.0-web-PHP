@@ -82,7 +82,7 @@
       @handle="handleCallBack" />
     <alloc-handle
       :crm-type="crmType"
-      :pool-id="poolId"
+      :pool_id="pool_id"
       :selection-list="selectionList"
       :dialog-visible.sync="allocDialogShow"
       @handle="handleCallBack" />
@@ -202,7 +202,7 @@ export default {
       type: Boolean,
       default: false
     },
-    poolId: [String, Number],
+    pool_id: [String, Number],
     // 公海权限
     poolAuth: Object,
     // 排序信息
@@ -284,8 +284,7 @@ export default {
     getFilterFieldInfo() {
       const params = {}
       if (this.isSeas) {
-        // params.poolId = this.poolId
-        params.types = crmTypeModel[this.crmType]
+        params.types = 'crm_customer_pool'
       } else {
         params.types = crmTypeModel[this.crmType]
       }
@@ -363,7 +362,7 @@ export default {
         let request = null
         if (this.isSeas) {
           request = crmCustomerPoolExcelExportAPI
-          // params.poolId = this.poolId
+          params.pool_id = this.pool_id
           // params.isSeas = 1
           params.customer_id = this.selectionList
             .map(item => item.customer_id)
@@ -509,7 +508,7 @@ export default {
         const params = {
         }
         if (this.isSeas) {
-          // params.poolId = this.poolId
+          params.pool_id = this.pool_id
           params.isSeas = 1
         }
         params.id = id
@@ -530,8 +529,8 @@ export default {
         // 领取
         this.loading = true
         crmCustomerReceiveAPI({
-          customer_id: this.selectionList.map(item => item.customer_id)
-          // poolId: this.poolId
+          customer_id: this.selectionList.map(item => item.customer_id),
+          pool_id: this.pool_id
         })
           .then(res => {
             this.loading = false
@@ -714,7 +713,7 @@ export default {
           : this.crm[this.crmType].transform
       } else if (type == 'export') {
         if (this.isSeas) {
-          if (this.poolId) {
+          if (this.pool_id) {
             return this.poolAuth.excelexport
           }
           return this.crm.pool.excelexport
@@ -726,7 +725,7 @@ export default {
         }
       } else if (type == 'delete') {
         if (this.isSeas) {
-          if (this.poolId) {
+          if (this.pool_id) {
             return this.poolAuth.delete
           }
           return this.crm.pool.delete
@@ -743,13 +742,13 @@ export default {
         return this.crm[this.crmType].teamsave
       } else if (type == 'alloc') {
         // 分配(公海)
-        if (this.poolId) {
+        if (this.pool_id) {
           return this.poolAuth.distribute
         }
         return this.crm.pool.distribute
       } else if (type == 'get') {
         // 领取(公海)
-        if (this.poolId) {
+        if (this.pool_id) {
           return this.poolAuth.receive
         }
         return this.crm.pool.receive

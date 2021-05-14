@@ -5,14 +5,14 @@
       class="detail-recycle-rule__content">
       <div class="range-rule">
         <span>选择不进入公海客户</span>
-        <span v-if="dealHandleShow && data.dealHandle === 0">已成交客户</span>
-        <span v-if="businessHandleShow && data.businessHandle === 0">有商机客户</span>
+        <span v-if="dealHandleShow && data.deal_handle === 1">已成交客户</span>
+        <span v-if="businessHandleShow && data.business_handle === 1">有商机客户</span>
       </div>
       <div>
-        <div v-if="data.customerLevelSetting === 1" class="type-rule">所有客户统一设置</div>
-        <div v-else-if="data.customerLevelSetting === 2" class="type-rule">根据客户级别分别设置</div>
+        <div v-if="data.level_conf === 1" class="type-rule">所有客户统一设置</div>
+        <div v-else-if="data.level_conf === 2" class="type-rule">根据客户级别分别设置</div>
         <el-table
-          :data="data.levelSetting"
+          :data="data.level_setting"
           border
           style="width: 100%">
           <el-table-column
@@ -21,9 +21,9 @@
             width="180"/>
           <el-table-column
             :label="limitDayName"
-            prop="limitDay">
+            prop="limit_day">
             <template slot-scope="scope">
-              <span>{{ `超过${scope.row.limitDay}天${getLimitDayUnit(data.type)}，进入公海` }}</span>
+              <span>{{ `超过${scope.row.limit_day}天${getLimitDayUnit(data.type)}，进入公海` }}</span>
             </template>
           </el-table-column>
         </el-table>

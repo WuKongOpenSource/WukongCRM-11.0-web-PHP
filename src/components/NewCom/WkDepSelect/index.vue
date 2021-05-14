@@ -296,6 +296,7 @@ export default {
      * 删除
      */
     deleteDep(index) {
+      if (this.disabled) return
       // 直接 splice ,dataValue watch 的老旧值相同，复制之后新旧值不相同。暂时解决
       const dataValue = objDeepCopy(this.dataValue)
       dataValue.splice(index, 1)

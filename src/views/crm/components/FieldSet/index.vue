@@ -67,7 +67,7 @@ export default {
       default: false
     },
 
-    poolId: [String, Number]
+    pool_id: [String, Number]
   },
   data() {
     return {
@@ -97,7 +97,7 @@ export default {
       }
     },
 
-    poolId() {
+    pool_id() {
       this.fields = []
     }
   },
@@ -114,8 +114,8 @@ export default {
       const params = {}
       if (this.isSeas) {
         request = crmPoolFieldConfigIndexAPI
-        params.poolId = this.poolId
-        params.types = crmTypeModel[this.crmType] + '_pool'
+        params.pool_id = this.pool_id
+        // params.types = crmTypeModel[this.crmType] + '_pool'
       } else {
         request = crmFieldConfigAPIIndexAPI
         params.types = crmTypeModel[this.crmType]
@@ -184,7 +184,7 @@ export default {
         }
         if (this.isSeas) {
           request = crmPoolFieldConfigAPI
-          params.poolId = this.poolId
+          params.pool_id = this.pool_id
           params.types = crmTypeModel[this.crmType] + '_pool'
         } else {
           request = crmFieldConfigAPI

@@ -93,7 +93,7 @@
       @handle="handleCallBack" />
     <alloc-handle
       :crm-type="crmType"
-      :pool-id="poolId"
+      :pool_id="pool_id"
       :selection-list="[detail]"
       :dialog-visible.sync="allocDialogShow"
       @handle="handleCallBack" />
@@ -150,7 +150,7 @@ export default {
   props: {
     /** 模块ID */
     id: [String, Number],
-    poolId: [String, Number],
+    pool_id: [String, Number],
     // 公海权限
     poolAuth: Object,
     /** 没有值就是全部类型 有值就是当个类型 */
@@ -415,7 +415,7 @@ export default {
         }[this.crmType]
         const params = {}
         if (this.isSeas) {
-          // params.poolId = this.poolId
+          params.pool_id = this.pool_id
           params.isSeas = 1
         }
         params.id = [parseInt(this.id)]
@@ -431,8 +431,8 @@ export default {
       } else if (type === 'get') {
         // 领取
         crmCustomerReceiveAPI({
-          customer_id: [this.id]
-          // poolId: this.poolId
+          customer_id: [this.id],
+          pool_id: this.pool_id
         })
           .then(res => {
             this.$message({
@@ -606,7 +606,7 @@ export default {
         return this.crm[this.crmType].transform
       } else if (type == 'export') {
         if (this.isSeas) {
-          if (this.poolId) {
+          if (this.pool_id) {
             return this.poolAuth.excelexport
           }
           return this.crm.pool.excelexport
@@ -614,10 +614,10 @@ export default {
         return this.crm[this.crmType].excelexport
       } else if (type == 'delete') {
         if (this.isSeas) {
-          if (this.poolId) {
+          if (this.pool_id) {
             return this.poolAuth && this.poolAuth.delete
           }
-          return this.crm.pool.delete && this.poolId
+          return this.crm.pool.delete && this.pool_id
         }
         return this.crm[this.crmType].delete
       } else if (type == 'put_seas') {
@@ -631,16 +631,16 @@ export default {
         return this.crm[this.crmType].teamsave
       } else if (type == 'alloc') {
         // 分配(公海)
-        if (this.poolId) {
+        if (this.pool_id) {
           return this.poolAuth && this.poolAuth.distribute
         }
         return this.crm.pool.distribute
       } else if (type == 'get') {
         // 领取(公海)
-        if (this.poolId) {
+        if (this.pool_id) {
           return this.poolAuth && this.poolAuth.receive
         }
-        return this.crm.pool.receive && this.poolId
+        return this.crm.pool.receive && this.pool_id
       } else if (type == 'start' || type == 'disable') {
         // 上架 下架(产品)
         return this.crm[this.crmType].status
@@ -655,8 +655,8 @@ export default {
         return false
       } else if (type == 'print') {
         // 打印
-        // return this.crm[this.crmType].print
-        return false
+        return this.crm[this.crmType].print
+        // return false
       } else if (type == 'copyContract') {
         // 合同复制
         return this.crm[this.crmType].save

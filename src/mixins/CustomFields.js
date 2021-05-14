@@ -250,7 +250,7 @@ export default {
      * 获取客户位置提交参数
      */
     getCustomerAddressParams(params, dataValue) {
-      params['address'] = dataValue.address
+      params['address'] = (dataValue.address && dataValue.address.filter(item => item).length > 0)
         ? dataValue.address
         : ''
       params['detail_address'] = dataValue.detail_address
@@ -298,14 +298,19 @@ export default {
         if (dataValue) {
           return dataValue
         }
-        delete data[field.field]
-        return
+        // delete data[field.field]
+        return ''
       } else if (field.form_type == 'datetime') {
         if (dataValue) {
           return moment(dataValue).unix()
         }
-        delete data[field.field]
-        return
+        // delete data[field.field]
+        return ''
+      } else if (field.form_type == 'number') {
+        if (dataValue) {
+          return dataValue
+        }
+        return ''
       }
 
       return dataValue

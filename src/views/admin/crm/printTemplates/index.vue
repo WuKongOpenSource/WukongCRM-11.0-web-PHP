@@ -198,7 +198,7 @@ export default {
      * 通过回调控制class
      */
     cellClassName({ row, column, rowIndex, columnIndex }) {
-      if (column.property === 'templateName') {
+      if (column.property === 'name') {
         return 'can-visit--underline'
       } else {
         return ''
@@ -209,13 +209,13 @@ export default {
      * 当某一行被点击时会触发该事件
      */
     handleRowClick(row, column, event) {
-      if (column.property === 'templateName') {
+      if (column.property === 'name') {
         this.$router.push({
           name: 'crmPrintDetail',
           query: {
             handle: 'detail',
-            templateName: row.templateName,
-            templateId: row.templateId,
+            name: row.name,
+            templateId: row.id,
             type: row.type
           }
         })

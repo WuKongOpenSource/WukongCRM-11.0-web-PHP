@@ -248,3 +248,49 @@ export function crmIndexUnContactCustomerAPI(data) {
     }
   })
 }
+
+//* **********************************
+/**
+ *
+ * @param {*} data
+ */
+export function crmInstrumentExportRecordListAPI(data) {
+  return request({
+    url: '',
+    method: 'post',
+    data: data,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+/**
+ *
+ * @param {*} data
+ */
+export function crmInstrumentImportRecordListAPI(data) {
+  return request({
+    url: '',
+    method: 'post',
+    data: data,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+/**
+ *
+ * @param {*} data
+ */
+export function crmInstrumentDownloadRecordExcelAPI(data) {
+  return request({
+    url: '',
+    method: 'post',
+    data: data,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}

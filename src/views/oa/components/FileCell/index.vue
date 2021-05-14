@@ -121,7 +121,8 @@ export default {
         .then(() => {
           crmFileDeleteAPI({
             id: this.data.file_id,
-            save_name: this.data.save_name
+            save_name: this.data.save_name,
+            module: 'work_task'
           })
             .then(res => {
               this.$message.success('操作成功')

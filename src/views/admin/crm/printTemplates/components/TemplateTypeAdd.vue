@@ -55,15 +55,15 @@ export default {
       options: [
         {
           label: '商机',
-          value: 1
+          value: 5
         },
         {
           label: '合同',
-          value: 2
+          value: 6
         },
         {
           label: '回款',
-          value: 3
+          value: 7
         }
       ]
     }
@@ -87,7 +87,7 @@ export default {
         if (val) {
           this.dataForm = {
             name: '',
-            type: 1
+            type: 5
           }
 
           if (this.isEdit) {
@@ -112,6 +112,10 @@ export default {
      */
     handleConfirm() {
       if (!this.dataForm.name) {
+        this.$message({
+          type: 'error',
+          message: '请输入模板名称'
+        })
         return
       }
 

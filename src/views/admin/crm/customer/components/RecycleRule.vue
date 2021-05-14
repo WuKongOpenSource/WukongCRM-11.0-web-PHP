@@ -10,9 +10,9 @@
         <span class="check-label">选择不进入公海客户</span>
         <el-checkbox
           v-if="dealHandleShow"
-          v-model="data.dealHandle"
-          :true-label="0"
-          :false-label="1">已成交客户<el-tooltip
+          v-model="data.deal_handle"
+          :true-label="1"
+          :false-label="0">已成交客户<el-tooltip
             content="已成交是指客户状态为“已成交”"
             effect="dark"
             placement="top">
@@ -20,12 +20,12 @@
         </el-tooltip></el-checkbox>
         <el-checkbox
           v-if="businessHandleShow"
-          v-model="data.businessHandle"
-          :true-label="0"
-          :false-label="1">有商机客户</el-checkbox>
+          v-model="data.business_handle"
+          :true-label="1"
+          :false-label="0">有商机客户</el-checkbox>
       </div>
       <div>
-        <el-radio v-model="data.customerLevelSetting" :label="1">所有客户统一设置</el-radio>
+        <el-radio v-model="data.level_conf" :label="1">所有客户统一设置</el-radio>
         <el-table
           :data="allCustomerData"
           border
@@ -36,10 +36,10 @@
             width="180"/>
           <el-table-column
             :label="limitDayName"
-            prop="limitDay">
+            prop="limit_day">
             <template slot-scope="scope">
               <span>超过</span>
-              <el-input v-model="scope.row.limitDay" class="value-input" @keyup.native="inputLimit(scope.row)" />
+              <el-input v-model="scope.row.limit_day" class="value-input" @keyup.native="inputLimit(scope.row)" />
               <span>天{{ limitDayUnit }}，进入公海</span>
             </template>
           </el-table-column>
@@ -47,7 +47,7 @@
       </div>
 
       <div>
-        <el-radio v-model="data.customerLevelSetting" :label="2">根据客户级别分别设置</el-radio>
+        <el-radio v-model="data.level_conf" :label="2">根据客户级别分别设置</el-radio>
         <el-table
           :data="levelCustomerData"
           border
@@ -58,10 +58,10 @@
             width="180"/>
           <el-table-column
             :label="limitDayName"
-            prop="limitDay">
+            prop="limit_day">
             <template slot-scope="scope">
               <span>超过</span>
-              <el-input v-model="scope.row.limitDay" class="value-input" @keyup.native="inputLimit(scope.row)" />
+              <el-input v-model="scope.row.limit_day" class="value-input" @keyup.native="inputLimit(scope.row)" />
               <span>天{{ limitDayUnit }}，进入公海</span>
             </template>
           </el-table-column>
@@ -86,16 +86,16 @@ export default {
       default: () => {
         /**
          * "type":1, // 收回规则判断类型 1跟进记录 2商机 3成交状态
-        "dealHandle":0, // 已成交客户是否进入公海 0不进入 1进入
-        "businessHandle":1, // 有商机客户是否进入公海 0不进入 1进入
+        "deal_handle":0, // 已成交客户是否进入公海 0不进入 1进入
+        "business_handle":1, // 有商机客户是否进入公海 0不进入 1进入
         "level":1, // 客户级别 1全部 2 A（重要客户）3 B（普通客户）4 C（非优先  客户）
-        "limitDay":30 // 公海规则限制天数
+        "limit_day":30 // 公海规则限制天数
          */
         return {
           type: '',
-          dealHandle: 1,
-          businessHandle: 1,
-          customerLevelSetting: null,
+          deal_handle: 0,
+          business_handle: 0,
+          level_conf: null,
           level: []
         }
       }
@@ -111,7 +111,7 @@ export default {
     return {
       allCustomerData: [{
         level: '所有客户', // 客户级别 1全部 2 A（重要客户）3 B（普通客户）4 C（非优先客户）
-        limitDay: ''
+        limit_day: ''
       }],
       levelCustomerData: []
     }
@@ -149,7 +149,7 @@ export default {
     }
   },
   watch: {
-    'data.customerLevelSetting': {
+    'data.level_conf': {
       handler(val, oldVal) {
         if (val == 1) {
           if (this.isEdit && oldVal == null) {
@@ -175,14 +175,14 @@ export default {
         if (value && value.length) {
           this.levelCustomerData = value.map(item => {
             const obj = {
-              limitDay: ''
+              limit_day: ''
             }
             obj.level = item
             return obj
           })
 
           // 类型是2
-          if (this.data.customerLevelSetting == 2) {
+          if (this.data.level_conf == 2) {
             if (this.isEdit && this.levelCustomerData && this.levelCustomerData.length) {
               this.data.level = this.getEditData(this.levelCustomerData, this.data.level)
             }
@@ -202,7 +202,7 @@ export default {
         for (let editIndex = 0; editIndex < editList.length; editIndex++) {
           const editItem = editList[editIndex]
           if (editItem.level == item.level) {
-            item.limitDay = editItem.limitDay
+            item.limit_day = editItem.limit_day
           }
         }
       }
@@ -214,7 +214,7 @@ export default {
      * 阻挡输入
      */
     inputLimit(data) {
-      data.limitDay = data.limitDay.replace(/[^0-9]/g, '')
+      data.limit_day = data.limit_day.replace(/[^0-9]/g, '')
     }
   }
 }

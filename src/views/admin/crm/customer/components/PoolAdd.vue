@@ -28,7 +28,7 @@
               label-position="top"
               class="pool-add-items">
               <el-form-item
-                prop="poolName"
+                prop="pool_name"
                 class="pool-add-item pool-add-item__left">
                 <div
                   slot="label"
@@ -37,7 +37,7 @@
                     公海名称
                   </div>
                 </div>
-                <el-input v-model="baseFrom.poolName" :maxlength="100" />
+                <el-input v-model="baseFrom.pool_name" :maxlength="100" />
               </el-form-item>
               <el-form-item
                 prop="adminUsers"
@@ -89,13 +89,13 @@
             align="stretch">
             <div class="row-label">前负责人领取规则</div>
             <div class="row-content">
-              <el-radio-group v-model="baseFrom.preOwnerSetting">
+              <el-radio-group v-model="baseFrom.before_owner_conf">
                 <el-radio :label="0">不限制</el-radio>
                 <el-radio :label="1">限制</el-radio>
               </el-radio-group>
-              <div v-if="baseFrom.preOwnerSetting === 1" class="xr-input">
+              <div v-if="baseFrom.before_owner_conf === 1" class="xr-input">
                 <span>前负责人</span>
-                <el-input v-model="baseFrom.preOwnerSettingDay" @keyup.native="inputLimit('preOwnerSettingDay')" />
+                <el-input v-model="baseFrom.before_owner_day" @keyup.native="inputLimit('before_owner_day')" />
                 <span>天内不允许领取该客户</span>
               </div>
             </div>
@@ -106,13 +106,13 @@
             align="stretch">
             <div class="row-label">领取频率规则</div>
             <div class="row-content">
-              <el-radio-group v-model="baseFrom.receiveSetting">
+              <el-radio-group v-model="baseFrom.receive_conf">
                 <el-radio :label="0">不限制</el-radio>
                 <el-radio :label="1">限制</el-radio>
               </el-radio-group>
-              <div v-if="baseFrom.receiveSetting === 1" class="xr-input">
+              <div v-if="baseFrom.receive_conf === 1" class="xr-input">
                 <span>每天最多领取</span>
-                <el-input v-model="baseFrom.receiveNum" @keyup.native="inputLimit('receiveNum')" />
+                <el-input v-model="baseFrom.receive_count" @keyup.native="inputLimit('receive_count')" />
                 <span>个公海客户</span>
               </div>
             </div>
@@ -123,13 +123,13 @@
             align="stretch">
             <div class="row-label">提醒规则</div>
             <div class="row-content">
-              <el-radio-group v-model="baseFrom.remindSetting">
+              <el-radio-group v-model="baseFrom.remind_conf">
                 <el-radio :label="0">不提醒</el-radio>
                 <el-radio :label="1">提醒</el-radio>
               </el-radio-group>
-              <div v-if="baseFrom.remindSetting === 1" class="xr-input">
+              <div v-if="baseFrom.remind_conf === 1" class="xr-input">
                 <span>提前</span>
-                <el-input v-model="baseFrom.remindDay" @keyup.native="inputLimit('remindDay')" />
+                <el-input v-model="baseFrom.remain_day" @keyup.native="inputLimit('remain_day')" />
                 <span>天提醒负责人</span>
               </div>
             </div>
@@ -140,14 +140,14 @@
             align="stretch">
             <div class="row-label">收回规则</div>
             <div class="row-content">
-              <el-radio-group v-model="baseFrom.putInRule">
+              <el-radio-group v-model="baseFrom.recycle_conf">
                 <el-radio :label="1">自动回收</el-radio>
                 <el-radio :label="0">不自动回收</el-radio>
               </el-radio-group>
             </div>
           </flexbox>
 
-          <template v-if="baseFrom.putInRule == 1">
+          <template v-if="baseFrom.recycle_conf == 1">
             <recycle-rule
               v-for="(item, index) in recycleRuleData"
               :key="index"
@@ -172,7 +172,7 @@
                   <el-checkbox
                     v-for="(item, index) in customerPoolFields"
                     :key="index"
-                    v-model="item.isHidden"
+                    v-model="item.is_hidden"
                     :true-label="0"
                     :false-label="1">{{ item.name }}</el-checkbox>
                 </flexbox>
@@ -251,7 +251,7 @@ export default {
       loading: false,
       baseFrom: null,
       baseRules: {
-        poolName: [
+        pool_name: [
           { required: true, message: '请输入公海名称', trigger: 'blur' }
         ],
         adminUsers: [
@@ -265,9 +265,9 @@ export default {
       levelCustomerName: [], // 客户级别数据源
       customerPoolFields: [],
       requestFields: {
-        preOwnerSettingDay: '前负责人限制领取天数需大于0',
-        receiveNum: '领取频率限制个数需大于0',
-        remindDay: '提醒规则天数需大于0'
+        before_owner_day: '前负责人限制领取天数需大于0',
+        receive_count: '领取频率限制个数需大于0',
+        remain_day: '提醒规则天数需大于0'
       }
     }
   },
@@ -309,7 +309,7 @@ export default {
     getDetail() {
       this.loading = true
       crmCustomerPoolSetDetailAPI({
-        poolId: this.action.id
+        pool_id: this.action.id
       }).then(res => {
         this.getEditInfo(res.data)
         this.loading = false
@@ -319,20 +319,25 @@ export default {
     },
 
     getEditInfo(data) {
+      if (data.user_info) {
+        data.user_info.forEach(item => {
+          item.type = 'user'
+        })
+      }
       this.baseFrom = {
-        poolName: data.poolName,
-        adminUsers: data.adminUser,
+        pool_name: data.pool_name,
+        adminUsers: data.admin_user_info,
         memberUsers: {
-          users: data.memberUser,
-          strucs: data.memberDept
+          users: data.user_info,
+          strucs: data.department_info
         },
-        preOwnerSetting: data.preOwnerSetting, // 前负责人领取规则 0不限制 1限制
-        preOwnerSettingDay: data.preOwnerSettingDay,
-        receiveSetting: data.receiveSetting, // 0 不启用 1 启用
-        remindSetting: data.remindSetting, // 0 不提醒 1 提醒
-        receiveNum: data.receiveNum, // 领取频率规则
-        remindDay: data.remindDay, // 提醒规则天数
-        putInRule: data.putInRule // 收回规则 0不自动收回 1自动收回
+        before_owner_conf: data.before_owner_conf, // 前负责人领取规则 0不限制 1限制
+        before_owner_day: data.before_owner_day,
+        receive_conf: data.receive_conf, // 0 不启用 1 启用
+        remind_conf: data.remind_conf, // 0 不提醒 1 提醒
+        receive_count: data.receive_count, // 领取频率规则
+        remain_day: data.remain_day, // 提醒规则天数
+        recycle_conf: data.recycle_conf // 收回规则 0不自动收回 1自动收回
       }
 
       this.recycleRuleData = this.getEditRule(data.rule)
@@ -345,23 +350,23 @@ export default {
       const baseRule = [
         {
           type: '',
-          dealHandle: 1,
-          businessHandle: 1,
-          customerLevelSetting: 1,
+          deal_handle: 0,
+          business_handle: 0,
+          level_conf: 1,
           level: []
         },
         {
           type: '',
-          dealHandle: 1,
-          businessHandle: 1,
-          customerLevelSetting: 1,
+          deal_handle: 0,
+          business_handle: 0,
+          level_conf: 1,
           level: []
         },
         {
           type: '',
-          dealHandle: 1,
-          businessHandle: 1,
-          customerLevelSetting: 1,
+          deal_handle: 0,
+          business_handle: 0,
+          level_conf: 1,
           level: []
         }
       ]
@@ -369,7 +374,7 @@ export default {
       if (detailRule) {
         for (let index = 0; index < detailRule.length; index++) {
           const element = detailRule[index]
-          element.level = element.levelSetting
+          element.level = element.level_setting
           baseRule.splice(element.type - 1, 1, element)
         }
       }
@@ -382,19 +387,19 @@ export default {
      */
     getCreateInfo() {
       this.baseFrom = {
-        poolName: '',
+        pool_name: '',
         adminUsers: [],
         memberUsers: {
           users: [],
           strucs: []
         },
-        preOwnerSetting: 0, // 前负责人领取规则 0不限制 1限制
-        preOwnerSettingDay: '',
-        receiveSetting: 0, // 0 不启用 1 启用
-        receiveNum: '', // 领取频率规则
-        remindSetting: 0, // 0 不提醒 1 提醒
-        remindDay: '', // 提醒规则天数
-        putInRule: 1 // 收回规则 0不自动收回 1自动收回
+        before_owner_conf: 0, // 前负责人领取规则 0不限制 1限制
+        before_owner_day: '',
+        receive_conf: 0, // 0 不启用 1 启用
+        receive_count: '', // 领取频率规则
+        remind_conf: 0, // 0 不提醒 1 提醒
+        remain_day: '', // 提醒规则天数
+        recycle_conf: 1 // 收回规则 0不自动收回 1自动收回
       }
 
       this.recycleRuleData = this.getEditRule()
@@ -410,10 +415,18 @@ export default {
      */
     getCustomerPoolFields(allFields) {
       return new Promise((resolve, reject) => {
-        crmCustomerPoolQueryPoolFieldAPI().then(res => {
+        crmCustomerPoolQueryPoolFieldAPI(
+          {
+            types: 'crm_customer',
+            module: 'crm',
+            action: 'pool',
+            controller: 'customer',
+            pool_id: this.action.id
+          }
+        ).then(res => {
           const list = res.data || []
           const baseField = list.map(item => {
-            item.isHidden = item.isHidden = allFields ? 1 : 0
+            item.is_hidden = item.is_hidden = allFields ? 1 : 0
             return item
           })
           if (allFields) {
@@ -436,16 +449,16 @@ export default {
 
         for (let editIndex = 0; editIndex < allFields.length; editIndex++) {
           const editItem = allFields[editIndex]
-          // fieldId 存在 匹配fieldId 不存在 匹配 fieldName
-          if (item.fieldId) {
-            if (item.fieldId === editItem.fieldId) {
-              item.settingId = editItem.settingId
-              item.isHidden = editItem.isHidden
+          // field_id 存在 匹配fieldId 不存在 匹配 field_name
+          if (item.field_id) {
+            if (item.field_id === editItem.field_id) {
+              item.setting_id = editItem.setting_id
+              item.is_hidden = editItem.is_hidden
             }
           } else {
-            if (item.fieldName === editItem.fieldName) {
-              item.settingId = editItem.settingId
-              item.isHidden = editItem.isHidden
+            if (item.field === editItem.field_name) {
+              item.setting_id = editItem.setting_id
+              item.is_hidden = editItem.is_hidden
             }
           }
         }
@@ -503,7 +516,7 @@ export default {
      */
     uploadPoolSet(params) {
       if (this.isEdit) {
-        params.poolId = this.action.id
+        params.pool_id = this.action.id
       }
       this.loading = true
       crmCustomerPoolSetAPI(params).then(res => {
@@ -520,11 +533,11 @@ export default {
      * 必填字段验证
      */
     requestFieldsVerify(key) {
-      if (key == 'preOwnerSettingDay' && this.baseFrom.preOwnerSetting == 1 && (!this.baseFrom[key] || this.baseFrom[key] <= 0)) {
+      if (key == 'before_owner_day' && this.baseFrom.before_owner_conf == 1 && (!this.baseFrom[key] || this.baseFrom[key] <= 0)) {
         return false
-      } else if (key == 'receiveNum' && this.baseFrom.receiveSetting == 1 && (!this.baseFrom[key] || this.baseFrom[key] <= 0)) {
+      } else if (key == 'receive_count' && this.baseFrom.receive_conf == 1 && (!this.baseFrom[key] || this.baseFrom[key] <= 0)) {
         return false
-      } else if (key == 'remindDay' && this.baseFrom.remindSetting == 1 && (!this.baseFrom[key] || this.baseFrom[key] <= 0)) {
+      } else if (key == 'remain_day' && this.baseFrom.remind_conf == 1 && (!this.baseFrom[key] || this.baseFrom[key] <= 0)) {
         return false
       }
 
@@ -544,17 +557,17 @@ export default {
         } else {
           if (key == 'adminUsers') {
             const adminUsers = this.baseFrom.adminUsers || []
-            params.adminUserId = adminUsers.map(item => {
-              return item.userId
+            params.admin_user_ids = adminUsers.map(item => {
+              return item.id
             }).join(',')
           } else if (key == 'memberUsers') {
             const memberUserObj = this.baseFrom.memberUsers || {}
             const adminUsers = memberUserObj.users || []
             const adminStrucs = memberUserObj.strucs || []
-            params.memberUserId = adminUsers.map(item => {
-              return item.userId
+            params.user_ids = adminUsers.map(item => {
+              return item.id
             }).join(',')
-            params.memberDeptId = adminStrucs.map(item => {
+            params.department_ids = adminStrucs.map(item => {
               return item.id
             }).join(',')
           } else {
@@ -564,7 +577,7 @@ export default {
       }
 
       // 收回规则 1 自动收回
-      if (this.baseFrom.putInRule == 1) {
+      if (this.baseFrom.recycle_conf == 1) {
         const ruleVerify = this.recycleRuleData.filter(item => {
           return item.type
         })
@@ -583,7 +596,7 @@ export default {
             const newLevel = []
             for (let levelIndex = 0; levelIndex < ruleItem.level.length; levelIndex++) {
               const levelItem = ruleItem.level[levelIndex]
-              if (levelItem.limitDay && levelItem.limitDay > 0) {
+              if (levelItem.limit_day && levelItem.limit_day > 0) {
                 rulePass = true
                 newLevel.push(levelItem)
               }
@@ -604,7 +617,7 @@ export default {
       }
 
       const showFields = this.customerPoolFields.filter(item => {
-        return item.isHidden == 0
+        return item.is_hidden == 0
       })
 
       if (showFields.length < 2) {

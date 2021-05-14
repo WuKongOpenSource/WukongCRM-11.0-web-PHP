@@ -264,3 +264,18 @@ export function crmContractQueryVisitAPI(data) {
     }
   })
 }
+
+/**
+ *
+ * @param {*} data
+ */
+export function crmContractQueryListByProductIdAPI(data) {
+  return request({
+    url: 'bi/product/listProduct',
+    method: 'post',
+    data: data,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}

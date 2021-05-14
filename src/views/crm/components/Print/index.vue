@@ -18,9 +18,9 @@
           @change="getDetail">
           <el-option
             v-for="item in templateOptions"
-            :key="item.templateId"
-            :label="item.templateName"
-            :value="item.templateId"/>
+            :key="item.id"
+            :label="item.name"
+            :value="item.id"/>
         </el-select>
         <span class="select-label">选择模版</span>
         <el-select
@@ -146,7 +146,7 @@ export default {
           this.templateOptions = res.data.list || []
           if (this.$route.query.type != 'history') {
             if (this.templateOptions.length) {
-              this.templateId = this.templateOptions[0].templateId
+              this.templateId = this.templateOptions[0].id
               this.getDetail()
             } else {
               this.templateId = ''
@@ -166,8 +166,9 @@ export default {
     getDetail() {
       this.loading = true
       printPrintAPI({
-        templateId: this.templateId,
-        id: this.typeId
+        template_id: this.templateId,
+        action_id: this.typeId,
+        type: crmTypeModel.convertKeyToType(this.$route.query.module)
       })
         .then(res => {
           this.loading = false
@@ -184,17 +185,18 @@ export default {
     getRecordDetail() {
       this.loading = true
       printRecordDetailAPI({
-        recordId: this.$route.query.recordId
+        record_id: this.$route.query.id,
+        type: 20
       })
         .then(res => {
           this.loading = false
           const data = res.data || {}
           this.historyData = data
-          this.templateId = data.templateId
+          this.templateId = data.template_id
           this.typeId = data.typeId
 
-          this.getTemplateOptions(data.crmType)
-          this.content = data.recordContent || ''
+          this.getTemplateOptions(data.type)
+          this.content = data.content || ''
         })
         .catch(() => {
           this.loading = false
@@ -221,8 +223,8 @@ export default {
         .then(res => {
           this.loading = false
           const data = res.data
-          const iframeUrl = `/crmPrint/preview.pdf?type=1&key=${data}`
-          downloadFileAPI(iframeUrl).then(res => {
+          const iframeUrl = `/crm/preview/previewPDF?key=${data}`
+          downloadFileAPI({ key: data }, iframeUrl).then(res => {
             this.iframeUrl = window.URL.createObjectURL(res.data)
           }).catch(() => {})
 
@@ -240,9 +242,10 @@ export default {
     savePrintRecord() {
       if (this.templateId && this.typeId) {
         printSaveRecordAPI({
-          templateId: this.templateId,
-          typeId: this.typeId,
-          recordContent: this.content
+          template_id: this.templateId,
+          action_id: this.typeId,
+          recordContent: this.content,
+          type: crmTypeModel.convertKeyToType(this.$route.query.module)
         })
           .then(res => {
           })

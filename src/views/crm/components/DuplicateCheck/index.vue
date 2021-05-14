@@ -78,11 +78,11 @@
         :visible.sync="showFullDetail"
         :crm-type="relationCrmType"
         :id="relationId"
-        :pool-id="poolId"
+        :pool_id="pool_id"
         @handle="getList"/>
 
       <alloc-handle
-        :pool-id="poolId"
+        :pool_id="pool_id"
         :selection-list="[relationData]"
         :dialog-visible.sync="allocDialogShow"
         crm-type="customer"
@@ -124,7 +124,7 @@ export default {
       showFullDetail: false, // 查看相关客户管理详情
       relationId: '', // 相关ID参数
       relationData: {}, // 关联数据
-      poolId: '', // 公海Id
+      pool_id: '', // 公海Id
       relationCrmType: '', // 相关类型
       allocDialogShow: false //  分配弹窗
     }
@@ -222,8 +222,8 @@ export default {
         const list = res.data || []
         this.tableData = list.map(item => {
           // item.module = crmTypeModel.convertTypeToName(item.type)
-          if (item.poolName) {
-            item.module = `${item.module}（${item.poolName}）`
+          if (item.pool_name) {
+            item.module = `${item.module}（${item.pool_name}）`
           }
           // 是手机号
           if (!this.isCustomerFilter) {
@@ -254,9 +254,9 @@ export default {
       if (column.property == 'name' && row.id) {
         this.relationId = row.id
         if (row.poolAuthList) {
-          this.poolId = row.poolAuthList.poolId
+          this.pool_id = row.poolAuthList.pool_id
         } else {
-          this.poolId = ''
+          this.pool_id = ''
         }
         const key = crmTypeModel.convertTypeToKey(row.type)
         this.relationCrmType = key == 'pool' ? 'customer' : key
@@ -289,7 +289,7 @@ export default {
           .then(() => {
             crmCustomerReceiveAPI({
               customer_id: [data.id],
-              poolId: data.poolAuthList.poolId
+              pool_id: data.poolAuthList.pool_id
             })
               .then(res => {
                 this.$message.success('操作成功')

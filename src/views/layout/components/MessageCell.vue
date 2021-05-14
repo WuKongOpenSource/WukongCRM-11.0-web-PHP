@@ -35,7 +35,7 @@ export default {
   },
   props: {
     data: Object,
-    dataIndex: Number
+    dataIndex: [String, Number]
   },
   data() {
     return {}

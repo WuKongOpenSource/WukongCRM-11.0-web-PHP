@@ -18,7 +18,7 @@ export function oaAllExamineCategoryListAPI(data) {
  */
 export function oaAllExamineCategorySortAPI(data) {
   return request({
-    url: 'oaExamineCategory/saveOrUpdateOaExamineSort',
+    url: 'oa/examine/examineSort',
     method: 'post',
     data: data,
     headers: {

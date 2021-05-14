@@ -46,7 +46,7 @@ export function crmCustomerDeleteAPI(data) {
  */
 export function crmCustomerPoolListAPI(data) {
   return request({
-    url: 'crm/customer/pool',
+    url: 'crm/customerPool/index',
     method: 'post',
     data: data
   })
@@ -58,7 +58,7 @@ export function crmCustomerPoolListAPI(data) {
  */
 export function crmCustomerPoolDeleteAPI(data) {
   return request({
-    url: 'crm/customer/delete',
+    url: 'crm/customerPool/delete',
     method: 'post',
     data: data,
     headers: {
@@ -73,7 +73,7 @@ export function crmCustomerPoolDeleteAPI(data) {
  */
 export function crmCustomerPoolSetAPI(data) {
   return request({
-    url: 'crmCustomerPool/setCustomerPool',
+    url: 'admin/setting/setPool',
     method: 'post',
     data: data,
     headers: {
@@ -88,7 +88,7 @@ export function crmCustomerPoolSetAPI(data) {
  */
 export function crmCustomerPoolSetListAPI(data) {
   return request({
-    url: 'crmCustomerPool/queryPoolSettingList',
+    url: 'admin/setting/pool',
     method: 'post',
     data: data,
     headers: {
@@ -102,7 +102,7 @@ export function crmCustomerPoolSetListAPI(data) {
  */
 export function crmCustomerPoolSetDeleteAPI(data) {
   return request({
-    url: 'crmCustomerPool/deleteCustomerPool',
+    url: 'admin/setting/deletePool',
     method: 'post',
     data: data
   })
@@ -114,7 +114,7 @@ export function crmCustomerPoolSetDeleteAPI(data) {
  */
 export function crmCustomerPoolSetDetailAPI(data) {
   return request({
-    url: 'crmCustomerPool/queryPoolById',
+    url: 'admin/setting/readPool',
     method: 'post',
     data: data
   })
@@ -126,7 +126,7 @@ export function crmCustomerPoolSetDetailAPI(data) {
  */
 export function crmCustomerPoolSetChangeStatusAPI(data) {
   return request({
-    url: 'crmCustomerPool/changeStatus',
+    url: 'admin/setting/changePool',
     method: 'post',
     data: data
   })
@@ -140,7 +140,7 @@ export function crmCustomerPoolSetChangeStatusAPI(data) {
  */
 export function crmCustomerPoolSetTransferAPI(data) {
   return request({
-    url: 'crmCustomerPool/transfer',
+    url: 'admin/setting/transferPool',
     method: 'post',
     data: data
   })
@@ -152,7 +152,7 @@ export function crmCustomerPoolSetTransferAPI(data) {
  */
 export function crmCustomerPoolSetNameListAPI(data) {
   return request({
-    url: 'crmCustomerPool/queryPoolNameList',
+    url: 'admin/setting/pool',
     method: 'post',
     data: data
   })
@@ -164,7 +164,7 @@ export function crmCustomerPoolSetNameListAPI(data) {
  */
 export function crmCustomerPoolNameListAPI(data) {
   return request({
-    url: 'crmCustomerPool/queryPoolNameListByAuth',
+    url: 'crm/customerPool/pondList',
     method: 'post',
     data: data
   })
@@ -176,7 +176,7 @@ export function crmCustomerPoolNameListAPI(data) {
  */
 export function crmCustomerPoolQueryLevelAPI(data) {
   return request({
-    url: 'crmCustomerPool/queryCustomerLevel',
+    url: 'admin/setting/customerLevel',
     method: 'post',
     data: data
   })
@@ -187,7 +187,7 @@ export function crmCustomerPoolQueryLevelAPI(data) {
  */
 export function crmCustomerReadAPI(data) {
   return request({
-    url: `crm/customer/read`,
+    url: `crm/${data.pool_id ? 'customerPool' : 'customer'}/read`,
     method: 'post',
     data: data
   })
@@ -301,7 +301,7 @@ export function crmCustomerPoolExcelImportAPI(data) {
     param.append(key, data[key])
   })
   return request({
-    url: 'crmCustomerPool/uploadExcel',
+    url: 'crm/customerPool/import',
     method: 'post',
     data: param,
     headers: {
@@ -326,12 +326,30 @@ export function crmCustomerDownloadExcelAPI(data) {
 }
 
 /**
+ * 客户公海导入模板下载
+ * @param {*} data
+ *
+ */
+
+export function crmCustomerPoolDownloadExcelAPI(data) {
+  return request({
+    url: 'crm/customerPool/excelDownload',
+    method: 'post',
+    data: data,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    },
+    responseType: 'blob'
+  })
+}
+
+/**
  * 公海导出
  * @param {*} data
  */
 export function crmCustomerPoolExcelExportAPI(data) {
   return request({
-    url: 'crm/customer/poolExcelExport',
+    url: 'crm/customerPool/export',
     method: 'post',
     data: data,
     headers: {
@@ -348,7 +366,7 @@ export function crmCustomerPoolExcelExportAPI(data) {
  */
 export function crmCustomerPoolExcelAllExport(data) {
   return request({
-    url: 'crm/customer/poolExcelExport',
+    url: 'crm/customerPool/export',
     method: 'post',
     data: data,
     responseType: 'blob',
@@ -364,7 +382,7 @@ export function crmCustomerPoolExcelAllExport(data) {
  */
 export function crmCustomerPoolQueryPoolFieldAPI(data) {
   return request({
-    url: 'crmCustomerPool/queryPoolField',
+    url: 'admin/setting/poolField',
     method: 'post',
     data: data
   })
@@ -376,7 +394,8 @@ export function crmCustomerPoolQueryPoolFieldAPI(data) {
  */
 export function crmCustomerPoolQueryAuthAPI(data) {
   return request({
-    url: 'crm/customer/poolAuthority',
+    // url: 'crm/customer/poolAuthority',
+    url: 'crm/customerPool/authority',
     method: 'post',
     data: data
   })
@@ -388,7 +407,7 @@ export function crmCustomerPoolQueryAuthAPI(data) {
  */
 export function crmCustomerDistributeAPI(data) {
   return request({
-    url: 'crm/customer/distribute',
+    url: 'crm/customerPool/distribute',
     method: 'post',
     data: data,
     headers: {
@@ -403,7 +422,7 @@ export function crmCustomerDistributeAPI(data) {
  */
 export function crmCustomerReceiveAPI(data) {
   return request({
-    url: 'crm/customer/receive',
+    url: 'crm/customerPool/receive',
     method: 'post',
     data: data,
     headers: {

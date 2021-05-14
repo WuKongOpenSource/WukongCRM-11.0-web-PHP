@@ -34,7 +34,7 @@
                 <i
                   :class="item.icon"
                   class="menu-item__icon" />
-                <div class="menu-item__content">{{ item.label }}</div>
+                <div class="menu-item__content">{{ item.label }}&nbsp;<span v-if="item.count > 0" style="color: #999;">({{ item.count }})</span></div>
               </flexbox>
             </div>
           </div>
@@ -86,13 +86,27 @@
           justify="space-between"
           class="table-top">
           <div class="table-top__title">
-            <span>{{ `${currentMenuData ? currentMenuData.label : ''}：${ total || 0 }` }}</span>
+            <span>{{ `${currentMenuData ? currentMenuData.label : ''}` }}<template v-if="!isDepUserShow">{{ `：${userTotal || 0}` }}</template></span>
+            <el-tooltip
+              v-if="currentMenuData && currentMenuData.tips"
+              :content="currentMenuData.tips"
+              effect="dark"
+              placement="top">
+              <i class="wk wk-help wk-help-tips"/>
+            </el-tooltip>
             <reminder
               v-if="currentMenuData && currentMenuData.type && currentMenuData.type == 'all'"
               class="all-user-reminder"
               content="未添加部门和角色的员工无法正常登录系统" />
           </div>
           <div>
+
+            <el-checkbox
+              v-if="isDepUserShow"
+              v-model="isNeedChild"
+              :true-label="1"
+              :false-label="0"
+              @change="refreshUserList">包含子部门</el-checkbox>
             <el-button
               v-if="userSaveAuth"
               type="text"
@@ -145,14 +159,16 @@
               width="55" />
             <el-table-column
               prop="realname"
-              width="100"
+              width="150"
               show-overflow-tooltip
               label="姓名">
-              <template slot-scope="scope">
-                <div class="status-name">
-                  <div :style="{'background-color' : getStatusColor(scope.row.status)}" />
-                  {{ scope.row.realname }}
-                </div>
+              <template slot-scope="{ row, column }">
+                <span class="status-name">
+                  <span :style="{'background-color' : getStatusColor(row.status)}" class="status-mark" />
+                  <span v-if="row.userIdentity === 0" class="main-mark">主账号</span>
+                  <span v-if="row.userIdentity === 1" class="main-mark">负责人</span>
+                  <span>{{ row.realname }}</span>
+                </span>
               </template>
             </el-table-column>
             <el-table-column
@@ -217,6 +233,14 @@
             :value="item.id" />
         </el-select>
       </div>
+      <flexbox
+        class="nav-dialog-div">
+        <label>部门负责人：</label>
+        <wk-user-select
+          v-model="depOwnerUserId"
+          radio
+        />
+      </flexbox>
       <span
         slot="footer"
         class="dialog-footer">
@@ -402,7 +426,8 @@
           <template v-if="item.type == 'select'">
             <el-select
               v-model="formInline[item.field]"
-              filterable>
+              filterable
+              @change="addUserSelectChange(item)">
               <el-option
                 v-for="optionItem in optionsList[item.field].list"
                 :key="optionItem.id"
@@ -459,6 +484,13 @@
       :visible.sync="editRoleDialogShow"
       @change="getUserList"
     />
+    <!-- 重置部门 -->
+    <edit-dep-dialog
+      v-if="editDepDialogShow"
+      :selection-list="selectionList"
+      :visible.sync="editDepDialogShow"
+      @change="getUserList"
+    />
   </div>
 </template>
 
@@ -473,7 +505,8 @@ import {
   adminUsersUpdatePwdAPI,
   adminUsersUsernameEditAPI,
   adminUsersManagerUsernameEditAPI,
-  usersEditStatusAPI
+  usersEditStatusAPI,
+  adminUserCountNumOfUserAPI
 } from '@/api/admin/employeeDep'
 
 import { userListAPI, depListAPI, listDialogAPI, usersListIndexAPI } from '@/api/common' // 直属上级接口
@@ -487,6 +520,8 @@ import XrHeader from '@/components/XrHeader'
 import Reminder from '@/components/Reminder'
 import SlideVerify from '@/components/SlideVerify'
 import EditRoleDialog from './components/EditRoleDialog'
+import WkUserSelect from '@/components/NewCom/WkUserSelect'
+import EditDepDialog from './components/EditDepDialog'
 
 import { chinaMobileRegex, objDeepCopy } from '@/utils'
 
@@ -499,7 +534,9 @@ export default {
     XrHeader,
     Reminder,
     SlideVerify,
-    EditRoleDialog
+    EditRoleDialog,
+    EditDepDialog,
+    WkUserSelect
   },
   data() {
     return {
@@ -507,27 +544,42 @@ export default {
         {
           icon: 'wk wk-employees',
           label: '所有员工',
-          type: 'all'
+          type: 'all',
+          field: 'allUserCount',
+          count: 0,
+          tips: '未添加部门和角色的员工无法正常登录系统'
         },
         {
           icon: 'wk wk-new-employee',
           label: '新加入的员工',
-          type: 'new'
+          type: 'new',
+          field: 'addNewlyCount',
+          count: 0,
+          tips: '入职7天内的员工'
         },
         {
           icon: 'wk wk-active-employee',
           label: '激活员工',
-          type: 'active'
+          type: 'active',
+          field: 'activateCount',
+          count: 0,
+          tips: '已经登录系统的员工'
         },
         {
           icon: 'wk wk-inactive-employee',
           label: '未激活员工',
-          type: 'inactive'
+          type: 'inactive',
+          field: 'inactiveCount',
+          count: 0,
+          tips: '未登录过系统的员工'
         },
         {
           icon: 'wk wk-disable-employees',
           label: '停用员工',
-          type: 'disable'
+          type: 'disable',
+          field: 'disableCount',
+          count: 0,
+          tips: '已禁用的员工，无法登录系统'
         }
       ],
       // 右边导航
@@ -536,6 +588,7 @@ export default {
       depSelect: '',
       // 上级部门
       superDepList: [],
+      depOwnerUserId: '', // 部门负责人
       depCreateLabel: '',
       allDepData: [], // 包含全部部门信息
       showDepData: [],
@@ -569,6 +622,7 @@ export default {
           width: '150'
         }
       ],
+      isNeedChild: 1, // 是否展示子级部门 0不需要 1 需要
       selectionList: [], // 批量勾选数据
       tableData: [],
       tableHeight: document.documentElement.clientHeight - 240, // 表的高度
@@ -673,7 +727,10 @@ export default {
       bulkImportShow: false,
       // 角色操作
       editRoleType: '',
-      editRoleDialogShow: false
+      editRoleDialogShow: false,
+      userTotal: 0, // 当前下总数,
+      editDepDialogShow: false
+
     }
   },
   computed: {
@@ -787,7 +844,11 @@ export default {
           icon: 'wk wk-edit'
         })
       }
-
+      temps.push({
+        name: '重置部门',
+        type: 'editDep',
+        icon: 'wk wk-employees'
+      })
 
       return temps
     },
@@ -828,6 +889,12 @@ export default {
      */
     canSlideVerify() {
       return chinaMobileRegex.test(this.resetUserNameForm.username)
+    },
+    /**
+     * 是查看部门员工
+     */
+    isDepUserShow() {
+      return this.currentMenuData && this.currentMenuData.structure_id
     }
   },
   mounted() {
@@ -841,13 +908,43 @@ export default {
     this.currentMenuData = this.employeeMenu[0]
     this.getDepTreeList()
     this.getUserList()
+    this.getUserCount()
   },
   methods: {
+    /**
+     * 编辑员工单选change
+     */
+    addUserSelectChange(item) {
+      if (item.field === 'structure_id') {
+        const options = this.optionsList.structure_id.list || []
+        const deptObj = options.find(o => o.id === this.formInline.structure_id)
+        if (deptObj) {
+          this.$set(this.formInline, 'parent_id', deptObj.owner_user_id || '')
+        }
+      }
+    },
+    /**
+     * 员工数量
+     */
+    getUserCount() {
+      this.depLoading = true
+      adminUserCountNumOfUserAPI().then(res => {
+        this.depLoading = false
+        const resData = res.data[0] || {}
+        this.employeeMenu.forEach(item => {
+          item.count = resData[item.field]
+        })
+        this.userTotal = this.currentMenuData.count
+      }).catch(() => {
+        this.depLoading = false
+      })
+    },
     /**
      * 选择部门
      */
     changeDepClick(data) {
       this.currentMenuData = data
+      this.userTotal = data.count
       // this.structureValue = data.id
       this.refreshUserList()
     },
@@ -857,6 +954,7 @@ export default {
      */
     changeUserClick(data) {
       // this.structureValue = ''
+      this.userTotal = data.count
       this.currentMenuData = data
       this.refreshUserList()
     },
@@ -879,7 +977,9 @@ export default {
         limit: this.pageSize,
         search: this.searchInput
       }
-
+      if (this.isDepUserShow) {
+        params.isNeedChild = this.isNeedChild
+      }
       if (this.currentMenuData) {
         // 员工有type值
         if (this.currentMenuData.type) {
@@ -959,7 +1059,10 @@ export default {
         structure_id:
           this.currentMenuData && this.currentMenuData.id
             ? this.currentMenuData.id
-            : ''
+            : '',
+        parent_id: this.currentMenuData && this.currentMenuData.owner_user_id
+          ? this.currentMenuData.owner_user_id
+          : ''
       }
       this.employeeCreateDialog = true
     },
@@ -1036,6 +1139,7 @@ export default {
         this.depCreateLabelValue = ''
         this.depCreateLabel = '新增部门'
         this.depCreateTitle = '新增部门'
+        this.depOwnerUserId = ''
         this.depSelect = id
         this.getStructuresListBySuperior({ id: id, type: 'save' })
         this.depCreateDialog = true
@@ -1084,6 +1188,7 @@ export default {
       this.depCreateLabelValue = data.label
       this.treeEditId = data.id
       this.depSelect = data.pid
+      this.depOwnerUserId = data.owner_user_id
       this.depCreateTitle = '编辑部门'
       this.depCreateLabel = '编辑部门'
       this.getStructuresListBySuperior({ id: data.id, type: 'update' })
@@ -1126,7 +1231,7 @@ export default {
     // 新增或编辑确定按钮
     submitDialog() {
       if (this.depCreateLabel == '新增部门') {
-        depSaveAPI({ name: this.depCreateLabelValue, pid: this.depSelect }).then(
+        depSaveAPI({ name: this.depCreateLabelValue, pid: this.depSelect, owner_user_id: this.depOwnerUserId }).then(
           res => {
             this.getDepList() // 增加了新部门 刷新数据
             this.getDepTreeList()
@@ -1137,7 +1242,8 @@ export default {
         depEditAPI({
           name: this.depCreateLabelValue,
           id: this.treeEditId,
-          pid: this.depSelect
+          pid: this.depSelect,
+          owner_user_id: this.depOwnerUserId
         }).then(res => {
           this.$message.success('操作成功')
           this.getDepTreeList()
@@ -1309,7 +1415,7 @@ export default {
                   })
                 : []
             } else if (element.field === 'parent_id') {
-              detail.parent_id = this.dialogData.parent_id
+              detail.parent_id = this.dialogData.parent_id || ''
             } else if (element.field === 'structure_id') {
               detail.structure_id = this.dialogData.structure_id
             } else {
@@ -1323,6 +1429,8 @@ export default {
       } else if (type === 'editRole' || type === 'copyRole') {
         this.editRoleType = type
         this.editRoleDialogShow = true
+      } else if (type === 'editDep') {
+        this.editDepDialogShow = true
       }
     },
     // 重置密码 -- 关闭按钮
@@ -1692,8 +1800,31 @@ export default {
 // .status > span {
 //   margin-right: 10px;
 // }
-
 .status-name {
+  .status-mark {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 3px;
+  }
+  color: $xr-color-primary;
+  cursor: pointer;
+  .main-mark {
+    background-color: #ff6a00;
+    color: white;
+    border-radius: 2px;
+    font-size: 12px;
+    padding: 0px 4px;
+    margin: 0 3px;
+  }
+}
+/* .status-name {
+  .status-mark {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 3px;
+  }
   div {
     display: inline-block;
     width: 6px;
@@ -1702,7 +1833,7 @@ export default {
   }
   color: $xr-color-primary;
   cursor: pointer;
-}
+} */
 /* 详情 */
 .employee-dep-management /deep/ .el-dialog__wrapper {
   margin-top: 60px !important;
@@ -1737,6 +1868,9 @@ export default {
 }
 .nav-dialog-div {
   margin-bottom: 20px;
+  .wk-user-select {
+    flex: 1;
+  }
 }
 .nav-dialog-div {
   .el-input,

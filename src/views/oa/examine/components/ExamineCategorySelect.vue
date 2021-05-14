@@ -109,9 +109,7 @@ export default {
      * 拖拽结束
      */
     draggableEnd() {
-      oaAllExamineCategorySortAPI(this.categorys.map(item => {
-        return { categoryId: item.categoryId }
-      }))
+      oaAllExamineCategorySortAPI({ examineIds: this.categorys.map(item => item.category_id) })
         .then(res => {})
         .catch(() => {})
     }

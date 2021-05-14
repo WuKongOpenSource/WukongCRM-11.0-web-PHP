@@ -203,9 +203,9 @@ export default {
       tempsTabs.push({ label: this.getTabName('团队成员', this.tabsNumber.memberCount), name: 'RelativeTeam' })
       tempsTabs.push({ label: this.getTabName('附件', this.tabsNumber.fileCount), name: 'RelativeFiles' })
       tempsTabs.push({ label: '操作记录', name: 'RelativeHandle' })
-      // if (this.crm.contract && this.crm.contract.print) {
-      //   tempsTabs.push({ label: '打印记录', name: 'RelativePrint' })
-      // }
+      if (this.crm.contract && this.crm.contract.print) {
+        tempsTabs.push({ label: '打印记录', name: 'RelativePrint' })
+      }
       return tempsTabs
     },
 

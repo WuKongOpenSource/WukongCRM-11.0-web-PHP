@@ -54,8 +54,8 @@ export default {
       nopermission: false,
       list: [],
       fieldList: [
-        { prop: 'createTime', label: '打印时间', width: '115px' },
-        { prop: 'templateName', label: '打印模板', width: '115px' }
+        { prop: 'create_time', label: '打印时间', width: '115px' },
+        { prop: 'template_name', label: '打印模板', width: '115px' }
       ],
       tableHeight: '450px'
     }
@@ -90,7 +90,7 @@ export default {
         .then(res => {
           this.nopermission = false
           this.loading = false
-          this.list = res.data
+          this.list = res.data.list
         })
         .catch(res => {
           if (res.code == 102) {
@@ -101,7 +101,7 @@ export default {
     },
 
     print(data) {
-      const routeData = this.$router.resolve(`/print/?&type=history&recordId=${data.recordId}`)
+      const routeData = this.$router.resolve(`/print/?&type=history&module=${this.crmType}&id=${data.record_id}`)
       window.open(routeData.href, '_blank')
     }
   }

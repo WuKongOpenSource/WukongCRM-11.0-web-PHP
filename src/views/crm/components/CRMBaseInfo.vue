@@ -165,7 +165,7 @@ export default {
   props: {
     // 模块ID
     id: [String, Number],
-    poolId: [String, Number],
+    pool_id: [String, Number],
     detail: {
       type: Object,
       default: () => {
@@ -244,8 +244,8 @@ export default {
       }
 
       // 如果有公海id 需上传确定展示字段
-      if (this.poolId) {
-        params.poolId = this.poolId
+      if (this.pool_id) {
+        params.pool_id = this.pool_id
       }
 
       filedGetInformationAPI(params)

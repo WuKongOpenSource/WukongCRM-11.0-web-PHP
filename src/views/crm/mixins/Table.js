@@ -145,8 +145,8 @@ export default {
       }
 
       // 公海切换
-      if (this.poolId) {
-        // params.poolId = this.poolId
+      if (this.pool_id) {
+        params.pool_id = this.pool_id
       }
       if (this.filterObj && this.filterObj.length > 0) {
         this.filterObj.forEach(element => {
@@ -249,14 +249,15 @@ export default {
 
         let params = {}
         if (this.isSeas) {
-          if (this.poolId) {
-            params.poolId = this.poolId
+          if (this.pool_id) {
+            params.pool_id = this.pool_id
           }
           params = {
             types: 'crm_' + this.crmType,
             module: 'crm',
             action: 'pool',
-            controller: this.crmType
+            controller: this.crmType,
+            pool_id: this.pool_id
           }
         } else {
           // params.label = crmTypeModel[this.crmType]
@@ -466,8 +467,8 @@ export default {
       }
 
       // 公海切换
-      if (this.poolId) {
-        // params.poolId = this.poolId
+      if (this.pool_id) {
+        params.pool_id = this.pool_id
       }
 
       // if (this.filterObj && this.filterObj.length > 0) {
@@ -619,11 +620,11 @@ export default {
           }[column.property] || field
         }
         if (this.isSeas) {
-          if (!this.poolId) {
+          if (!this.pool_id) {
             return
           }
           request = crmPoolFieldColumnWidthAPI
-          params.poolId = this.poolId
+          params.pool_id = this.pool_id
         } else {
           request = crmFieldColumnWidthAPI
         }

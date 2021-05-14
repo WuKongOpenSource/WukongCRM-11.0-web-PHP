@@ -130,10 +130,12 @@ export function webFileSaveAPI(data) {
   var param = new FormData()
   Object.keys(data).forEach(key => {
     param.append(key, data[key])
-    param.append('isPublic', '1')
+    // param.append('isPublic', '1')
+    param.append('module', 'print')
+    param.append('type', 'img')
   })
   return request({
-    url: 'adminFile/upload',
+    url: 'admin/file/save',
     method: 'post',
     data: param,
     headers: {
@@ -210,7 +212,7 @@ export function crmFileUpdateAPI(data) {
  */
 export function crmFileDownByPathAPI(data) {
   return request({
-    url: 'crmPrint/down',
+    url: 'crm/printing/down',
     method: 'post',
     data: data,
     responseType: 'blob'
@@ -330,9 +332,9 @@ export function systemMessageDeleteByIdAPI(data) {
   })
 }
 
-export function downloadFileAPI(data) {
+export function downloadFileAPI(data, url) {
   return request({
-    url: 'admin/file/download',
+    url: `${url || `admin/file/download`}`,
     method: 'post',
     data,
     responseType: 'blob'

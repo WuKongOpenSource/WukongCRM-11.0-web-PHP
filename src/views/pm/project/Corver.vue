@@ -10,6 +10,7 @@
       @search="searchClick">
       <div slot="ft">
         <el-button
+          v-if="permissonProject"
           type="primary"
           icon="el-icon-plus"
           class="xr-btn--orange"

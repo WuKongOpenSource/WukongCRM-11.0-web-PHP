@@ -17,11 +17,11 @@
         </div>
         <div>
           <div class="header-title">公海名称</div>
-          <div class="header-name">{{ detail.poolName }}</div>
+          <div class="header-name">{{ detail.pool_name }}</div>
         </div>
 
         <span class="customer-num">
-          客户数量：<span class="customer-num__value">{{ detail.customerNum || 0 }}个</span>
+          客户数量：<span class="customer-num__value">{{ detail.customer_count || 0 }}个</span>
         </span>
       </flexbox>
       <flexbox
@@ -31,7 +31,7 @@
           <div class="label">公海管理员</div>
           <div class="value">
             <xr-avatar
-              v-for="(item, index) in detail.adminUser"
+              v-for="(item, index) in detail.admin_user_info"
               :key="`admin${index}`"
               :name="item.realname"
               :size="32"
@@ -42,13 +42,13 @@
           <div class="label">公海成员</div>
           <div class="value">
             <xr-avatar
-              v-for="(item, index) in detail.memberUser"
+              v-for="(item, index) in detail.user_info"
               :key="`member${index}`"
               :name="item.realname"
               :size="32"
               :src="item.img || item.thumb_img" />
             <xr-avatar
-              v-for="(item, index) in detail.memberDept"
+              v-for="(item, index) in detail.department_info"
               :title="`dept${index}`"
               :key="`dept${index}`"
               :name="item.name"
@@ -63,25 +63,25 @@
             align="stretch"
             class="rule-item">
             <div class="label">前负责人领取规则</div>
-            <div class="value">{{ detail.preOwnerSetting == 1 ? `前负责人${detail.preOwnerSettingDay}天内不允许领取该客户` : '不限制' }}</div>
+            <div class="value">{{ detail.before_owner_conf == 1 ? `前负责人${detail.before_owner_day}天内不允许领取该客户` : '不限制' }}</div>
           </flexbox>
           <flexbox
             align="stretch"
             class="rule-item">
             <div class="label">领取频率规则</div>
-            <div class="value">{{ detail.receiveSetting == 1 ? `每天最多领取${detail.receiveNum}个公海客户` : '不限制' }}</div>
+            <div class="value">{{ detail.receive_conf == 1 ? `每天最多领取${detail.receive_count}个公海客户` : '不限制' }}</div>
           </flexbox>
           <flexbox
             align="stretch"
             class="rule-item">
             <div class="label">提醒规则</div>
-            <div class="value">{{ detail.remindSetting == 1 ? `提前${detail.remindDay}天提醒负责人` : '不提醒' }}</div>
+            <div class="value">{{ detail.remind_conf == 1 ? `提前${detail.remain_day}天提醒负责人` : '不提醒' }}</div>
           </flexbox>
           <flexbox
             align="stretch"
             class="rule-item">
             <div class="label">收回规则</div>
-            <div v-if="detail.putInRule == 0" class="value">不自动回收</div>
+            <div v-if="detail.recycle_conf == 0" class="value">不自动回收</div>
             <div v-else class="value rule-value">
               <detail-recycle-rule
                 v-for="(item, index) in detail.rule"
@@ -121,7 +121,7 @@ export default {
   filters: {
     fieldNameFilter(list) {
       return list.filter(item => {
-        return item.isHidden === 0
+        return item.is_hidden === 0
       }).map(item => {
         return item.name
       }).join('，')
@@ -158,7 +158,7 @@ export default {
     getDetail() {
       this.loading = true
       crmCustomerPoolSetDetailAPI({
-        poolId: this.id
+        pool_id: this.id
       }).then(res => {
         this.detail = res.data
         this.loading = false

@@ -148,9 +148,9 @@ export default {
         { label: '操作记录', name: 'RelativeHandle' }
       ]
 
-      // if (this.crm.receivables && this.crm.receivables.print) {
-      //   tempsTabs.push({ label: '打印记录', name: 'RelativePrint' })
-      // }
+      if (this.crm.receivables && this.crm.receivables.print) {
+        tempsTabs.push({ label: '打印记录', name: 'RelativePrint' })
+      }
 
       return tempsTabs
     }

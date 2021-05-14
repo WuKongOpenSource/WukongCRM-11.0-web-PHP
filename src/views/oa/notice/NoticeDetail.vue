@@ -32,7 +32,7 @@
         </el-dropdown>
       </flexbox>
       <div class="detail-title">{{ detail.title }}</div>
-      <div class="detail-time">{{ detail.updateTime }}</div>
+      <div class="detail-time">{{ detail.update_time }}</div>
       <div class="main__bd">{{ detail.content }}</div>
     </div>
 
