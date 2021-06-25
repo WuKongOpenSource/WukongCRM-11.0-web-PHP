@@ -173,11 +173,18 @@
                         default-expand-all>
                         <span
                           slot-scope="{ node }"
-                          :class="{ 'node-label': node.level == 1 || node.level == 2} ">{{ node.label }}<el-button
+                          :class="{ 'node-label': node.level == 1 || node.level == 2,'common-node-label': node.data.id === userInfo.rule_authority_id}">{{ node.label }}<el-button
                             v-if="node.level == 2 && canSetField(node.data.name) && node.data.title!='公海管理'"
                             icon="wk wk-manage"
                             type="text"
-                            @click="fieldSetClick(node)" >字段授权</el-button></span>
+                            @click="fieldSetClick(node)" >字段授权</el-button>
+                          <!-- 下是系统管理的配置  上是客户管理的配置 -->
+                          <el-button
+                            v-else-if="node.data.id === userInfo.rule_authority_id"
+                            icon="wk wk-manage"
+                            type="text"
+                            @click="checkRangeSetClick(node)" >配置查看范围</el-button>
+                        </span>
                       </el-tree>
                     </div>
                   </div>
@@ -221,6 +228,13 @@
       :visible.sync="editRoleDialogShow"
       @change="getUserList"
     />
+    <!-- 角色范围设置 -->
+    <role-range-set-dialog
+      v-if="setRoleRangeShow"
+      :visible.sync="setRoleRangeShow"
+      :id="id"
+    />
+
   </div>
 </template>
 
@@ -242,6 +256,8 @@ import FieldSetDialog from './components/FieldSetDialog'
 import Reminder from '@/components/Reminder'
 import XrHeader from '@/components/XrHeader'
 import EditRoleDialog from '../employeeDep/components/EditRoleDialog'
+import RoleRangeSetDialog from './components/RoleRangeSetDialog'
+import { mapGetters } from 'vuex'
 
 import crmTypeModel from '@/views/crm/model/crmTypeModel'
 
@@ -251,7 +267,8 @@ export default {
     FieldSetDialog,
     Reminder,
     XrHeader,
-    EditRoleDialog
+    EditRoleDialog,
+    RoleRangeSetDialog
   },
 
   data() {
@@ -306,11 +323,17 @@ export default {
       // 角色操作
       selectionList: [],
       editRoleType: '',
-      editRoleDialogShow: false
+      editRoleDialogShow: false,
+
+      // 角色范围设置
+      setRoleRangeShow: false
     }
   },
 
   computed: {
+    ...mapGetters([
+      'userInfo'
+    ]),
     id() {
       if (this.roleActive) {
         return this.roleActive.id
@@ -859,7 +882,7 @@ export default {
      */
     canSetField(type, data) {
       if (this.pid == 10) return false
-      return ['leads', 'customer', 'contacts', 'business', 'contract', 'receivables', 'product', 'visit'].includes(type) &&
+      return ['leads', 'customer', 'contacts', 'business', 'contract', 'receivables', 'product', 'visit', 'invoice'].includes(type) &&
       this.ruleMenuIndex === 'data'
     },
 
@@ -869,6 +892,12 @@ export default {
     fieldSetClick(node) {
       this.setFieldLabel = crmTypeModel.keyToTypeData[node.data.name]
       this.setFieldShow = true
+    },
+    /**
+     * 权限设置
+     */
+    checkRangeSetClick(node) {
+      this.setRoleRangeShow = true
     }
   }
 }
@@ -1115,6 +1144,17 @@ export default {
     }
   }
 }
+.common-node-label {
+  position: relative;
 
+  .el-button {
+    position: absolute;
+    top: -8px;
+    right: -105px;
+    /deep/ span {
+      margin-left: 3px;
+    }
+  }
+}
 @import '../styles/table.scss';
 </style>

@@ -23,6 +23,8 @@
           :head-details="headDetails"
           :id="id"
           :crm-type="crmType"
+          :page-list="pageList"
+          @pageChange="pageChange"
           @handle="detailHeadHandle"
           @close="hideView" />
         <examine-info
@@ -49,7 +51,10 @@
                 :detail="detailData"
                 :id="id"
                 :crm-type="crmType"
-                :filed-list="baseDetailList" />
+                :ignore-fields="['invoice_type']"
+
+                :other-list="baseDetailList"
+                @handle="detailHeadHandle" />
             </el-tab-pane>
           </el-tabs>
         </div>
@@ -65,7 +70,7 @@
 
     <create
       v-if="isCreate"
-      :detail="detailData"
+      :action="{type: 'update', id: id, batchId: detailData.batchId, detail: detailData}"
       @save-success="editSaveSuccess"
       @close="isCreate = false"/>
   </slide-view>
@@ -76,7 +81,7 @@ import { crmInvoiceReadAPI } from '@/api/crm/invoice'
 
 import SlideView from '@/components/SlideView'
 import CRMDetailHead from '../components/CRMDetailHead'
-import CRMBaseInfo from '../components/CRMBaseInfo' // 基本信息
+import CRMEditBaseInfo from '../components/CRMEditBaseInfo' // 基本信息
 import RelativeFiles from '../components/RelativeFiles' // 相关附件
 import RelativeHandle from '../components/RelativeHandle' // 相关操作
 import ExamineInfo from '@/components/Examine/ExamineInfo'
@@ -91,7 +96,7 @@ export default {
   components: {
     SlideView,
     CRMDetailHead,
-    CRMBaseInfo,
+    CRMEditBaseInfo,
     RelativeFiles,
     RelativeHandle,
     ExamineInfo,
@@ -135,7 +140,7 @@ export default {
         { title: '发票号码', value: '' },
         { title: '实际开票日期', value: '' }
       ],
-      tabCurrentName: 'CRMBaseInfo',
+      tabCurrentName: 'CRMEditBaseInfo',
       baseDetailList: [], // 基本详情list
       // 编辑操作
       isCreate: false
@@ -144,7 +149,7 @@ export default {
   computed: {
     tabNames() {
       return [
-        { label: '详细资料', name: 'CRMBaseInfo' },
+        { label: '详细资料', name: 'CRMEditBaseInfo' },
         {
           label: this.getTabName('附件', this.tabsNumber.fileCount),
           name: 'RelativeFiles'
@@ -189,89 +194,89 @@ export default {
      */
     getBaseList(data) {
       this.baseDetailList = [
-        {
-          name: '基本信息',
-          list: [
-            {
-              name: '发票申请编号',
-              formType: 'text',
-              value: data.essential.invoice_apple_number
-            },
-            {
-              name: '客户名称',
-              // formType: 'customer',
-              value: data.essential.customer_name
-            },
-            {
-              name: '合同编号',
-              // formType: 'contract',
-              value: data.essential.contract_number
-            },
-            {
-              name: '合同金额',
-              // formType: 'text',
-              value: data.essential.contract_money
-            },
-            {
-              name: '开票金额（元）',
-              // formType: 'text',
-              value: data.essential.invoice_money
-            },
-            {
-              name: '开票日期',
-              // formType: 'text',
-              value: data.essential.create_time
-            },
-            {
-              name: '开票类型',
-              // formType: 'text',
-              // value: data.essential.invoice_type
-              value: {
-                1: '增值税专用发票',
-                2: '增值税普通发票',
-                3: '国税通用机打发票',
-                4: '地税通用机打发票',
-                5: '收据'
-              }[data.essential.invoice_type]
-            },
-            {
-              name: '备注',
-              // formType: 'text',
-              value: data.essential.remark
-            },
-            {
-              name: '创建人',
-              // formType: 'text',
-              value: data.essential.create_user_name
-            },
-            {
-              name: '负责人',
-              // formType: 'text',
-              value: data.essential.owner_user_name
-            },
-            {
-              name: '创建时间',
-              // formType: 'text',
-              value: data.essential.create_time
-            },
-            {
-              name: '更新时间',
-              // formType: 'text',
-              value: data.essential.update_time
-            },
-            {
-              name: '审核状态',
-              // formType: 'text',
-              value: data.essential.check_status
-            }
-          ]
-        },
+        // {
+        //   name: '基本信息',
+        //   list: [
+        //     {
+        //       name: '发票申请编号',
+        //       // formType: 'text',
+        //       value: data.essential.invoice_apple_number
+        //     },
+        //     {
+        //       name: '客户名称',
+        //       // formType: 'customer',
+        //       value: data.essential.customer_name
+        //     },
+        //     {
+        //       name: '合同编号',
+        //       // formType: 'contract',
+        //       value: data.essential.contract_number
+        //     },
+        //     {
+        //       name: '合同金额',
+        //       // formType: 'text',
+        //       value: data.essential.contract_money
+        //     },
+        //     {
+        //       name: '开票金额（元）',
+        //       // formType: 'text',
+        //       value: data.essential.invoice_money
+        //     },
+        //     {
+        //       name: '开票日期',
+        //       // formType: 'text',
+        //       value: data.essential.create_time
+        //     },
+        //     {
+        //       name: '开票类型',
+        //       // formType: 'text',
+        //       // value: data.essential.invoice_type
+        //       value: {
+        //         1: '增值税专用发票',
+        //         2: '增值税普通发票',
+        //         3: '国税通用机打发票',
+        //         4: '地税通用机打发票',
+        //         5: '收据'
+        //       }[data.essential.invoice_type]
+        //     },
+        //     {
+        //       name: '备注',
+        //       // formType: 'text',
+        //       value: data.essential.remark
+        //     },
+        //     {
+        //       name: '创建人',
+        //       // formType: 'text',
+        //       value: data.essential.create_user_name
+        //     },
+        //     {
+        //       name: '负责人',
+        //       // formType: 'text',
+        //       value: data.essential.owner_user_name
+        //     },
+        //     {
+        //       name: '创建时间',
+        //       // formType: 'text',
+        //       value: data.essential.create_time
+        //     },
+        //     {
+        //       name: '更新时间',
+        //       // formType: 'text',
+        //       value: data.essential.update_time
+        //     },
+        //     {
+        //       name: '审核状态',
+        //       // formType: 'text',
+        //       value: data.essential.check_status
+        //     }
+        //   ]
+        // },
         {
           name: '发票信息',
           list: [
             {
               name: '抬头类型',
-              // formType: 'text',
+              form_type: 'text',
               // value: data.invoice.title_type
               value: {
                 1: '单位',
@@ -280,32 +285,32 @@ export default {
             },
             {
               name: '开票抬头',
-              // formType: 'text',
+              form_type: 'text',
               value: data.invoice.invoice_title
             },
             {
               name: '纳税人识别号',
-              // formType: 'text',
+              form_type: 'text',
               value: data.invoice.tax_number
             },
             {
               name: '开户行',
-              // formType: 'text',
+              form_type: 'text',
               value: data.invoice.deposit_bank
             },
             {
               name: '开户账号',
-              // formType: 'text',
+              form_type: 'text',
               value: data.invoice.deposit_account
             },
             {
               name: '开票地址',
-              // formType: 'text',
+              form_type: 'text',
               value: data.invoice.deposit_address
             },
             {
               name: '电话',
-              // formType: 'text',
+              form_type: 'text',
               value: data.invoice.phone
             }
           ]
@@ -315,17 +320,17 @@ export default {
           list: [
             {
               name: '联系人',
-              // formType: 'text',
+              form_type: 'text',
               value: data.posting.contacts_name
             },
             {
               name: '联系方式',
-              // formType: 'text',
+              form_type: 'text',
               value: data.posting.contacts_mobile
             },
             {
               name: '邮寄地址',
-              // formType: 'text',
+              form_type: 'text',
               value: data.posting.contacts_address
             }
           ]
@@ -343,16 +348,16 @@ export default {
     /**
      * 编辑成功
      */
-    editSaveSuccess() {
-      this.$emit('handle', { type: 'save-success' })
-      this.getDetial()
-    },
+    // editSaveSuccess() {
+    //   this.$emit('handle', { type: 'save-success' })
+    //   this.getDetial()
+    // },
 
     /**
      * 审核操作
      */
     examineHandle() {
-      this.$emit('handle', { type: 'examine' })
+      this.detailHeadHandle({ type: 'examine' })
     }
   }
 }

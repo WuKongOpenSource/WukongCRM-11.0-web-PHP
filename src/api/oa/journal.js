@@ -200,3 +200,18 @@ export function journalQueryActivityCountAPI(data) {
     }
   })
 }
+
+/**
+ * 日志点赞
+ * @param {*} data
+ */
+export function oaLogFavourOrCancelAPI(data) {
+  return request({
+    url: 'oa/log/favourUpdate',
+    method: 'post',
+    data: data,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}

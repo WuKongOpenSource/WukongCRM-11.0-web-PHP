@@ -173,7 +173,7 @@ export default {
         this.loading = true
         adminSystemSaveAPI({
           name: this.name,
-          logo: this.save_name
+          logo: this.save_name || this.logo && this.logo.split('uploads/')[1]
         })
           .then(res => {
             this.loading = false

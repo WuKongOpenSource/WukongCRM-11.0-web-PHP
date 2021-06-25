@@ -48,19 +48,27 @@ import {
 import {
   crmReturnVisitIndexAPI
 } from '@/api/crm/visit'
+import {
+  crmInvoiceExcelAllExportAPI
+} from '@/api/crm/invoice'
+import { crmInvoiceIndexAPI } from '@/api/crm/invoice'
 
-
+import WkEmpty from '@/components/WkEmpty'
 import Lockr from 'lockr'
 import { Loading } from 'element-ui'
 import CheckStatusMixin from '@/mixins/CheckStatusMixin'
 import { separator } from '@/filters/vueNumeralFilter/filters'
 import { downloadExcelWithResData } from '@/utils'
+import { getFormFieldShowName } from '@/components/NewCom/WkForm/utils'
+import WkFieldView from '@/components/NewCom/WkForm/WkFieldView'
 
 export default {
   components: {
     CRMListHead,
     CRMTableHead,
-    FieldSet
+    FieldSet,
+    WkEmpty,
+    WkFieldView
   },
   data() {
     return {
@@ -87,14 +95,22 @@ export default {
       // 金额字段
       moneyFields: [],
       // 已经发请求 用于缓存区分
-      isRequested: false
+      isRequested: false,
+      rowIndex: 0 // 行索引
     }
   },
 
   mixins: [CheckStatusMixin],
 
   computed: {
-    ...mapGetters(['crm'])
+    ...mapGetters(['crm']),
+    saveAuth() {
+      if (this.isSeas) {
+        return false
+      }
+
+      return this.crm[this.crmType].save
+    }
   },
   watch: {},
   mounted() {
@@ -240,6 +256,8 @@ export default {
         return crmReceivablesIndexAPI
       } else if (this.crmType === 'visit') {
         return crmReturnVisitIndexAPI
+      } else if (this.crmType === 'invoice') {
+        return crmInvoiceIndexAPI
       }
     },
     /** 获取字段 */
@@ -296,7 +314,8 @@ export default {
                 prop: element.fieldName || element.field,
                 label: element.name,
                 width: width,
-                sortId: element.id
+                sortId: element.id,
+                form_type: element.form_type
               })
             }
 
@@ -314,13 +333,16 @@ export default {
       }
     },
     /** 格式化字段 */
-    fieldFormatter(row, column, cellValue) {
+    fieldFormatter(row, column, cellValue, field) {
       if (this.moneyFields.includes(column.property)) {
         return separator(row[column.property] || 0)
       }
       // 如果需要格式化
       if (column.property === 'isTransform') {
         return ['否', '是'][cellValue] || '--'
+      }
+      if (field) {
+        return getFormFieldShowName(field.formType, row[column.property], '--', field)
       }
       return row[column.property] === '' || row[column.property] === null ? '--' : row[column.property]
     },
@@ -406,6 +428,7 @@ export default {
       } else if (this.crmType === 'product') {
         if (column.property === 'name') {
           this.rowID = row.product_id
+          this.rowType = 'product'
           this.showDview = true
         } else {
           this.showDview = false
@@ -446,12 +469,44 @@ export default {
         } else {
           this.showDview = false
         }
+      } else if (this.crmType == 'invoice') {
+        if (column.property === 'customer_name') {
+          this.rowID = row.customer_id
+          this.rowType = 'customer'
+          this.showDview = true
+        } else if (column.property === 'contract_num') {
+          this.rowID = row.contract_id
+          this.rowType = 'contract'
+          this.showDview = true
+        } else if (column.property === 'invoice_apple_number') {
+          this.rowID = row.invoice_id
+          this.rowType = 'invoice'
+          this.showDview = true
+        } else {
+          this.showDview = false
+        }
       }
-
+      this.rowIndex = this.getRowIndex()
       if (this.showDview) {
         this.$store.commit('SET_COLLAPSE', this.showDview)
       }
     },
+
+    /**
+     * 获取点击行索引
+     */
+    getRowIndex() {
+      let rowIndex = 0
+      for (let index = 0; index < this.list.length; index++) {
+        const element = this.list[index]
+        if (element[`${this.rowType}_id`] === this.rowID) {
+          rowIndex = index
+          break
+        }
+      }
+      return rowIndex
+    },
+
     /**
      * 导出 线索 客户 联系人 产品
      * @param {*} data
@@ -504,7 +559,8 @@ export default {
           business: crmBusinessExcelAllExportAPI,
           contract: crmContractExcelAllExportAPI,
           receivables: crmReceivablesExcelAllExportAPI,
-          product: crmProductExcelAllExportAPI
+          product: crmProductExcelAllExportAPI,
+          invoice: crmInvoiceExcelAllExportAPI
         }[this.crmType]
       }
       const loading = Loading.service({ fullscreen: true, text: '导出中...' })
@@ -546,7 +602,13 @@ export default {
         this.getList()
       }
     },
-
+    /**
+     * 刷新数据
+     */
+    refreshList() {
+      this.currentPage = 1
+      this.getFieldList()
+    },
     /**
      * 获取table
      */

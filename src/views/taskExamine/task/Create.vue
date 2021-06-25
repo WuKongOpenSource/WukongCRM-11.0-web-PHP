@@ -15,7 +15,7 @@
         @change="formChange"
       >
         <template slot-scope="{ data }">
-          <div v-if="data && data.formType == 'tag'" class="label">
+          <div v-if="data && data.form_type == 'tag'" class="label">
             <span
               v-for="(item, index) in fieldForm[data.field]"
               :style="{'background': item.color ? item.color : '#ccc'}"
@@ -38,13 +38,13 @@
           </div>
 
           <related-business
-            v-if="data && data.formType == 'relatedBusiness'"
+            v-if="data && data.form_type == 'relatedBusiness'"
             :margin-left="'0'"
             :all-data="allData"
             @checkInfos="otherChange($event, data)"
             @checkRelatedDetail="checkRelatedDetail" />
 
-          <template v-if="data && data.formType == 'subTask'">
+          <template v-if="data && data.form_type == 'subTask'">
             <template v-if="fieldForm[data.field]">
               <div
                 v-for="(item, index) in fieldForm[data.field]"
@@ -97,7 +97,7 @@
               @close="addSubtasks = true" />
           </template>
 
-          <template v-if="data && data.formType == 'taskFile'">
+          <template v-if="data && data.form_type == 'taskFile'">
             <file-cell
               v-for="(file, fileIndex) in fieldForm[data.field]"
               :key="fileIndex"
@@ -245,59 +245,59 @@ export default {
       const list = [{
         name: '任务名称',
         field: 'name',
-        formType: 'textarea',
+        form_type: 'textarea',
         setting: []
       }, {
         name: '描述',
         field: 'description',
-        formType: 'textarea',
+        form_type: 'textarea',
         setting: []
       }, {
         name: '优先级',
         field: 'priority',
-        formType: 'select',
+        form_type: 'select',
         setting: this.getPrioritySetting()
       }, {
         name: '负责人',
         field: 'main_user_id',
         radio: true,
-        formType: 'user',
+        form_type: 'user',
         setting: []
       }, {
         name: '开始时间',
         field: 'start_time',
-        formType: 'date',
+        form_type: 'date',
         setting: []
       }, {
         name: '结束时间',
         field: 'stop_time',
-        formType: 'date',
+        form_type: 'date',
         setting: []
       }, {
         name: '参与人',
         field: 'owner_user_id',
         radio: false,
-        formType: 'user',
+        form_type: 'user',
         setting: []
       }, {
         name: '标签',
         field: 'lable_id',
-        formType: 'tag',
+        form_type: 'tag',
         setting: []
       }, {
         name: '相关信息',
         field: 'relatedObj',
-        formType: 'relatedBusiness',
+        form_type: 'relatedBusiness',
         setting: []
       }, {
         name: '子任务',
         field: 'subtask',
-        formType: 'subTask',
+        form_type: 'subTask',
         setting: []
       }, {
         name: '附件',
         field: 'files',
-        formType: 'taskFile',
+        form_type: 'taskFile',
         setting: []
       }]
 
@@ -343,13 +343,13 @@ export default {
       }
 
       this.fieldList.forEach(item => {
-        if (item.formType === 'user' && item.radio == false) {
+        if (item.form_type === 'user' && item.radio == false) {
           const value = this.fieldForm[item.field] ? this.fieldForm[item.field] : []
           params[item.field] = value.join(',')
-        } else if (item.formType === 'tag') {
+        } else if (item.form_type === 'tag') {
           const value = this.fieldForm[item.field] ? this.fieldForm[item.field] : []
           params[item.field] = value.map(label => label.lable_id).join(',')
-        } else if (item.formType === 'relatedBusiness') {
+        } else if (item.form_type === 'relatedBusiness') {
           const value = this.fieldForm[item.field] ? this.fieldForm[item.field] : {}
           params['customer_ids'] = value.customerIds && value.customerIds.length
             ? value.customerIds
@@ -363,7 +363,7 @@ export default {
           params['contract_ids'] = value.contractIds && value.contractIds.length
             ? value.contractIds
             : []
-        } else if (item.formType === 'subTask') {
+        } else if (item.form_type === 'subTask') {
           const valueList = this.fieldForm[item.field] || []
           params[item.field] = valueList.map(item => {
             return {
@@ -373,9 +373,9 @@ export default {
               stop_time: item.stop_time
             }
           })
-        } else if (item.formType !== 'taskFile') {
+        } else if (item.form_type !== 'taskFile') {
           params[item.field] = this.fieldForm[item.field]
-        } else if (item.formType === 'taskFile') {
+        } else if (item.form_type === 'taskFile') {
           params['files'] = this.fieldForm[item.field] ? this.fieldForm[item.field].map(item => item.file_id) : []
         }
       })

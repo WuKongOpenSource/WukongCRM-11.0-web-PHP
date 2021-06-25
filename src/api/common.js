@@ -361,3 +361,25 @@ export function readUpdateNoticeAPI(data) {
     data: data
   })
 }
+
+/**
+ * 公共web文件上传
+ * @param data
+ */
+export function crmFileSingleSaveAPI(data) {
+  var param = new FormData()
+  Object.keys(data).forEach(key => {
+    param.append(key, data[key])
+    // param.append('isPublic', '1')
+    // param.append('module', 'print')
+    param.append('type', 'img')
+  })
+  return request({
+    url: 'admin/file/save',
+    method: 'post',
+    data: param,
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
+}

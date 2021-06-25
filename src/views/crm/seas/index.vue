@@ -85,17 +85,26 @@
           :width="item.width"
           sortable="custom"
           show-overflow-tooltip>
-          <template slot-scope="scope">
+          <template slot-scope="{row , column, $index}">
             <template v-if="item.prop == 'deal_status'">
-              <i :class="scope.row[item.prop] | dealIcon"/>
-              <span>{{ scope.row[item.prop] | dealName }}</span>
+              <i :class="row[item.prop] | dealIcon"/>
+              <span>{{ row[item.prop] | dealName }}</span>
             </template>
             <template v-else-if="item.prop == 'status'">
               <i
-                v-if="scope.row.status == 2"
+                v-if="row.status == 2"
                 class="wk wk-circle-password customer-lock"/>
             </template>
-            <template v-else>{{ fieldFormatter(scope.row, scope.column) }}</template>
+            <wk-field-view
+              v-else
+              :props="item"
+              :form_type="item.form_type"
+              :value="row[column.property]"
+            >
+              <template slot-scope="{ data }">
+                {{ fieldFormatter(row, column, row[column.property], item) }}
+              </template>
+            </wk-field-view>
           </template>
         </el-table-column>
         <el-table-column/>
@@ -130,7 +139,9 @@
     </div>
     <customer-detail
       v-if="showDview"
-      :id="rowID"
+      :id.sync="rowID"
+      :page-list="crmType == rowType ? list : []"
+      :page-index.sync="rowIndex"
       :pool_id="pool_id"
       :is-seas="isSeas"
       class="d-view"

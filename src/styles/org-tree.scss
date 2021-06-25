@@ -1,0 +1,30 @@
+.org-tree-company {
+  color: #42526E;
+  background-color: #ECEEF2;
+  box-shadow: none !important;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.org-tree-department {
+  color: #42526E;
+  font-weight: 600;
+  box-shadow: none !important;
+  font-size: 12px;
+  border: 2px solid #42526E;
+  padding: 8px 15px !important;
+}
+
+.org-tree-node-label {
+  cursor: pointer;
+}
+
+.org-tree-node:not(:last-child):after,
+.org-tree-node:not(:first-child):before {
+  border-top: 2px solid #42526E;
+}
+
+.org-tree-node:after,
+.org-tree-node-children:before {
+  border-left: 2px solid #42526E;
+}

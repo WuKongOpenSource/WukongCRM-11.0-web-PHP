@@ -13,7 +13,7 @@
         <el-button
           class="rc-head-item"
           type="primary"
-          @click.native="handleClick('remove')">移除</el-button>
+          @click.native="handleClick('delete')">移除</el-button>
         <el-button
           class="rc-head-item"
           type="primary"
@@ -46,11 +46,14 @@
         show-overflow-tooltip/>
     </el-table>
     <teams-handle
+      v-if="teamsDialogShow"
       :crm-type="crmType"
       :selection-list="[detail]"
       :dialog-visible.sync="teamsDialogShow"
-      title="添加团队成员"
-      @handle="handleCallBack"/>
+      :type="teamsType"
+      :members="teamsType === 'add' ? null : selectionList"
+      @handle="handleCallBack"
+    />
 
     <el-dialog
       v-loading="loading"
@@ -63,9 +66,37 @@
         <flexbox class="handle-item">
           <div class="handle-item-name">权限：</div>
           <el-radio-group v-model="handleType">
-            <el-radio :label="1">只读</el-radio>
-            <el-radio :label="2">读写</el-radio>
+            <el-radio :label="1">只读<el-tooltip
+              style="margin-left: 3px;"
+              content="支持查看详细资料、添加和查看活动中所有跟进记录"
+              effect="dark"
+              placement="top">
+              <i class="wk wk-help wk-help-tips"/>
+            </el-tooltip></el-radio>
+            <el-radio :label="2">读写<el-tooltip
+              style="margin-left: 3px;"
+              content="支持编辑和查看详细资料、可以添加和查看活动中所有跟进记录"
+              effect="dark"
+              placement="top">
+              <i class="wk wk-help wk-help-tips"/>
+            </el-tooltip></el-radio>
           </el-radio-group>
+        </flexbox>
+        <flexbox
+          class="handle-item">
+          <div class="handle-item-name">有效时间：</div>
+          <el-select v-model="validType">
+            <el-option label="不限" value=""/>
+            <el-option label="截止到" value="end"/>
+          </el-select>
+          <el-date-picker
+            v-if="validType === 'end'"
+            v-model="target_time"
+            :picker-options="pickerOptions"
+            value-format="yyyy-MM-dd"
+            style="margin-left: 8px;"
+            type="date"
+            placeholder="选择日期"/>
         </flexbox>
       </div>
       <span
@@ -87,18 +118,18 @@ import {
   crmCustomerSettingTeamDeleteAPI,
   crmCustomerExitTeamAPI
 } from '@/api/crm/customer'
-import {
-  crmBusinessTeamMembersAPI,
-  crmBusinessUpdateMembersAPI,
-  crmBusinessSettingTeamDeleteAPI,
-  crmBusinessExitTeamAPI
-} from '@/api/crm/business'
-import {
-  crmContractTeamMembersAPI,
-  crmContractUpdateMembersAPI,
-  crmContractSettingTeamDeleteAPI,
-  crmContractExitTeamAPI
-} from '@/api/crm/contract'
+// import {
+//   // crmBusinessTeamMembersAPI,
+//   // crmBusinessUpdateMembersAPI,
+//   // crmBusinessSettingTeamDeleteAPI,
+//   crmBusinessExitTeamAPI
+// } from '@/api/crm/business'
+// import {
+//   // crmContractTeamMembersAPI,
+//   // crmContractUpdateMembersAPI,
+//   // crmContractSettingTeamDeleteAPI,
+//   // crmContractExitTeamAPI
+// } from '@/api/crm/contract'
 
 import TeamsHandle from './SelectionHandle/TeamsHandle' // 操作团队成员
 
@@ -140,7 +171,16 @@ export default {
       teamsDialogShow: false, // 是否展示添加团队成员窗口
       handleType: 1, // 权限类型
       editPermissionShow: false, // 编辑权限接口展示
-      selectionList: [] // 勾选的数据
+      selectionList: [], // 勾选的数据
+      validType: '', // 有效类型
+      teamsType: '',
+      pickerOptions: {
+        disabledDate(time) {
+          // 当前0点时间戳
+          return time.getTime() < new Date(new Date().toLocaleDateString()).getTime()
+        }
+      },
+      target_time: ''
     }
   },
   inject: ['rootTabs'],
@@ -166,6 +206,7 @@ export default {
     this.fieldList.push({ prop: 'realname', width: '200', label: '姓名' })
     this.fieldList.push({ prop: 'structure_name', width: '200', label: '职位' })
     this.fieldList.push({ prop: 'group_name', width: '200', label: '团队角色' })
+    this.fieldList.push({ prop: 'target_time', width: '200', label: '有效时间' })
     this.fieldList.push({ prop: 'authority', width: '200', label: '权限' })
 
     this.getDetail()
@@ -173,17 +214,17 @@ export default {
   methods: {
     getDetail(loading = true) {
       this.loading = loading
-      const request = {
-        customer: crmCustomerTeamMembersAPI,
-        business: crmBusinessTeamMembersAPI,
-        contract: crmContractTeamMembersAPI
-      }[this.crmType]
+      // const request = {
+      //   customer: crmCustomerTeamMembersAPI,
+      //   business: crmBusinessTeamMembersAPI,
+      //   contract: crmContractTeamMembersAPI
+      // }[this.crmType]
       const params = {
         types_id: this.id,
         types: 'crm_' + this.crmType
       }
       // params['id'] = this.id
-      request(params)
+      crmCustomerTeamMembersAPI(params)
         .then(res => {
           this.loading = false
           this.list = res.data
@@ -202,6 +243,7 @@ export default {
     handleClick(type) {
       if (type == 'add') {
         this.teamsDialogShow = true
+        this.teamsType = 'add'
       } else if (type == 'exit') {
         this.$confirm('确定退出团队?', '提示', {
           confirmButtonText: '确定',
@@ -209,14 +251,14 @@ export default {
           type: 'warning'
         })
           .then(() => {
-            const request = {
-              customer: crmCustomerExitTeamAPI,
-              business: crmBusinessExitTeamAPI,
-              contract: crmContractExitTeamAPI
-            }[this.crmType]
+            // const request = {
+            //   customer: crmCustomerExitTeamAPI,
+            //   business: crmBusinessExitTeamAPI,
+            //   contract: crmContractExitTeamAPI
+            // }[this.crmType]
 
             this.loading = true
-            request({
+            crmCustomerExitTeamAPI({
               types_id: this.id,
               types: 'crm_' + this.crmType
             })
@@ -238,46 +280,54 @@ export default {
           this.$message.error('请勾选需要操作的团队成员')
         } else {
           if (type == 'edit') {
+            this.handleType = 1
+            this.validType = ''
+            this.target_time = ''
             this.editPermissionShow = true
-          } else if (type == 'remove') {
-            this.$confirm('此操作将移除这些团队成员是否继续?', '提示', {
-              confirmButtonText: '确定',
-              cancelButtonText: '取消',
-              type: 'warning'
-            })
-              .then(() => {
-                const request = {
-                  customer: crmCustomerSettingTeamDeleteAPI,
-                  contract: crmContractSettingTeamDeleteAPI,
-                  business: crmBusinessSettingTeamDeleteAPI
-                }[this.crmType]
+          } else if (type == 'delete') {
+            if (this.crmType === 'customer') {
+              this.teamsType = 'delete'
+              this.teamsDialogShow = true
+            } else {
+              this.$confirm('此操作将移除这些团队成员是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+              })
+                .then(() => {
+                  // const request = {
+                  //   customer: crmCustomerSettingTeamDeleteAPI,
+                  //   contract: crmContractSettingTeamDeleteAPI,
+                  //   business: crmBusinessSettingTeamDeleteAPI
+                  // }[this.crmType]
 
-                var params = {
+                  var params = {
                   // ids: [parseInt(this.id)],
                   // memberIds: this.selectionList.map(item => item.userId)
-                  types: 'crm_' + this.crmType,
-                  types_id: [this.id],
-                  user_id: this.selectionList.map(item => item.id),
-                  // type: this.handleType,
-                  is_del: 1
-                }
+                    types: 'crm_' + this.crmType,
+                    types_id: [this.id],
+                    user_id: this.selectionList.map(item => item.id),
+                    // type: this.handleType,
+                    is_del: 1
+                  }
 
-                this.loading = true
-                request(params)
-                  .then(res => {
-                    this.$message({
-                      type: 'success',
-                      message: '操作成功'
+                  this.loading = true
+                  crmCustomerSettingTeamDeleteAPI(params)
+                    .then(res => {
+                      this.$message({
+                        type: 'success',
+                        message: '操作成功'
+                      })
+                      this.loading = false
+                      this.$bus.emit('crm-tab-num-update')
+                      this.getDetail()
                     })
-                    this.loading = false
-                    this.$bus.emit('crm-tab-num-update')
-                    this.getDetail()
-                  })
-                  .catch(() => {
-                    this.loading = false
-                  })
-              })
-              .catch(() => {})
+                    .catch(() => {
+                      this.loading = false
+                    })
+                })
+                .catch(() => {})
+            }
           }
         }
       }
@@ -295,17 +345,23 @@ export default {
      * 编辑操作确定
      */
     handleEditConfirm() {
+      if (this.validType === 'end' && !this.target_time) {
+        this.$message.error('请选择截止日期')
+        return
+      }
       this.loading = true
-      const request = {
-        customer: crmCustomerUpdateMembersAPI,
-        business: crmBusinessUpdateMembersAPI,
-        contract: crmContractUpdateMembersAPI
-      }[this.crmType]
-      request({
+      // const request = {
+      //   customer: crmCustomerUpdateMembersAPI,
+      //   business: crmBusinessUpdateMembersAPI,
+      //   contract: crmContractUpdateMembersAPI
+      // }[this.crmType]
+      crmCustomerUpdateMembersAPI({
         types: 'crm_' + this.crmType,
         types_id: [this.id],
         user_id: this.selectionList.map(item => item.id),
-        type: this.handleType
+        type: this.handleType,
+        target_time: this.validType === 'end' ? this.target_time : ''
+
       })
         .then(res => {
           this.editPermissionShow = false
@@ -335,4 +391,15 @@ export default {
 </script>
 <style lang="scss" scoped>
 @import '../styles/relativecrm.scss';
+.handle-item {
+  padding-bottom: 15px;
+  position: relative;
+  .handle-item-name {
+    flex-shrink: 0;
+    width: 90px;
+  }
+  .handle-item-content {
+    flex: 1;
+  }
+}
 </style>

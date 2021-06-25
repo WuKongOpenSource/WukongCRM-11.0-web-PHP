@@ -95,6 +95,13 @@
     </div>
 
     <div class="footer">
+      <div style="flex: 1;">
+        <fav-list
+          :is-favour="data.favour_status"
+          :data="data.favourUser"
+          @fav="favourClick"
+        />
+      </div>
       <el-dropdown
         v-if="data.permission && (data.permission.is_update || data.permission.is_delete)"
         trigger="click"
@@ -111,6 +118,13 @@
             command="delete">删除</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
+      <el-button
+        ref="favBtn"
+        :type="data.favour_status ? 'primary' : ''"
+        style="margin-left: 10px;"
+        icon="wk wk-good"
+        class="fav-btn"
+        @click="favourClick">赞{{ `${data.favourUser.length > 0 ? `(${data.favourUser.length})` : ''}` }}</el-button>
       <el-button
         type="primary"
         icon="wk wk-message"
@@ -141,7 +155,8 @@
 // API
 import {
   journalDeleteAPI,
-  journalSetReadAPI
+  journalSetReadAPI,
+  oaLogFavourOrCancelAPI
 } from '@/api/oa/journal'
 import {
   queryCommentListAPI,
@@ -155,6 +170,7 @@ import ReplyComment from '@/components/ReplyComment'
 import RelatedBusinessList from '@/components/RelatedBusinessList'
 import CommentList from '@/components/CommentList'
 import ReportMenu from './ReportMenu'
+import FavList from './FavList'
 
 import { mapGetters } from 'vuex'
 import { separator } from '@/filters/vueNumeralFilter/filters'
@@ -167,7 +183,8 @@ export default {
     RelatedBusinessList,
     CommentList,
     ReplyComment,
-    ReportMenu
+    ReportMenu,
+    FavList
   },
   props: {
     data: {
@@ -445,6 +462,21 @@ export default {
      */
     checkHistoryClick() {
       this.$emit('check-history', this.data.create_user_info)
+    },
+    /**
+     * 点赞
+     */
+    favourClick() {
+      this.$refs.favBtn.$el.blur()
+      oaLogFavourOrCancelAPI({
+        favour_status: !this.data.favour_status ? 1 : 0,
+        log_id: this.data.log_id
+      }).then(res => {
+        const resData = res.data || {}
+        this.data.favour_status = resData.favour_status
+        this.data.favourUser = resData.favourUser
+      })
+        .catch(() => {})
     }
   }
 }

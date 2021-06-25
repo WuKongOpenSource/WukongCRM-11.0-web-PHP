@@ -188,3 +188,16 @@ export function crmInvoiceDeleteInvoiceInfoAPI(data) {
     data: data
   })
 }
+
+/**
+ * 发票全部导出
+ * @param {*} data
+ */
+export function crmInvoiceExcelAllExportAPI(data) {
+  return request({
+    url: 'crm/invoice/excelExport',
+    method: 'post',
+    data: data,
+    responseType: 'blob'
+  })
+}

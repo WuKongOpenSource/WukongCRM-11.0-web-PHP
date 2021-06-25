@@ -383,3 +383,19 @@ export function workWorkAddUserSetRoleGroupAPI(data) {
     data: data
   })
 }
+
+// /**
+//  * 项目成员权限列表
+//  * @param {*} data
+//  */
+// export function (data) {
+//   return request({
+//     url: 'work/work/addUserGroup',
+//     method: 'post',
+//     headers: {
+//       'Content-Type': 'application/json;charset=UTF-8'
+//     },
+//     data: data
+//   })
+// }
+

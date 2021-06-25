@@ -9,6 +9,7 @@
     @close="handleCancel">
     <div class="handle-box">
       <flexbox
+        v-if="!members"
         class="handle-item"
         align="stretch">
         <div
@@ -29,19 +30,49 @@
         class="handle-item">
         <div class="handle-item-name">权限：</div>
         <el-radio-group v-model="handleType">
-          <el-radio :label="1">只读</el-radio>
-          <el-radio :label="2">读写</el-radio>
+          <el-radio :label="1">只读<el-tooltip
+            style="margin-left: 3px;"
+            content="支持查看详细资料、添加和查看活动中所有跟进记录"
+            effect="dark"
+            placement="top">
+            <i class="wk wk-help wk-help-tips"/>
+          </el-tooltip></el-radio>
+          <el-radio :label="2">读写<el-tooltip
+            style="margin-left: 3px;"
+            content="支持编辑和查看详细资料、可以添加和查看活动中所有跟进记录"
+            effect="dark"
+            placement="top">
+            <i class="wk wk-help wk-help-tips"/>
+          </el-tooltip></el-radio>
         </el-radio-group>
       </flexbox>
       <flexbox
-        v-if="title=='添加团队成员' && crmType === 'customer'"
+        v-if="addsTypesShow"
+        :style="{ marginTop: isCreate ? 0 : '8px' }"
         class="handle-item">
-        <div class="handle-item-name">同时添加至：</div>
+        <div class="handle-item-name">{{ isCreate ? '同时添加至' : '同时移除' }}：</div>
         <el-checkbox-group v-model="addsTypes">
-          <!-- <el-checkbox label="1">联系人</el-checkbox> -->
+          <el-checkbox label="crm_contacts">联系人</el-checkbox>
           <el-checkbox label="crm_business">商机</el-checkbox>
           <el-checkbox label="crm_contract">合同</el-checkbox>
         </el-checkbox-group>
+      </flexbox>
+      <flexbox
+        v-if="isCreate"
+        class="handle-item">
+        <div class="handle-item-name">有效时间：</div>
+        <el-select v-model="validType">
+          <el-option label="不限" value=""/>
+          <el-option label="截止到" value="end"/>
+        </el-select>
+        <el-date-picker
+          v-if="validType === 'end'"
+          v-model="target_time"
+          :picker-options="pickerOptions"
+          value-format="yyyy-MM-dd"
+          style="margin-left: 8px;"
+          type="date"
+          placeholder="选择日期"/>
       </flexbox>
     </div>
     <span
@@ -58,18 +89,18 @@
 <script>
 import { XhUserCell } from '@/components/CreateCom'
 import {
-  crmCustomerSettingTeamSaveAPI,
-  crmCustomerSettingTeamDeleteAPI
+  crmCustomerSettingTeamSaveAPI
+  // crmCustomerSettingTeamDeleteAPI
 } from '@/api/crm/customer'
-import {
-  crmContractSettingTeamSaveAPI,
-  crmContractSettingTeamDeleteAPI
-} from '@/api/crm/contract'
+// import {
+//   crmContractSettingTeamSaveAPI,
+//   crmContractSettingTeamDeleteAPI
+// } from '@/api/crm/contract'
 
-import {
-  crmBusinessSettingTeamSaveAPI,
-  crmBusinessSettingTeamDeleteAPI
-} from '@/api/crm/business'
+// import {
+//   crmBusinessSettingTeamSaveAPI,
+//   crmBusinessSettingTeamDeleteAPI
+// } from '@/api/crm/business'
 
 export default {
   /** 客户管理 的 勾选后的 团队成员 操作 移除操作不可移除客户负责人*/
@@ -84,10 +115,10 @@ export default {
       required: true,
       default: false
     },
-    title: {
-      type: String,
-      default: ''
-    },
+    // title: {
+    //   type: String,
+    //   default: ''
+    // },
     /** 没有值就是全部类型 有值就是当个类型 */
     crmType: {
       type: String,
@@ -99,19 +130,48 @@ export default {
       default: () => {
         return []
       }
-    }
+    },
+    // add 添加 delete 移除
+    type: {
+      type: String,
+      default: ''
+    },
+    // 选择的成员，该字段存在，将不展示员工选择
+    members: Array
   },
   data() {
     return {
       loading: false, // 加载动画
       visible: false,
-
+      pickerOptions: {
+        disabledDate(time) {
+          // 当前0点时间戳
+          return time.getTime() < new Date(new Date().toLocaleDateString()).getTime()
+        }
+      },
       usersList: [], // 变更负责人
       handleType: 1, // 操作类型
-      addsTypes: [] // 添加至
+      addsTypes: [], // 添加至
+      validType: '', // 有效类型
+      target_time: '' // 有效时间
     }
   },
-  computed: {},
+  computed: {
+    // 客户允许同时添加至联系人
+    addsTypesShow() {
+      return this.crmType === 'customer'
+    },
+    // 是新建
+    isCreate() {
+      return this.type === 'add'
+    },
+    title() {
+      return {
+        add: '添加团队成员',
+        delete: '移除团队成员'
+      }[this.type]
+    }
+  },
   watch: {
     dialogVisible: {
       handler(val) {
@@ -150,39 +210,57 @@ export default {
     },
     handleConfirm() {
       // 移除操作不可移除客户负责人
-      if (this.usersList.length === 0) {
+      if (!this.members && this.usersList.length === 0) {
         this.$message.error('请选择团队成员')
+      } else if (this.validType === 'end' && !this.target_time) {
+        this.$message.error('请选择截止日期')
       } else {
         const params = {
           types_id: this.selectionList.map(item => item[this.crmType + '_id']),
           user_id: this.usersList.map(item => item.id)
         }
-        if (this.crmType === 'customer' && this.title == '添加团队成员') {
+        // 如果有传入成员，替换选择成员
+        if (this.members) {
+          params.user_id = this.members.map(item => item.id)
+        }
+        // if (this.addsTypesShow) {
+        //   // 只有客户下面同时添加到
+        //   params.changeType = this.addsTypes.map(function(i) {
+        //     return parseInt(i)
+        //   })
+        // }
+        // if (this.crmType === 'customer' && this.title == '添加团队成员') {
+        //   // 只有客户下面同时添加到
+        //   params.module = this.addsTypes
+        // }
+        if (this.addsTypesShow) {
           // 只有客户下面同时添加到
           params.module = this.addsTypes
         }
 
-        let request
-        if (this.title == '添加团队成员') {
+        params.target_time = this.validType === 'end' ? this.target_time : ''
+
+        // let request
+        if (this.isCreate) {
           // 1只读，2读写
           params.type = this.handleType
-          request = {
-            customer: crmCustomerSettingTeamSaveAPI,
-            contract: crmContractSettingTeamSaveAPI,
-            business: crmBusinessSettingTeamSaveAPI
-          }[this.crmType]
+          // request = {
+          //   customer: crmCustomerSettingTeamSaveAPI,
+          //   contract: crmContractSettingTeamSaveAPI,
+          //   business: crmBusinessSettingTeamSaveAPI
+          // }[this.crmType]
         } else {
-          request = {
-            customer: crmCustomerSettingTeamDeleteAPI,
-            contract: crmContractSettingTeamDeleteAPI,
-            business: crmBusinessSettingTeamDeleteAPI
-          }[this.crmType]
+          // request = {
+          //   customer: crmCustomerSettingTeamDeleteAPI,
+          //   contract: crmContractSettingTeamDeleteAPI,
+          //   business: crmBusinessSettingTeamDeleteAPI
+          // }[this.crmType]
           params.is_del = 1
         }
 
         this.loading = true
         params.types = 'crm_' + this.crmType
-        request(params)
+        crmCustomerSettingTeamSaveAPI(params)
           .then(res => {
             this.$message({
               type: 'success',
@@ -191,7 +269,7 @@ export default {
             this.loading = false
             this.handleCancel()
             this.$emit('handle', {
-              type: this.title == '添加团队成员' ? 'add_user' : 'delete_user'
+              type: this.isCreate ? 'add_user' : 'delete_user'
             })
           })
           .catch(() => {

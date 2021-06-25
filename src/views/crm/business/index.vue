@@ -54,7 +54,19 @@
           :width="item.width"
           :formatter="fieldFormatter"
           sortable="custom"
-          show-overflow-tooltip/>
+          show-overflow-tooltip>
+          <template slot-scope="{ row, column, $index }">
+            <wk-field-view
+              :props="item"
+              :form_type="item.form_type"
+              :value="row[column.property]"
+            >
+              <template slot-scope="{ data }">
+                {{ fieldFormatter(row, column, row[column.property], item) }}
+              </template>
+            </wk-field-view>
+          </template>
+        </el-table-column>
         <el-table-column/>
         <el-table-column
           label="关注"
@@ -82,6 +94,14 @@
               @change="setSave"/>
           </template>
         </el-table-column>
+        <wk-empty
+          slot="empty"
+          :props="{
+            buttonTitle: '新建商机',
+            showButton: saveAuth
+          }"
+          @click="createClick"
+        />
       </el-table>
       <div class="p-contianer">
         <el-pagination
@@ -102,7 +122,9 @@
     <c-r-m-all-detail
       :visible.sync="showDview"
       :crm-type="rowType"
-      :id="rowID"
+      :id.sync="rowID"
+      :page-list="crmType == rowType ? list : []"
+      :page-index.sync="rowIndex"
       class="d-view"
       @handle="handleHandle"/>
 

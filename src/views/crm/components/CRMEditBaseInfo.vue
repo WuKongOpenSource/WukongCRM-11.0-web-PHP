@@ -14,21 +14,79 @@
       content-height="auto">
       <el-form
         :model="editForm"
-        :rules="editRules"
+        :rules="currentEditRules"
         :ref="`editForm${mainIndex}`"
         class="el-form--flex"
         label-position="left"
         label-width="100px">
         <el-form-item
           v-for="(item, index) in mainItem.list"
+          v-if="getShowValue(item)"
           :key="index"
           :prop="item.field"
-          :class="{'is-block': isBlockShowField(item)}">
+          :class="[{'is-block': isBlockShowField(item)},, `is-${item.form_type}`]">
           <span slot="label">
             {{ item.name }}
           </span>
           <template v-if="item.isEdit">
-            <el-input
+            <wk-field
+              :item="item"
+              :index="index"
+              :field-from="editForm"
+              :ignore-fields="ignoreFields"
+              @change="formChange"
+            >
+              <template slot-scope="{ data, index }">
+                <el-select
+                  v-if="data.form_type === 'business_status'"
+                  v-model="editForm[data.fieldName]"
+                  style="width: 100%;"
+                  clearable>
+                  <el-option
+                    v-for="(optionItem, index) in getFieldOption(data)"
+                    :key="index"
+                    :label="optionItem.name"
+                    :value="optionItem.value"/>
+                </el-select>
+                <el-select
+                  v-if="data.fieldName == 'status'"
+                  v-model="editForm[data.fieldName]"
+                  style="width: 100%;">
+                  <el-option
+                    v-for="item in data.setting"
+                    :key="item.value"
+                    :label="item.name"
+                    :value="item.value"/>
+                </el-select>
+                <crm-relative-cell
+                  v-else-if="data.form_type === 'contacts' ||
+                    data.form_type === 'customer' ||
+                    data.form_type === 'contract' ||
+                  data.form_type === 'business'"
+                  :relative-type="data.form_type"
+                  :value="editForm[data.fieldName]"
+                  @value-change="arrayValueChange($event, data)"
+                />
+                <xh-prouct-cate
+                  v-else-if="data.form_type === 'category'"
+                  :value="editForm[data.fieldName]"
+                  @value-change="arrayValueChange($event, data)"
+                />
+                <el-select
+                  v-if="data.fieldName == 'invoice_type'"
+                  v-model="editForm[data.fieldName]"
+                  style="width: 100%;">
+                  <el-option
+                    v-for="item in invoiceTypeOptions"
+                    :key="item.value"
+                    :label="item.name"
+                    :value="item.value"/>
+                </el-select>
+
+              </template>
+            </wk-field>
+
+            <!-- <el-input
               v-if="item.form_type === 'text' ||
                 item.form_type == 'number' ||
                 item.form_type == 'floatnumber' ||
@@ -105,15 +163,15 @@
               v-else-if="item.form_type === 'category'"
               :value="editForm[item.field]"
               @value-change="arrayValueChange($event, item)"
-            />
+            /> -->
           </template>
           <template v-else>
-            <flexbox v-if="item.form_type === 'file'" style="min-height: 40px;">
+            <!-- <flexbox v-if="item.form_type === 'file'" style="min-height: 40px;">
               <file-list-view :list="item.value || []" />
               <i v-if="getEditAuth(item)" class="wk wk-edit form-item__edit" @click="editClick(item)" />
-            </flexbox>
+            </flexbox> -->
             <div
-              v-else-if="item.form_type === 'map_address'"
+              v-if="item.form_type === 'map_address'"
               :gutter="0"
               wrap="wrap">
               <div
@@ -147,12 +205,30 @@
                 </flexbox>
               </div>
             </div>
-
-            <div
+            <flexbox
               v-else
               :class="{'can-check':isModule(item)}"
-              class="form-item__value"
-              @click="checkModuleDetail(item)">{{ getCommonShowValue(item) }}<i v-if="getEditAuth(item)" class="wk wk-edit form-item__edit" @click.stop="editClick(item)" /></div>
+              align="stretch"
+              style="width: 100%;"
+              class="form-item__value">
+              <wk-field-view
+                :props="item"
+                :form_type="item.form_type"
+                :value="item.value"
+                :ignore-fields="ignoreFields"
+              >
+                <template slot-scope="{ data }">
+                  <span v-if="data.form_type === 'business_type'">{{ detail ? detail.typeName : '' }}</span>
+                  <span v-else-if="data.form_type === 'business_status'">{{ detail ? detail.statusName : '' }}</span>
+                  <span v-else-if="data.form_type === 'category'">{{ detail ? detail.categoryName : '' }}</span>
+                  <span v-else-if="data.form_type === 'receivables_plan'">{{ detail ? detail.planNum : '' }}</span>
+                  <span v-else-if="ignoreFields.includes(data.props.field) && data.props.field === 'status'">{{ getSelectShowValue(data) }}</span>
+                  <span v-else @click="checkModuleDetail(data)">{{ getCommonShowValue(data) }}</span>
+                </template>
+              </wk-field-view>
+
+              <i v-if="getEditAuth(item)" class="wk wk-edit form-item__edit" @click.stop="editClick(item, index)" />
+            </flexbox>
           </template>
         </el-form-item>
       </el-form>
@@ -173,7 +249,8 @@
 </template>
 
 <script>
-import { filedGetInformationAPI, filedUpdateTableFieldAPI, filedGetFieldAPI, filedValidatesAPI } from '@/api/crm/common'
+import { filedGetInformationAPI, filedUpdateTableFieldAPI } from '@/api/crm/common'
+// import { crmMarketingInformationAPI } from '@/api/crm/marketing'
 
 import {
   XhUserCell,
@@ -184,7 +261,8 @@ import {
   XhBusinessStatus,
   XhReceivablesPlan
 } from '@/components/CreateCom'
-
+import WkFieldView from '@/components/NewCom/WkForm/WkFieldView'
+import WkField from '@/components/NewCom/WkForm/WkField'
 import crmTypeModel from '@/views/crm/model/crmTypeModel'
 import Sections from '../components/Sections'
 import MapView from '@/components/MapView' // 地图详情
@@ -192,15 +270,14 @@ import FileListView from '@/components/FileListView'
 import CheckStatusMixin from '@/mixins/CheckStatusMixin'
 import { separator } from '@/filters/vueNumeralFilter/filters'
 import {
-  regexIsCRMNumber,
-  regexIsCRMMoneyNumber,
-  regexIsCRMMobile,
-  regexIsCRMEmail,
   objDeepCopy
 } from '@/utils'
 import { isArray, isObject, isEmpty } from '@/utils/types'
 import { mapGetters } from 'vuex'
 import { getWkDateTime } from '@/utils'
+
+import { getFormFieldShowName } from '@/components/NewCom/WkForm/utils'
+import CustomFieldsMixin from '@/mixins/CustomFields'
 
 export default {
   // 客户管理 的 基本信息
@@ -216,11 +293,13 @@ export default {
     XhProuctCate,
     XhBusinessStatus,
     XhReceivablesPlan,
-    CRMFullScreenDetail: () => import('@/components/CRMFullScreenDetail')
+    CRMFullScreenDetail: () => import('@/components/CRMFullScreenDetail'),
+    WkFieldView,
+    WkField
   },
   filters: {
   },
-  mixins: [CheckStatusMixin],
+  mixins: [CheckStatusMixin, CustomFieldsMixin],
   props: {
     // 模块ID
     id: [String, Number],
@@ -241,7 +320,16 @@ export default {
       default: ''
     },
     // 固定字段的数据
-    filedList: Array
+    filedList: Array,
+    // 系统消息之前的数据
+    otherList: Array,
+    // 忽略的字段直接输出
+    ignoreFields: {
+      type: Array,
+      default: () => {
+        return []
+      }
+    }
   },
   data() {
     return {
@@ -258,8 +346,26 @@ export default {
       showSaveButton: false,
       editRules: {},
       editForm: {},
+      allForm: {}, // 用于逻辑表单刷新
+      currentEditRules: {}, // 当前编辑字段规则
       editOptions: {},
-      editFieldData: []
+      editFieldData: [],
+      invoiceTypeOptions: [{
+        name: '增值税专用发票',
+        value: 1
+      }, {
+        name: '增值税普通发票',
+        value: 2
+      }, {
+        name: '国税通用机打发票',
+        value: 3
+      }, {
+        name: '地税通用机打发票',
+        value: 4
+      }, {
+        name: '收据',
+        value: 5
+      }]
     }
   },
   inject: ['rootTabs'],
@@ -269,7 +375,7 @@ export default {
   watch: {
     id(val) {
       if (!this.filedList) {
-        this.refreshData(true)
+        this.getBaseInfo(true)
       }
     },
 
@@ -279,7 +385,7 @@ export default {
 
     'rootTabs.currentName'(val) {
       if (val === 'CRMEditBaseInfo') {
-        this.refreshData(false)
+        this.getBaseInfo(false)
       }
     }
 
@@ -287,9 +393,6 @@ export default {
   created() {
     this.$bus.on('crm-detail-update', (data) => {
       this.getBaseInfo(false)
-      if (!this.isSeas) {
-        this.refreshData(true)
-      }
     })
   },
   beforeDestroy() {
@@ -299,77 +402,165 @@ export default {
     if (this.filedList) {
       this.list = this.filedList
     } else {
-      this.refreshData(true)
+      this.getBaseInfo(true)
     }
   },
   methods: {
-    /**
-     * 刷新页面数据
-     */
-    refreshData(loading = false) {
-      this.getBaseInfo(loading)
-      if (!this.isSeas) {
-        this.getEditFieldData()
-      }
-    },
-
-
 
     /**
      * 获取基础信息
      */
     getBaseInfo(loading) {
       this.loading = !!loading
+      if (this.crmType === 'marketing') {
+        // crmMarketingInformationAPI().then(res => {
+        //   this.list = res.data || []
+        //   this.loading = false
+        // }).catch(() => {
+        //   this.loading = false
+        // })
+      } else {
+        const params = {
+          id: this.id,
+          types: crmTypeModel[this.crmType],
+          action_id: this.id,
+          module: 'crm',
+          controller: this.crmType,
+          action: 'read',
+          system: 1
+        }
 
-      const params = {
-        id: this.id,
-        types: crmTypeModel[this.crmType],
-        action_id: this.id,
-        module: 'crm',
-        controller: this.crmType,
-        action: 'read',
-        system: 1
-      }
+        // 如果有公海id 需上传确定展示字段
+        if (this.pool_id) {
+          params.pool_id = this.pool_id
+        }
 
-      // 如果有公海id 需上传确定展示字段
-      if (this.pool_id) {
-        params.pool_id = this.pool_id
-      }
+        filedGetInformationAPI(params)
+          .then(res => {
+            const baseList = []
+            const systemList = []
+            // 编辑用信息
+            const editFieldData = []
+            const editRules = {}
 
-      filedGetInformationAPI(params)
-        .then(res => {
-          const baseList = []
-          const systemList = []
-          res.data.forEach(item => {
-            if (item.form_type === 'floatnumber') {
-              item.value = separator(item.value)
-            } else if (item.form_type === 'date') {
-              item.value = getWkDateTime(item.value)
-            }
-            if (item.system == 1) {
-              systemList.push(item)
+            res.data.forEach(item => {
+              if (item.form_type === 'floatnumber') {
+                item.value = separator(item.value)
+              } else if (item.form_type === 'date') {
+                item.value = getWkDateTime(item.value)
+              }
+              if (item.system == 1) {
+                systemList.push(item)
+              } else if (item.form_type !== 'product') {
+                baseList.push(item)
+              }
+            })
+            // 逻辑表单逻辑
+            const assistIds = this.getFormAssistIds([baseList])
+            baseList.forEach(item => {
+              this.getFormItemDefaultProperty(item, false)
+              item.show = !assistIds.includes(item.formAssistId)
+
+              if (this.ignoreFields.includes(item.field)) {
+              // 防止影响普通单选的验证方式 该方法必须在获取值之上
+                delete item.optionsData
+              }
+
+              const canEdit = this.getItemIsCanEdit(item, 'update')
+              // 是否能编辑权限
+              const copyItem = objDeepCopy(item)
+              if (item.show && canEdit) {
+                editRules[item.field] = this.getRules(copyItem)
+              }
+
+              // 是否可编辑
+              item.disabled = !canEdit
+
+              // 特殊字段允许多选
+              this.getItemRadio(item, item)
+
+              // 表格为了展示，提前处理为编辑数据
+              if (item.form_type === 'detail_table') {
+                if (!isEmpty(item.value)) {
+                  item.value = this.getItemValue(item, null, 'update')
+                }
+                this.allForm[item.field] = item.value || null
+              } else {
+              // copyItem 避免修改原始item.value
+                this.allForm[item.field] = this.getItemValue(copyItem, null, 'update')
+              }
+
+              editFieldData.push(item)
+            })
+
+            // 编辑逻辑赋值
+            this.editFieldData = editFieldData
+            this.editRules = editRules
+
+            if (this.otherList) {
+              this.list = [
+                {
+                  name: '基本信息',
+                  list: baseList
+                },
+                ...this.otherList,
+                {
+                  name: '系统信息',
+                  list: systemList
+                }
+              ]
             } else {
-              baseList.push(item)
+              this.list = [
+                {
+                  name: '基本信息',
+                  list: baseList
+                },
+                {
+                  name: '系统信息',
+                  list: systemList
+                }
+              ]
             }
-          })
-          this.list = [
-            {
-              name: '基本信息',
-              list: baseList
-            },
-            {
-              name: '系统信息',
-              list: systemList
-            }
-          ]
-          this.editCancel()
-          this.loading = false
-        })
-        .catch(() => {
-          this.loading = false
-        })
-    },
 
+            this.editCancel()
+            this.loading = false
+          })
+          .catch(() => {
+            this.loading = false
+          })
+      }
+    },
+    /**
+     * change
+     */
+    formChange(field, index, value, valueList) {
+      if ([
+        'select',
+        'checkbox'
+      ].includes(field.form_type) &&
+          field.remark === 'options_type' &&
+          field.optionsData) {
+        const { fieldForm, fieldRules } = this.getFormContentByOptionsChange([this.editFieldData], { ...this.allForm, ...this.editForm }, this.editRules, null, 'update')
+
+        const editForm = {}
+        const currentEditRules = {}
+
+        this.editFieldData.forEach(item => {
+          // 重新获取当前可编辑字段的值和规则
+          if (item.show && item.isEdit) {
+            editForm[item.field] = fieldForm[item.field]
+            currentEditRules[item.field] = fieldRules[item.field]
+          }
+
+          // 不展示的字段，但处在可编辑状态，置为不能编辑
+          if (!item.show && item.isEdit) {
+            item.isEdit = false
+          }
+        })
+        this.editForm = editForm
+        this.currentEditRules = currentEditRules
+      }
+    },
     /**
      * 查看地图详情
      */
@@ -436,7 +627,8 @@ export default {
     isBlockShowField(item) {
       return [
         'map_address',
-        'file'].includes(item.form_type)
+        'file',
+        'detail_table'].includes(item.form_type)
     },
 
     getShowBlock(type) {
@@ -482,27 +674,36 @@ export default {
      * 获取非附件类型的展示值
      */
     getCommonShowValue(item) {
-      if (this.isModule(item) || this.isSpecialField(item)) {
+      if (this.isModule(item)) {
         return this.getModuleName(item)
-      } else if (item.form_type === 'single_user') {
-        return item.value ? item.value.realname : ''
-      } else if (item.form_type === 'checkbox' || item.form_type === 'structure' || item.form_type === 'user') {
-        return this.arrayValue(item.value, this.getArrayKey(item.form_type))
-      } else if (item.form_type === 'check_status') {
-        return this.getStatusName(item.value)
+      } else {
+        const field = item.props
+        if (field.fieldName === 'invoice_type') {
+          const dataItem = this.invoiceTypeOptions.find(o => o.value == item.value)
+          return dataItem ? dataItem.name : ''
+        }
+        return getFormFieldShowName(item.form_type, item.value, '', item)
       }
-
-      return item.value
     },
 
     /**
      * 查看详情
      */
     checkModuleDetail(data) {
-      if (this.isModule(data) && isArray(data.value)) {
-        this.fullDetailType = data.form_type
-        this.fullDetailId = data.value[0][`${data.form_type}_id`]
-        this.showFullDetail = true
+      const dataValue = data.value
+      if (this.isModule(data)) {
+        let id = ''
+        if (isObject(dataValue)) {
+          id = dataValue[`${data.form_type}_id`]
+        } else if (isArray(dataValue) && dataValue.length > 0) {
+          id = dataValue[0][`${data.form_type}_id`]
+        }
+
+        if (id) {
+          this.fullDetailType = data.form_type
+          this.fullDetailId = id
+          this.showFullDetail = true
+        }
       }
     },
 
@@ -530,30 +731,16 @@ export default {
      * 点击编辑按钮
      */
     editClick(item) {
-      const editData = this.editFieldData.find(field => {
-        return field.field == item.field
-      })
-
-      if (editData) {
-        let value = isArray(editData.value) || isObject(editData.value) ? objDeepCopy(editData.value) : editData.value
-        if (item.form_type === 'contacts' ||
-          item.form_type === 'customer' ||
-          item.form_type === 'contract' ||
-          item.form_type === 'business') {
-          value = value && value[`${item.form_type}Id`] ? [value] : []
-        } else if (item.form_type === 'category') {
-          value = value && value.categoryId ? value.categoryId : []
-        } else if (item.form_type === 'single_user') {
-          value = value && value.userId ? [value] : []
-        } else if (item.form_type === 'structure' || item.form_type === 'file' || item.form_type === 'user') {
-          value = value || []
-        }
-        this.$set(this.editForm, item.field, value)
-        this.$set(editData, 'isEdit', true)
-        this.$set(this.editOptions, item.field, editData)
+      let dataValue = objDeepCopy(this.allForm[item.fieldName])
+      // 明细表格是空时，需要填充一条空数据，展示时未处理。这里增加
+      if (item.formType === 'detail_table' && isEmpty(dataValue)) {
+        dataValue = this.getItemValue(objDeepCopy(item), null, 'update')
       }
-      this.showSaveButton = true
+      this.$set(this.editForm, item.fieldName, dataValue)
       this.$set(item, 'isEdit', true)
+      this.$set(this.editOptions, item.fieldName, item)
+      this.$set(this.currentEditRules, item.fieldName, this.editRules[item.fieldName] || [])
+      this.showSaveButton = true
     },
 
     editCancel() {
@@ -562,11 +749,11 @@ export default {
       }
 
       this.$nextTick(() => {
-        this.list.forEach(bItem => {
-          bItem.list.forEach(item => {
-            item.isEdit = false
-          })
-        })
+        // this.list.forEach(bItem => {
+        //   bItem.list.forEach(item => {
+        //     item.isEdit = false
+        //   })
+        // })
         this.editFieldData.forEach(item => {
           item.isEdit = false
         })
@@ -593,33 +780,24 @@ export default {
     submiteInfo() {
       // 仅第一块可编辑 ，直接取第一块的数据
       this.loading = true
-      const fields = this.list[0].list || []
       const list = []
-      for (let index = 0; index < fields.length; index++) {
-        const field = fields[index]
-        if (field.isEdit) {
-          const fieldData = this.editOptions[field.field]
-          if (fieldData) {
-            fieldData.value = this.getRealValue(fieldData, this.editForm[field.field])
-            if (fieldData.field === 'category_id') {
-              fieldData.value = fieldData.value.toString()
-            }
-            list.push(fieldData)
-          }
+      for (let index = 0; index < this.editFieldData.length; index++) {
+        const field = this.editFieldData[index]
+        // 获取当前编辑 和 隐藏的字段
+        if (field.formType !== 'desc_text' && (field.isEdit || !field.show)) {
+          list.push({
+            fieldName: field.fieldName,
+            field: field.field,
+            field_type: field.field_type,
+            name: field.name,
+            type: field.type,
+            field_id: field.field_id,
+            value: field.show ? this.getRealParams(field, this.editForm[field.fieldName]) : null
+          })
         }
       }
 
       filedUpdateTableFieldAPI({
-        // id: this.id,
-        // batchId: this.detail.batchId,
-        // label: crmTypeModel[this.crmType],
-        // list: list
-
-        // types
-        // action_id	      是	int	操作ID，某模块下某条数据的主键ID
-        // field	          是	string	要编辑的字段
-        // name	          是	string	要编辑的字段的中文名
-        // value
         types: 'crm_' + this.crmType,
         action_id: this.id,
         list: list.map(item => {
@@ -631,55 +809,14 @@ export default {
       }).then(res => {
         this.loading = false
         this.editCancel()
+        this.$emit('handle', { type: 'save-success' }) // 刷新数据
 
-        this.refreshData(true)
+        // this.refreshData(true)
       }).catch(() => {
         this.loading = false
       })
     },
 
-    getRealValue(element, value) {
-      if (
-        element.form_type == 'customer' ||
-        element.form_type == 'contacts' ||
-        element.form_type == 'business' ||
-        element.form_type == 'leads' ||
-        element.form_type == 'contract'
-      ) {
-        if (value && value.length) {
-          return value[0][`${element.form_type}_id`]
-        } else {
-          return ''
-        }
-      } else if (
-        element.form_type == 'user' ||
-        element.form_type == 'single_user' ||
-        element.form_type == 'structure'
-      ) {
-        return value
-          .map(item => {
-            return (element.form_type == 'user' || element.form_type == 'single_user') ? item.id : item.id
-          })
-          // .join(',')
-      } else if (element.form_type == 'file') {
-        if (value && value.length > 0) {
-          return value.map(item => item.file_id)
-        }
-        return []
-      } else if (element.form_type == 'category') {
-        if (value && value.length > 0) {
-          return value[value.length - 1]
-        }
-        return ''
-      } else if (element.form_type == 'checkbox') {
-        if (value && value.length > 0) {
-          return value.join(',')
-        }
-        return ''
-      }
-
-      return value
-    },
 
     /**
      * 员工编辑
@@ -690,214 +827,26 @@ export default {
     arrayValueChange(data, item) {
       this.editForm[item.field] = data.value || []
     },
-
-    // 获取自定义字段
-    getEditFieldData() {
-      // 获取自定义字段的更新时间
-      var params = {
-        // label: crmTypeModel[this.crmType],
-        // id: this.id
-        id: this.id,
-        types: crmTypeModel[this.crmType],
-        action_id: this.id,
-        module: 'crm',
-        controller: this.crmType,
-        action: 'read',
-        system: 1
-      }
-
-      filedGetFieldAPI(params)
-        .then(res => {
-          console.log({ res })
-          const editFieldData = res.data || []
-          const editRules = {}
-          editFieldData.forEach(item => {
-            item.isEdit = false
-            const authList = this.getItemRulesArrayFromItem(item)
-            if (authList && authList.length) {
-              editRules[item.field] = authList
-            }
-          })
-
-          this.editFieldData = editFieldData
-          this.editRules = editRules
-        })
-        .catch(() => {
-        })
-    },
-
     /**
-     * 不验证字段必填
+     * 判断展示
      */
-    ingnoreRequiredField(data) {
-      if (this.crmType == 'contract' && data.field == 'num') {
-        return data.autoGeneNumber == 1
-      } else if (this.crmType == 'receivables' && data.field == 'number') {
-        return data.autoGeneNumber == 1
-      } else if (this.crmType == 'visit' && data.field == 'visit_number') {
-        return data.autoGeneNumber == 1
+    getShowValue(item) {
+      if (item.hasOwnProperty('show')) {
+        return item.show
       }
-
-      return false
+      return true
     },
-
     /**
-     * item 当行数据源
+     * 获取单选值
      */
-    getItemRulesArrayFromItem(item) {
-      var tempList = []
-      // 验证必填
-      if (item.is_null == 1 && !this.ingnoreRequiredField(item)) {
-        var validateIsNull = (rule, value, callback) => {
-          if (!rule.item || !rule.item.isEdit) {
-            return callback()
-          }
-          if (isEmpty(value)) {
-            callback(new Error(item.name + '不能为空'))
-          } else {
-            callback()
-          }
-        }
-        tempList.push({
-          validator: validateIsNull,
-          item: item,
-          trigger: []
-        })
+    getSelectShowValue(data) {
+      const field = data.props
+      const value = data.value
+      if (value !== null) {
+        const dataValue = field.setting.find(o => o.value === value)
+        return dataValue ? dataValue.name : ''
       }
-
-      // 验证唯一
-      if (item.is_unique == 1) {
-        var validateUnique = (rule, value, callback) => {
-          if ((isArray(value) && value.length == 0) || !value) {
-            callback()
-          } else {
-            var validatesParams = {
-              field: item.field,
-              types: 'crm_' + this.crmType,
-              id: this.id
-            }
-            validatesParams.fieldId = item.fieldId
-            if (isArray(value)) {
-              let postValue = ''
-              if (value.length > 0) {
-                if (
-                  rule.item.form_type == 'user' ||
-                  rule.item.form_type == 'single_user' ||
-                  rule.item.form_type == 'structure'
-                ) {
-                  postValue = value
-                    .map(valueItem => {
-                      return (rule.item.form_type == 'user' || rule.item.form_type == 'single_user')
-                        ? valueItem.userId
-                        : valueItem.id
-                    })
-                    .join(',')
-                } else if (rule.item.field == 'categoryId') {
-                  if (value && value.length) {
-                    postValue = value[value.length - 1]
-                  } else {
-                    postValue = ''
-                  }
-                } else if (rule.item.form_type == 'checkbox') {
-                  postValue = value.join(',')
-                }
-              }
-              validatesParams.val = postValue
-            } else {
-              validatesParams.val = value
-            }
-            validatesParams.batchId = this.detail.batchId
-            filedValidatesAPI(validatesParams)
-              .then(res => {
-                // code 200 通过
-                if (res.code == 200) {
-                  callback()
-                } else {
-                  callback(new Error(item.name + '已存在'))
-                }
-              })
-              .catch(error => {
-                callback(new Error(error.msg ? error.msg : '验证出错'))
-              })
-          }
-        }
-        tempList.push({
-          validator: validateUnique,
-          item: item,
-          trigger:
-            item.form_type == 'checkbox' || item.form_type == 'select'
-              ? []
-              : []
-        })
-      }
-
-      // 特殊字符
-      if (item.form_type == 'number') {
-        var validateCRMNumber = (rule, value, callback) => {
-          if (!rule.item || !rule.item.isEdit) {
-            return callback()
-          }
-          if (!value || value == '' || regexIsCRMNumber(value)) {
-            callback()
-          } else {
-            callback(new Error('数字的整数部分须少于15位，小数部分须少于4位'))
-          }
-        }
-        tempList.push({
-          validator: validateCRMNumber,
-          item: item,
-          trigger: []
-        })
-      } else if (item.form_type == 'floatnumber') {
-        var validateCRMMoneyNumber = (rule, value, callback) => {
-          if (!rule.item || !rule.item.isEdit) {
-            return callback()
-          }
-          if (!value || value == '' || regexIsCRMMoneyNumber(value)) {
-            callback()
-          } else {
-            callback(new Error('货币的整数部分须少于15位，小数部分须少于2位'))
-          }
-        }
-        tempList.push({
-          validator: validateCRMMoneyNumber,
-          item: item,
-          trigger: []
-        })
-      } else if (item.form_type == 'mobile') {
-        var validateCRMMobile = (rule, value, callback) => {
-          if (!rule.item || !rule.item.isEdit) {
-            return callback()
-          }
-          if (!value || value == '' || regexIsCRMMobile(value)) {
-            callback()
-          } else {
-            callback(new Error('手机格式有误'))
-          }
-        }
-        tempList.push({
-          validator: validateCRMMobile,
-          item: item,
-          trigger: ['blur', 'change']
-        })
-      } else if (item.form_type == 'email') {
-        var validateCRMEmail = (rule, value, callback) => {
-          if (!rule.item || !rule.item.isEdit) {
-            return callback()
-          }
-          if (!value || value == '' || regexIsCRMEmail(value)) {
-            callback()
-          } else {
-            callback(new Error('邮箱格式有误'))
-          }
-        }
-        tempList.push({
-          validator: validateCRMEmail,
-          item: item,
-          trigger: ['blur', 'change']
-        })
-      }
-      return tempList
+      return ''
     }
   }
 }
@@ -958,6 +907,12 @@ export default {
         display: inline;
       }
     }
+
+    &.is-desc_text {
+      .el-form-item__content {
+        margin-left: 0 !important;
+      }
+    }
   }
 }
 
@@ -968,6 +923,10 @@ export default {
   white-space: pre-wrap;
   word-wrap: break-word;
   word-break: break-all;
+  .wk-field-view {
+    width: 0;
+    flex: 1;
+  }
 }
 
 .form-item__edit {

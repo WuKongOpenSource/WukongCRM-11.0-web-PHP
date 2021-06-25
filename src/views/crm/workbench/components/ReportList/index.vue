@@ -51,24 +51,33 @@
               :label="item.label"
               :width="item.width"
               show-overflow-tooltip>
-              <template slot-scope="scope">
+              <template slot-scope="{row, column, $index}">
                 <template v-if="item.prop == 'deal_status'">
-                  <i :class="scope.row[item.prop] | dealIcon"/>
-                  <span>{{ scope.row[item.prop] | dealName }}</span>
+                  <i :class="row[item.prop] | dealIcon"/>
+                  <span>{{ row[item.prop] | dealName }}</span>
                 </template>
                 <template v-else-if="item.prop == 'is_lock'">
                   <i
-                    v-if="scope.row.is_lock == 1"
+                    v-if="row.is_lock == 1"
                     class="wk wk-circle-password customer-lock"/>
                 </template>
                 <template v-else-if="item.prop == 'check_status'">
                   <span
                     :style="{
-                      backgroundColor: getCRMStatusColor(scope.row.check_status)
+                      backgroundColor: getCRMStatusColor(row.check_status)
                   }" class="status-mark"/>
-                  <span>{{ getCRMStatusName(scope.row.check_status) }}</span>
+                  <span>{{ getCRMStatusName(row.check_status) }}</span>
                 </template>
-                <template v-else>{{ fieldFormatter(scope.row, scope.column) }}</template>
+                <wk-field-view
+                  v-else
+                  :props="item"
+                  :form_type="item.form_type"
+                  :value="row[column.property]"
+                >
+                  <template slot-scope="{ data }">
+                    {{ fieldFormatter(row, column, row[column.property], item) }}
+                  </template>
+                </wk-field-view>
               </template>
             </el-table-column>
             <el-table-column v-if="showFillColumn" />
@@ -113,6 +122,7 @@ import { filedGetTableFieldAPI } from '@/api/crm/common'
 import crmTypeModel from '@/views/crm/model/crmTypeModel'
 import CRMAllDetail from '@/views/crm/components/CRMAllDetail'
 import RecordList from './components/RecordList'
+import WkFieldView from '@/components/NewCom/WkForm/WkFieldView'
 
 import { mapGetters } from 'vuex'
 import Lockr from 'lockr'
@@ -122,7 +132,8 @@ export default {
   name: 'ReportList', // 简报列表
   components: {
     CRMAllDetail,
-    RecordList
+    RecordList,
+    WkFieldView
   },
   filters: {
     dealIcon(statu) {
@@ -346,7 +357,8 @@ export default {
               this.showFieldList.push({
                 prop: element.fieldName || element.field,
                 label: element.name,
-                width: width
+                width: width,
+                form_type: element.form_type
               })
             }
 

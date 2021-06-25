@@ -22,7 +22,9 @@
           :detail="detailData"
           :head-details="headDetails"
           :id="id"
+          :page-list="pageList"
           :crm-type="crmType"
+          @pageChange="pageChange"
           @handle="detailHeadHandle"
           @close="hideView">
           <template slot="name">
@@ -51,7 +53,8 @@
                 :type-list="logTyps"
                 :id="id"
                 :handle="activityHandle"
-                :crm-type="crmType" />
+                :crm-type="crmType"
+                @handle="detailHeadHandle" />
             </el-tab-pane>
           </el-tabs>
           <transition name="slide-fade">
@@ -94,6 +97,7 @@ import Activity from '../components/Activity' // 活动
 import ContactsImport from './components/ContactsImport' // 重要信息
 import CRMEditBaseInfo from '../components/CRMEditBaseInfo' // 联系人基本信息
 
+import RelativeTeam from '../components/RelativeTeam' // 团队成员
 import RelativeBusiness from '../components/RelativeBusiness' // 相关商机
 import RelativeHandle from '../components/RelativeHandle' // 相关操作
 import RelativeFiles from '../components/RelativeFiles' // 相关附件
@@ -112,7 +116,8 @@ export default {
     RelativeHandle,
     RelativeFiles,
     CRMAllCreate,
-    ContactsImport
+    ContactsImport,
+    RelativeTeam
   },
   mixins: [DetailMixin],
   props: {
@@ -197,6 +202,7 @@ export default {
       if (this.crm.contacts && this.crm.contacts.read) {
         tempsTabs.push({ label: '详细资料', name: 'CRMEditBaseInfo' })
       }
+      tempsTabs.push({ label: this.getTabName('团队成员', this.tabsNumber.memberCount), name: 'RelativeTeam' })
       if (this.crm.business && this.crm.business.index) {
         tempsTabs.push({ label: this.getTabName('商机', this.tabsNumber.businessCount), name: 'RelativeBusiness' })
       }

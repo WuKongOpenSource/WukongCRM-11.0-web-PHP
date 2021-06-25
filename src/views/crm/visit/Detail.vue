@@ -23,6 +23,8 @@
           :head-details="headDetails"
           :id="id"
           :crm-type="crmType"
+          :page-list="pageList"
+          @pageChange="pageChange"
           @handle="detailHeadHandle"
           @close="hideView"/>
         <flexbox class="d-container-bd" align="stretch">
@@ -40,7 +42,8 @@
                 :is="item.name"
                 :detail="detailData"
                 :id="id"
-                :crm-type="crmType" />
+                :crm-type="crmType"
+                @handle="detailHeadHandle" />
             </el-tab-pane>
           </el-tabs>
         </flexbox>
@@ -165,10 +168,10 @@ export default {
     /**
      * 编辑成功
      */
-    editSaveSuccess() {
-      this.$emit('handle', { type: 'save-success' })
-      this.getDetial()
-    },
+    // editSaveSuccess() {
+    //   this.$emit('handle', { type: 'save-success' })
+    //   this.getDetial()
+    // },
 
     /**
      * 预览图片

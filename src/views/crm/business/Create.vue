@@ -5,47 +5,54 @@
     @close="close"
     @save="saveClick">
     <create-sections title="基本信息">
-      <wk-form
+      <el-form
         ref="crmForm"
         :model="fieldForm"
         :rules="fieldRules"
-        :field-from="fieldForm"
-        :field-list="fieldList"
+        :validate-on-rule-change="false"
+        class="wk-form"
         label-position="top"
-        @change="formChange"
       >
-        <template slot-scope="{ data }">
-          <crm-relative-cell
-            v-if="data && data.formType == 'customer'"
-            :value="fieldForm[data.field]"
-            :disabled="data.disabled"
-            relative-type="customer"
-            @value-change="otherChange($event, data)"
-          />
-          <xh-business-status
-            v-if="data && data.formType == 'business_type'"
-            :value="fieldForm[data.field]"
-            :options="data.setting"
-            @value-change="otherChange($event, data)"
-          />
-          <xh-product
-            v-if="data && data.formType == 'product'"
-            :value="fieldForm[data.field]"
-            @value-change="otherChange($event, data)"
-          />
-          <el-select
-            v-if="data && data.formType == 'business_status'"
-            :disabled="data.disabled"
-            v-model="fieldForm[data.field]"
-            style="width: 100%;">
-            <el-option
-              v-for="(item, index) in data.setting"
-              :key="index"
-              :label="item.name"
-              :value="item.status_id"/>
-          </el-select>
-        </template>
-      </wk-form>
+        <wk-form-items
+          v-for="(children, index) in fieldList"
+          :key="index"
+          :field-from="fieldForm"
+          :field-list="children"
+          @change="formChange"
+        >
+          <template slot-scope="{ data }">
+            <crm-relative-cell
+              v-if="data && data.form_type == 'customer'"
+              :value="fieldForm[data.field]"
+              :disabled="data.disabled"
+              relative-type="customer"
+              @value-change="otherChange($event, data)"
+            />
+            <xh-business-status
+              v-if="data && data.form_type == 'business_type'"
+              :value="fieldForm[data.field]"
+              :options="data.setting"
+              @value-change="otherChange($event, data)"
+            />
+            <xh-product
+              v-if="data && data.form_type == 'product'"
+              :value="fieldForm[data.field]"
+              @value-change="otherChange($event, data)"
+            />
+            <el-select
+              v-if="data && data.form_type == 'business_status'"
+              :disabled="data.disabled"
+              v-model="fieldForm[data.field]"
+              style="width: 100%;">
+              <el-option
+                v-for="(item, index) in data.setting"
+                :key="index"
+                :label="item.name"
+                :value="item.status_id"/>
+            </el-select>
+          </template>
+        </wk-form-items>
+      </el-form>
     </create-sections>
   </xr-create>
 </template>
@@ -56,7 +63,8 @@ import { crmBusinessSaveAPI } from '@/api/crm/business'
 
 import XrCreate from '@/components/XrCreate'
 import CreateSections from '@/components/CreateSections'
-import WkForm from '@/components/NewCom/WkForm'
+import WkFormItems from '@/components/NewCom/WkForm/WkFormItems'
+
 import {
   XhBusinessStatus,
   XhProduct,
@@ -76,7 +84,7 @@ export default {
     CrmRelativeCell,
     XhBusinessStatus,
     XhProduct,
-    WkForm
+    WkFormItems
   },
 
   mixins: [CustomFieldsMixin],
@@ -131,7 +139,8 @@ export default {
         types: 'crm_business',
         module: 'crm',
         controller: 'business',
-        action: this.action.type
+        action: this.action.type,
+        format: 2
       }
 
       if (this.action.type == 'update') {
@@ -141,64 +150,70 @@ export default {
       filedGetFieldAPI(params)
         .then(res => {
           const list = res.data || []
+          const assistIds = this.getFormAssistIds(list)
 
+          const baseFields = []
           const fieldList = []
           const fieldRules = {}
           const fieldForm = {}
-          list.forEach(item => {
-            const temp = {}
-            temp.field = item.field
-            temp.formType = item.form_type
-            temp.fieldId = item.fieldId
-            temp.inputTips = item.input_tips
-            temp.name = item.name
-            temp.setting = item.setting
-            temp.value = item.value
-            const canEdit = this.getItemIsCanEdit(item, this.action.type)
-            // 是否能编辑权限
-            if (canEdit) {
-              fieldRules[temp.field] = this.getRules(item)
-            }
+          list.forEach(children => {
+            const fields = []
+            children.forEach(item => {
+              const temp = this.getFormItemDefaultProperty(item)
+              temp.show = !assistIds.includes(item.formAssistId)
 
-            // 是否可编辑
-            temp.disabled = !canEdit
+              const canEdit = this.getItemIsCanEdit(item, this.action.type)
+              // 是否能编辑权限
+              if (temp.show && canEdit) {
+                fieldRules[temp.field] = this.getRules(item)
+              }
 
-            // 禁止某些业务组件选择
-            if (temp.formType == 'customer') {
-              if (this.action.type == 'relative') {
-                const relativeDisInfos = {
-                  customer: { customer: true },
-                  contacts: { customer: true }
-                }
+              // 是否可编辑
+              temp.disabled = !canEdit
 
-                // 在哪个类型下添加
-                const relativeTypeDisInfos = relativeDisInfos[this.action.crmType]
-                if (relativeTypeDisInfos) {
+              // 禁止某些业务组件选择
+              if (temp.form_type == 'customer') {
+                if (this.action.type == 'relative') {
+                  const relativeDisInfos = {
+                    customer: { customer: true },
+                    contacts: { customer: true }
+                  }
+
+                  // 在哪个类型下添加
+                  const relativeTypeDisInfos = relativeDisInfos[this.action.crmType]
+                  if (relativeTypeDisInfos) {
                   // 包含的字段值
-                  temp.disabled = relativeTypeDisInfos[item.form_type] || false
+                    temp.disabled = relativeTypeDisInfos[item.form_type] || false
+                  }
                 }
               }
-            }
-            if (this.action.type == 'update' && temp.formType == 'business_status') {
-              temp.disabled = true
-            }
-            // 特殊字段允许多选
-            this.getItemRadio(item, temp)
 
-            // 获取默认值
-            fieldForm[temp.field] = this.getItemValue(item, this.action.data, this.action.type)
-            fieldList.push(temp)
+              // 特殊字段允许多选
+              this.getItemRadio(item, temp)
+
+              if (item.form_type === 'business_status') {
+                temp.disabled = this.action.type === 'update'
+              }
+
+              // 获取默认值
+              if (temp.show) {
+                fieldForm[temp.field] = this.getItemValue(item, this.action.data, this.action.type)
+              }
+              fields.push(temp)
+              baseFields.push(item)
+            })
+            fieldList.push(fields)
           })
 
-          this.baseFields = list
+          this.baseFields = baseFields
           this.fieldList = fieldList
           this.fieldForm = fieldForm
           this.fieldRules = fieldRules
 
-
           this.loading = false
         })
-        .catch(() => {
+        .catch((e) => {
+          console.log(e)
           this.loading = false
         })
     },
@@ -208,7 +223,7 @@ export default {
      */
     saveClick() {
       this.loading = true
-      const crmForm = this.$refs.crmForm.instance
+      const crmForm = this.$refs.crmForm
 
       crmForm.validate(valid => {
         if (valid) {
@@ -275,6 +290,16 @@ export default {
      * change
      */
     formChange(field, index, value, valueList) {
+      if ([
+        'select',
+        'checkbox'
+      ].includes(field.form_type) &&
+          field.remark === 'options_type' &&
+          field.optionsData) {
+        const { fieldForm, fieldRules } = this.getFormContentByOptionsChange(this.fieldList, this.fieldForm)
+        this.fieldForm = fieldForm
+        this.fieldRules = fieldRules
+      }
     },
 
     /**
@@ -282,8 +307,8 @@ export default {
      */
     otherChange(data, field) {
       console.log(data, field)
-      if (field.formType === 'business_type') {
-        const statusItem = this.fieldList.find(item => item.formType === 'business_status')
+      if (field.form_type === 'business_type') {
+        const statusItem = this.getItemWithFromType(this.fieldList, 'business_status')
         if (statusItem) {
           if (isEmpty(data.value)) {
             this.fieldForm[field.field] = ''
@@ -298,11 +323,11 @@ export default {
             this.$set(this.fieldForm, statusItem.field, statusItem.setting.length > 0 ? statusItem.setting[0].status_id : '')
           }
         }
-      } else if (field.formType === 'product') {
+      } else if (field.form_type === 'product') {
         this.fieldForm.money = data.value.total_price || ''
       }
       this.$set(this.fieldForm, field.field, data.value)
-      this.$refs.crmForm.instance.validateField(field.field)
+      this.$refs.crmForm.validateField(field.field)
     },
 
     /**

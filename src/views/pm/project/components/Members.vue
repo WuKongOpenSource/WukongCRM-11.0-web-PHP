@@ -37,6 +37,18 @@
             class="user-img" />
           <span>{{ item.realname }}
           </span>
+          <el-select
+            v-if="permission.manageTaskOwnerUser"
+            v-model="item.group_id"
+            style="width: 120px;"
+            size="mini"
+            @change="userAuthChange($event,item)">
+            <el-option
+              v-for="val in optionList"
+              :key="val.id"
+              :label="val.title"
+              :value="val.id"/>
+          </el-select>
           <i
             v-if="canUpdateWork"
             class="el-icon-close"
@@ -51,7 +63,8 @@
 // API
 import {
   workWorkOwnerDelAPI,
-  workWorkAddUserGroupAPI
+  workWorkAddUserGroupAPI,
+  workWorkGroupListAPI
 } from '@/api/pm/project'
 import MembersDep from '@/components/SelectEmployee/MembersDep'
 import { getMaxIndex } from '@/utils/index'
@@ -83,7 +96,8 @@ export default {
     return {
       zIndex: getMaxIndex(),
       loading: false,
-      userList: []
+      userList: [],
+      optionList: []
     }
   },
 
@@ -100,6 +114,7 @@ export default {
     visible(val) {
       if (val) {
         this.userList = this.list || []
+        this.getGroupList()
       } else {
         this.$emit('close')
       }
@@ -117,6 +132,43 @@ export default {
   },
 
   methods: {
+    /**
+     * 获取项目角色列表
+     */
+    getGroupList() {
+      workWorkGroupListAPI()
+        .then(res => {
+          this.optionList = res.data || []
+        })
+        .catch(() => {})
+    },
+    /**
+     * 编辑成员权限
+     */
+    userAuthChange(groupid, item) {
+      for (let index = 0; index < this.userList.length; index++) {
+        const element = this.userList[index]
+        if (!element.group_id) {
+          return
+        }
+      }
+      this.loading = true
+      workWorkAddUserGroupAPI({
+        owner_user_id: item.id,
+        group_id: groupid,
+        work_id: this.workId
+      })
+        .then(res => {
+          this.loading = false
+          this.$message.success('操作成功')
+          this.$emit('handle', 'member', this.userList)
+        })
+        .catch(() => {
+          this.loading = false
+        })
+    },
+
+
     /**
      * 编辑成员
      */

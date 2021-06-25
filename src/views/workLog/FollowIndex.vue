@@ -218,12 +218,12 @@ export default {
 
     moreTypes() {
       const temps = []
-      // if (this.followRecordAuth.excelimport) {
-      //   temps.push({ type: 'enter', name: '导入', icon: 'wk wk-import' })
-      // }
-      // if (this.followRecordAuth.excelexport) {
-      //   temps.push({ type: 'out', name: '导出', icon: 'wk wk-export' })
-      // }
+      if (this.followRecordAuth.excelimport) {
+        temps.push({ type: 'enter', name: '导入', icon: 'wk wk-import' })
+      }
+      if (this.followRecordAuth.excelexport) {
+        temps.push({ type: 'out', name: '导出', icon: 'wk wk-export' })
+      }
       return temps
     },
     // 无线滚动控制
@@ -386,7 +386,7 @@ export default {
       }
     },
     handleTypeDrop(command) {
-      if (!this.requestParams.label) {
+      if (!this.requestParams.crmType) {
         this.$message.error('请先选择一个模块导入/导出')
         return
       }
@@ -397,7 +397,7 @@ export default {
           })
           .catch(() => {})
       } else if (command == 'enter') {
-        const labelObj = this.options.find(item => item.value === this.requestParams.label)
+        const labelObj = this.options.find(item => item.value === this.requestParams.crmType)
         this.$bus.emit('import-crm-bus', 'crmFollowLog', {
           typeName: `${labelObj.label}跟进记录`,
           ownerSelectShow: false,
@@ -405,9 +405,9 @@ export default {
           historyShow: false,
           noImportProcess: true,
           importRequest: crmInstrumentImportRecordListAPI, // 导入请求
-          importParams: { crmType: this.requestParams.label },
+          importParams: { crmType: this.requestParams.crmType },
           templateRequest: crmInstrumentDownloadRecordExcelAPI, // 模板请求
-          templateParams: { crmType: this.requestParams.label },
+          templateParams: { crmType: this.requestParams.crmType },
           downloadErrFuc: this.getImportError
         })
       }

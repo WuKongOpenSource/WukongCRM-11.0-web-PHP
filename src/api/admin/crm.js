@@ -78,7 +78,10 @@ export function customFieldHandleAPI(data) {
   return request({
     url: 'admin/field/update',
     method: 'post',
-    data: data
+    data: data,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
   })
 }
 

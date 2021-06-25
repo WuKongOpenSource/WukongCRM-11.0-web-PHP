@@ -9,7 +9,10 @@ export function crmCustomerSaveAPI(data) {
   return request({
     url: 'crm/customer/' + url,
     method: 'post',
-    data: data
+    data: data,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
   })
 }
 

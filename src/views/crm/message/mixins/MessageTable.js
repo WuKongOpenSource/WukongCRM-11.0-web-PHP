@@ -192,11 +192,6 @@ export default {
         limit: this.pageSize,
         types: 'list'
       }
-      //       page: 1
-      // limit: 15
-      // types: list
-      // isSub: 0
-      // type: 1
       if (this.showSubType) {
         params.isSub = { 1: 0, 2: 1 }[this.isSubType]
       }
@@ -333,7 +328,8 @@ export default {
         this.fieldList.push({
           prop: element.fieldName || element.field,
           label: element.name,
-          width: width
+          width: width,
+          form_type: element.form_type
         })
       }
 
@@ -350,7 +346,7 @@ export default {
     /** 格式化字段 */
     fieldFormatter(row, column) {
       // 如果需要格式化
-      if (column.property == 'invoiceType') {
+      if (column.property == 'invoice_type') {
         return {
           1: '增值税专用发票',
           2: '增值税普通发票',

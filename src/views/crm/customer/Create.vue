@@ -5,27 +5,35 @@
     @close="close"
     @save="saveClick">
     <create-sections title="基本信息">
-      <wk-form
+      <el-form
         ref="crmForm"
         :model="fieldForm"
         :rules="fieldRules"
         :field-from="fieldForm"
-        :field-list="fieldList"
+        :validate-on-rule-change="false"
+        class="wk-form"
         label-position="top"
-        @change="formChange"
       >
-        <template slot-scope="{ data }">
-          <xh-customer-address
-            v-if="data && data.formType == 'map_address'"
-            :value="fieldForm[data.field]"
-            @value-change="otherChange($event, data)"
-          />
-        </template>
-      </wk-form>
+        <wk-form-items
+          v-for="(children, index) in fieldList"
+          :key="index"
+          :field-from="fieldForm"
+          :field-list="children"
+          @change="formChange"
+        >
+          <template slot-scope="{ data }">
+            <xh-customer-address
+              v-if="data && data.form_type == 'map_address'"
+              :value="fieldForm[data.field]"
+              @value-change="otherChange($event, data)"
+            />
+          </template>
+        </wk-form-items>
+      </el-form>
     </create-sections>
 
     <el-button
-      v-if="action.type == 'save'"
+      v-if="action.type == 'save' && contactsSaveAuth"
       slot="footer"
       class="handle-button"
       type="primary"
@@ -48,7 +56,8 @@ import { crmCustomerSaveAPI } from '@/api/crm/customer'
 
 import XrCreate from '@/components/XrCreate'
 import CreateSections from '@/components/CreateSections'
-import WkForm from '@/components/NewCom/WkForm'
+import WkFormItems from '@/components/NewCom/WkForm/WkFormItems'
+
 import {
   XhCustomerAddress
 } from '@/components/CreateCom'
@@ -58,6 +67,7 @@ import ContactsCreate from '../contacts/Create'
 
 import { debounce } from 'throttle-debounce'
 import { isEmpty } from '@/utils/types'
+import { mapGetters } from 'vuex'
 
 export default {
   // 新建编辑
@@ -66,7 +76,7 @@ export default {
   components: {
     XrCreate,
     CreateSections,
-    WkForm,
+    WkFormItems,
     XhCustomerAddress,
     ContactsCreate
   },
@@ -104,6 +114,10 @@ export default {
   },
 
   computed: {
+    ...mapGetters(['crm']),
+    contactsSaveAuth() {
+      return this.crm.contacts && this.crm.contacts.save
+    },
     title() {
       return this.action.type === 'update' ? '编辑客户' : '新建客户'
     }
@@ -131,11 +145,12 @@ export default {
         types: 'crm_customer',
         module: 'crm',
         controller: 'customer',
-        action: this.action.type
+        action: this.action.type,
+        format: 2
       }
 
       if (this.action.type == 'update') {
-        params.action_id = this.action.action_id
+        params.action_id = this.action.id
       }
 
       filedGetFieldAPI(params)
@@ -143,50 +158,54 @@ export default {
           const list = res.data || []
           if (!isEmpty(this.phone)) {
             list.forEach(item => {
-              if (item.formType === 'mobile') {
-                item.defaultValue = this.phone
+              if (item.form_type === 'mobile') {
+                item.default_value = this.phone
               }
             })
           }
+          const assistIds = this.getFormAssistIds(list)
+          const baseFields = []
 
           const fieldList = []
           const fieldRules = {}
           const fieldForm = {}
-          list.forEach(item => {
-            const temp = {}
-            temp.field = item.field
-            temp.formType = item.form_type
-            temp.fieldId = item.fieldId
-            temp.inputTips = item.input_tips
-            temp.name = item.name
-            temp.setting = item.setting
-            temp.value = item.value
-            const canEdit = this.getItemIsCanEdit(item, this.action.type)
-            // 是否能编辑权限
-            if (canEdit) {
-              fieldRules[temp.field] = this.getRules(item)
-            }
+          list.forEach(children => {
+            const fields = []
+            children.forEach(item => {
+              const temp = this.getFormItemDefaultProperty(item)
+              temp.show = !assistIds.includes(item.formAssistId)
 
-            // 是否可编辑
-            temp.disabled = !canEdit
 
-            // 特殊字段允许多选
-            this.getItemRadio(item, temp)
+              const canEdit = this.getItemIsCanEdit(item, this.action.type)
+              // 是否能编辑权限
+              if (temp.show && canEdit) {
+                fieldRules[temp.field] = this.getRules(item)
+              }
 
-            // 获取默认值
-            fieldForm[temp.field] = this.getItemValue(item, this.action.data, this.action.type)
-            fieldList.push(temp)
+              // 是否可编辑
+              temp.disabled = !canEdit
+
+              // 特殊字段允许多选
+              this.getItemRadio(item, temp)
+
+              // 获取默认值
+              if (temp.show) {
+                fieldForm[temp.field] = this.getItemValue(item, this.action.data, this.action.type)
+              }
+              fields.push(temp)
+              baseFields.push(item)
+            })
+            fieldList.push(fields)
           })
 
-          this.baseFields = list
+          this.baseFields = baseFields
           this.fieldList = fieldList
           this.fieldForm = fieldForm
           this.fieldRules = fieldRules
 
-
           this.loading = false
         })
-        .catch(() => {
+        .catch((e) => {
           this.loading = false
         })
     },
@@ -196,7 +215,7 @@ export default {
      */
     saveClick(createContacts = false) {
       this.loading = true
-      const crmForm = this.$refs.crmForm.instance
+      const crmForm = this.$refs.crmForm
       crmForm.validate(valid => {
         if (valid) {
           const params = this.getSubmiteParams(this.baseFields, this.fieldForm)
@@ -220,7 +239,7 @@ export default {
       if (this.action.type == 'update') {
         // params.entity.customerId = this.action.id
         // params.entity.batchId = this.action.batchId
-        params.action_id = this.action.id
+        params.id = this.action.id
       }
 
       // 相关添加时候的多余提交信息
@@ -272,14 +291,25 @@ export default {
     /**
      * change
      */
-    formChange(item, index, value, valueList) {},
+    formChange(field, index, value, valueList) {
+      if ([
+        'select',
+        'checkbox'
+      ].includes(field.form_type) &&
+          field.remark === 'options_type' &&
+          field.optionsData) {
+        const { fieldForm, fieldRules } = this.getFormContentByOptionsChange(this.fieldList, this.fieldForm)
+        this.fieldForm = fieldForm
+        this.fieldRules = fieldRules
+      }
+    },
 
     /**
      * 地址change
      */
     otherChange(data, field) {
       this.$set(this.fieldForm, field.field, data.value)
-      this.$refs.crmForm.instance.validateField(field.field)
+      this.$refs.crmForm.validateField(field.field)
     },
 
     /**

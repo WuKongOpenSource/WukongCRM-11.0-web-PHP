@@ -5,17 +5,22 @@
         v-for="(item, index) in showObj.form"
         :key="index"
         class="list-item">
-        <span v-if="item.form_type == 'date'">{{ item.name +'&nbsp;“' + item.value[0] + '-' + item.value[1] + '”' }}</span>
-        <span v-else-if="item.form_type === 'datetime'">{{ item.name +'&nbsp;“' + item.value[0] + '-' + item.value[1] + '”' }}</span>
+        <span v-if="item.form_type == 'date' || item.form_type === 'datetime'">{{ item.name +'&nbsp;' + getConditionName(item) + `${getDateContent(item)}` }}</span>
+        <span v-else-if="item.form_type == 'position'">{{ item.name +'&nbsp;“' + `${getPositionContent(item)}` + '”' }}</span>
+        <span v-else-if="item.form_type == 'boolean_value'">{{ item.name +'&nbsp;' + getConditionName(item) }}“<el-switch
+          :value="item.value"
+          disabled
+          active-value="1"
+          inactive-value="0"/>”</span>
         <span v-else-if="item.form_type === 'business_type'">{{ item.name +'&nbsp;“' + getTypesName(item) + getStatusName(item) + '”' }}</span>
         <span v-else-if="item.form_type === 'map_address'">{{ `${item.name} ${item.address.state} ${item.address.city} ${item.address.area}` }}</span>
-        <span v-else-if="item.form_type === 'check_status'">{{ item.name +'&nbsp;“' + optionsNames[item.condition]+ '”'+'&nbsp;'+ getNameValue(item) }}</span>
-        <span v-else-if="item.form_type === 'deal_status'">{{ item.name +'&nbsp;“' + optionsNames[item.condition]+ '”'+'&nbsp;'+ getDealStatus(item.value) }}</span>
-        <span v-else-if="item.form_type === 'user' || item.form_type === 'single_user'">{{ item.name +'&nbsp;' + optionsNames[item.condition] + '“' + item.value[0].realname + '”' }}</span>
-        <span v-else-if="item.form_type === 'structure'">{{ item.name +'&nbsp;' + optionsNames[item.condition] + '“' + item.value[0].name + '”' }}</span>
+        <span v-else-if="item.form_type === 'check_status'">{{ item.name +'&nbsp;' + getConditionName(item)+ getNameValue(item) }}</span>
+        <span v-else-if="item.form_type === 'deal_status'">{{ item.name +'&nbsp;' + getConditionName(item)+ getDealStatus(item) }}</span>
+        <span v-else-if="item.form_type === 'user' || item.form_type === 'single_user'">{{ item.name +'&nbsp;' + getConditionName(item) +getValueContent(item) }}</span>
+        <span v-else-if="item.form_type === 'structure'">{{ item.name +'&nbsp;' + getConditionName(item) + getValueContent(item) }}</span>
         <span v-else-if="item.form_type === 'category' && item.value.length > 0">{{ item.name +'&nbsp;“' + item.valueContent + '”' }}</span>
-        <span v-else-if="item.form_type === 'select' && getSettingValueType(item.setting) != 'string'">{{ item.name +'&nbsp;“' + getNameValue(item) + '”' }}</span>
-        <span v-else>{{ item.name + '&nbsp;' + optionsNames[item.condition] + '“' + item.value + '”' }}</span>
+        <span v-else-if="item.form_type === 'select' && getSettingValueType(item.setting) != 'string'">{{ item.name +'&nbsp;' + getConditionName(item) + getNameValue(item) }}</span>
+        <span v-else>{{ item.name + '&nbsp;' + getConditionName(item) + getValueContent(item) }}</span>
         <i
           class="el-icon-close icon"
           @click="handleDelete(item, index)"/>
@@ -25,8 +30,13 @@
 </template>
 
 <script>
+
+import { isEmpty } from '@/utils/types'
+import AdvancedFilterMixin from '@/mixins/AdvancedFilter'
+
 export default {
   name: 'FilterContent',
+  mixins: [AdvancedFilterMixin],
   props: {
     obj: {
       type: Object,
@@ -38,24 +48,6 @@ export default {
   },
   data() {
     return {
-      // 获取条件名称
-      optionsNames: {
-        is: '等于',
-        in: '等于',
-        isNot: '不等于',
-        contains: '包含',
-        notContains: '不包含',
-        startWith: '开始于',
-        endWith: '结束于',
-        isNull: '为空',
-        isNotNull: '不为空',
-        eq: '等于',
-        neq: '不等于',
-        gt: '大于',
-        egt: '大于等于',
-        lt: '小于',
-        elt: '小于等于'
-      },
       // 展示信息
       showObj: {}
     }
@@ -71,6 +63,13 @@ export default {
   },
   methods: {
     /**
+     * isNull条件
+     */
+    isNullCondition(data) {
+      // 如果是空条件 隐藏值
+      return data.condition === 'isNull' || data.condition === 'isNotNull'
+    },
+    /**
      * 删除高级筛选条件
      * @param index
      */
@@ -79,7 +78,18 @@ export default {
       this.showObj.form.splice(index, 1)
       this.$emit('delete', { item: item, index: index, obj: this.showObj })
     },
-
+    /**
+     * 获取条件名称
+     */
+    getConditionName(formItem) {
+      let conditionName = ''
+      this.getAdvancedFilterOptions(formItem.form_type, formItem.field).forEach(item => {
+        if (item.type === formItem.type) {
+          conditionName = item.label
+        }
+      })
+      return conditionName
+    },
     /**
      * 商机组展示名称
      */
@@ -97,6 +107,9 @@ export default {
      * 获取name value 对象展示值
      */
     getNameValue(data) {
+      if (this.isNullCondition(data)) {
+        return ''
+      }
       const obj = data.setting.find(item => item === data.value)
       return obj || ''
     },
@@ -120,7 +133,11 @@ export default {
     /**
      * 成交状态名称
      */
-    getDealStatus(type) {
+    getDealStatus(data) {
+      if (this.isNullCondition(data)) {
+        return ''
+      }
+      const { type } = data
       if (type == '未成交') {
         return '未成交'
       } else if (type == '已成交') {
@@ -138,6 +155,57 @@ export default {
         return typeof value
       }
       return []
+    },
+    /**
+     * 时间展示
+     */
+    getDateContent(data) {
+      if (this.isNullCondition(data)) {
+        return ''
+      }
+
+      if (data.type === 14) {
+        if (!isEmpty(data.timeType)) {
+          return `“${data.timeTypeName}”`
+        }
+        return `“${data.range.join('-')}”`
+      }
+
+      return `“${data.value}”`
+    },
+    /**
+     * 值展示
+     */
+    getValueContent(data) {
+      console.log('data', data)
+      if (this.isNullCondition(data)) {
+        return ''
+      }
+
+      if (data.form_type == 'number' ||
+        data.form_type == 'floatnumber' ||
+        data.form_type == 'percent') {
+        if (data.type === 14) {
+          return `“${isEmpty(data.min) ? '' : data.min}-${isEmpty(data.max) ? '' : data.max}”`
+        } else {
+          return `“${data.value}”`
+        }
+      } else if (data.form_type == 'user') {
+        const dataValue = data.valueContent || data.value
+        return `“${dataValue.map(o => o.realname).join('，')}”`
+      } else if (data.form_type == 'structure') {
+        const dataValue = data.valueContent || data.value
+        return `“${dataValue.map(o => o.name).join('，')}”`
+      }
+
+
+      return `“${data.value}”`
+    },
+    /**
+     * 地址展示
+     */
+    getPositionContent(data) {
+      return data.value.filter(item => !isEmpty(item.name)).map(item => item.name).join('/')
     }
   }
 }

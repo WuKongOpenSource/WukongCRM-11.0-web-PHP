@@ -2,13 +2,14 @@ export default {
   methods: {
     /**
      * 判断是否为普通 整句 文本框
-     * @param formType 字段类型
+     * @param form_type 字段类型
      */
-    isTrimInput(formType) {
+    isTrimInput(form_type) {
       return [
         'mobile',
-        'email'
-      ].includes(formType)
+        'email',
+        'website'
+      ].includes(form_type)
     },
     /**
      * 部门事件
@@ -37,7 +38,10 @@ export default {
     oldChange(dataValue, field, index) {
       this.$set(this.fieldFrom, field.field, dataValue.value)
       this.$emit('change', field, index, dataValue.value)
-      this.$refs.form.validateField(field.field)
+      // this.$refs.form.validateField(field.field)
+      if (this.$refs.form) {
+        this.$refs.form.validateField(field.field)
+      }
     },
 
     /**
@@ -68,6 +72,36 @@ export default {
     getTips(data) {
       const tips = data.tips || data.inputTips
       return tips ? `（${tips}）` : ''
+    },
+    /**
+     * 判断展示
+     */
+    getShowValue(item) {
+      if (item.hasOwnProperty('show')) {
+        return item.show
+      }
+      return true
+    },
+    /**
+     * 获取类型图标
+     * @param {*} formType
+     */
+    getInputIcon(formType) {
+      return {
+        mobile: 'wk wk-icon-mobile',
+        email: 'wk wk-icon-email-outline',
+        website: 'wk wk-icon-link'
+      }[formType]
+    },
+    /**
+     * 获取输入最大长度
+     * @param {*} formType
+     */
+    getInputMaxlength(formType) {
+      if (formType === 'website') {
+        return 800
+      }
+      return 100
     }
   }
 }

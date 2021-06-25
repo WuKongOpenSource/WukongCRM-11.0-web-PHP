@@ -16,7 +16,7 @@
       v-for="(item, index) in fieldList"
       :key="index"
       :prop="item.field"
-      :class="[item.className || '', `is-${item.formType}`]">
+      :class="[item.className || '', `is-${item.form_type}`]">
       <template slot="label">
         {{ item.name }}
         <span style="color:#999;">
@@ -24,15 +24,15 @@
         </span>
       </template>
       <el-input
-        v-if="item.formType == 'text'"
+        v-if="item.form_type == 'text'"
         v-model="fieldFrom[item.field]"
         :disabled="item.disabled"
         :maxlength="100"
         :placeholder="item.placeholder"
-        :type="item.formType"
+        :type="item.form_type"
         @input="commonChange(item, index, $event)"/>
       <el-input
-        v-if="isTrimInput(item.formType)"
+        v-if="isTrimInput(item.form_type)"
         v-model.trim="fieldFrom[item.field]"
         :disabled="item.disabled"
         :maxlength="100"
@@ -40,37 +40,37 @@
         type="text"
         @input="commonChange(item, index, $event)"/>
       <el-input-number
-        v-else-if="item.formType == 'number'"
+        v-else-if="item.form_type == 'number'"
         v-model="fieldFrom[item.field]"
         :placeholder="item.placeholder"
         :disabled="item.disabled"
         :controls="false"
         @input="commonChange(item, index, $event)" />
       <el-input-number
-        v-else-if="item.formType == 'floatnumber'"
+        v-else-if="item.form_type == 'floatnumber'"
         v-model="fieldFrom[item.field]"
         :placeholder="item.placeholder"
         :disabled="item.disabled"
         :controls="false"
         @change="commonChange(item, index, $event)" />
       <el-input
-        v-else-if="item.formType == 'textarea'"
+        v-else-if="item.form_type == 'textarea'"
         v-model="fieldFrom[item.field]"
         :disabled="item.disabled"
         :rows="3"
         :autosize="{ minRows: 3}"
         :maxlength="800"
         :placeholder="item.placeholder"
-        :type="item.formType"
+        :type="item.form_type"
         resize="none"
         @input="commonChange(item, index, $event)" />
       <el-select
-        v-else-if="['checkbox', 'select'].includes(item.formType)"
+        v-else-if="['checkbox', 'select'].includes(item.form_type)"
         v-model="fieldFrom[item.field]"
         :disabled="item.disabled"
         :clearable="item.clearable"
         :placeholder="item.placeholder"
-        :multiple="item.formType === 'checkbox'"
+        :multiple="item.form_type === 'checkbox'"
         style="width: 100%;"
         @change="commonChange(item, index, $event)">
         <el-option
@@ -80,7 +80,7 @@
           :value="!isEmptyValue(item.value) ? item.value : item"/>
       </el-select>
       <el-select
-        v-else-if="item.formType == 'checkbox'"
+        v-else-if="item.form_type == 'checkbox'"
         v-model="fieldFrom[item.field]"
         :disabled="item.disabled"
         :clearable="item.clearable"
@@ -95,7 +95,7 @@
           :value="!isEmptyValue(item.value) ? item.value : item"/>
       </el-select>
       <el-date-picker
-        v-else-if="item.formType == 'date'"
+        v-else-if="item.form_type == 'date'"
         v-model="fieldFrom[item.field]"
         :disabled="item.disabled"
         clearable
@@ -105,7 +105,7 @@
         placeholder="选择日期"
         @change="commonChange(item, index, $event)"/>
       <el-date-picker
-        v-else-if="item.formType == 'dateRange'"
+        v-else-if="item.form_type == 'dateRange'"
         v-model="fieldFrom[item.field]"
         :disabled="item.disabled"
         :type="item.dateType || 'daterange'"
@@ -116,7 +116,7 @@
         end-placeholder="结束日期"
         @change="commonChange(item, index, $event)"/>
       <el-date-picker
-        v-else-if="item.formType == 'datetime'"
+        v-else-if="item.form_type == 'datetime'"
         v-model="fieldFrom[item.field]"
         :disabled="item.disabled"
         clearable
@@ -126,7 +126,7 @@
         placeholder="选择日期"
         @change="commonChange(item, index, $event)"/>
       <wk-dep-select
-        v-else-if="item.formType == 'structure'"
+        v-else-if="item.form_type == 'structure'"
         v-model="fieldFrom[item.field]"
         :request="item.request"
         :props="item.props"
@@ -137,7 +137,7 @@
         @change="depOrUserChange(item, index, arguments[0], arguments[1])"
       />
       <wk-user-select
-        v-else-if="['single_user', 'user'].includes(item.formType)"
+        v-else-if="['single_user', 'user'].includes(item.form_type)"
         v-model="fieldFrom[item.field]"
         :request="item.request"
         :props="item.props"
@@ -148,7 +148,7 @@
         @change="depOrUserChange(item, index, arguments[0], arguments[1])"
       />
       <el-radio-group
-        v-else-if="item.formType == 'radio'"
+        v-else-if="item.form_type == 'radio'"
         v-model="fieldFrom[item.field]"
         :disabled="item.disabled"
         :placeholder="item.placeholder"
@@ -161,7 +161,7 @@
         </el-radio>
       </el-radio-group>
       <v-distpicker
-        v-if="item.formType == 'address'"
+        v-if="item.form_type == 'address'"
         :province="fieldFrom[item.field].province"
         :city="fieldFrom[item.field].city"
         :area="fieldFrom[item.field].area"
@@ -169,7 +169,7 @@
         @city="selectCity($event, item, index)"
         @area="selectArea($event, item, index)"/>
       <xh-files
-        v-if="item.formType == 'file'"
+        v-if="item.form_type == 'file'"
         :value="fieldFrom[item.field]"
         :disabled="item.disabled"
         @value-change="oldChange($event, item, index)"

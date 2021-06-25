@@ -22,7 +22,9 @@
           :detail="detailData"
           :head-details="headDetails"
           :id="id"
+          :page-list="pageList"
           :crm-type="crmType"
+          @pageChange="pageChange"
           @handle="detailHeadHandle"
           @close="hideView">
           <template slot="name">
@@ -50,7 +52,8 @@
                 :detail="detailData"
                 :id="id"
                 :handle="activityHandle"
-                :crm-type="crmType" />
+                :crm-type="crmType"
+                @handle="detailHeadHandle" />
             </el-tab-pane>
           </el-tabs>
           <transition name="slide-fade">

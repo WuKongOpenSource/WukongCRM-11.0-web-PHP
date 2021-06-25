@@ -29,6 +29,7 @@
             v-if="item.form_type !== 'examine_cause' && item.form_type !== 'business_cause'"
             :span="0.5"
             :key="index"
+            :class="[{'is-block': isBlockShowField(item)}, `is-${item.form_type}`]"
             class="b-cell">
             <!-- <flexbox v-if="item.form_type === 'user'"
                      align="stretch"
@@ -62,7 +63,7 @@
               </div>
             </flexbox> -->
 
-            <div
+            <!-- <div
               v-if="item.form_type === 'checkbox'"
               class="b-cell-b">
               <div class="b-cell-name">{{ item.name }}</div>
@@ -99,13 +100,22 @@
                     @click.native="handleFile('download', file, index)">下载</el-button>
                 </flexbox>
               </div>
-            </div>
+            </div> -->
 
             <div
-              v-else
               class="b-cell-b">
               <div class="b-cell-name">{{ item.name }}</div>
-              <div class="b-cell-value">{{ item.value }}</div>
+              <div class="b-cell-value">
+                <wk-field-view
+                  :props="item"
+                  :form_type="item.form_type"
+                  :value="item.value"
+                >
+                  <template slot-scope="{ data }">
+                    {{ getCommonShowValue(item) }}
+                  </template>
+                </wk-field-view>
+              </div>
             </div>
           </flexbox-item>
         </flexbox>
@@ -238,8 +248,12 @@ import SlideView from '@/components/SlideView'
 import ExamineInfo from '@/components/Examine/ExamineInfo'
 import RelatedBusinessCell from '@/views/oa/components/RelatedBusinessCell'
 import FileCell from '@/views/oa/components/FileCell'
+import WkFieldView from '@/components/NewCom/WkForm/WkFieldView'
+
 import { downloadFile, fileSize } from '@/utils'
 import ExamineMixin from '@/views/taskExamine/examine/components/ExamineMixin'
+import { getFormFieldShowName } from '@/components/NewCom/WkForm/utils'
+
 
 export default {
   /** 审批详情 */
@@ -250,7 +264,8 @@ export default {
     RelatedBusinessCell,
     CRMFullScreenDetail: () =>
       import('@/components/CRMFullScreenDetail'),
-    FileCell
+    FileCell,
+    WkFieldView
   },
   filters: {
     fileName(file) {
@@ -449,6 +464,22 @@ export default {
       // this.$store.dispatch('GetOAMessageNum', 'examine')
       this.$emit('on-examine-handle', data, this.detailIndex)
       this.$emit('handle', data, this.detailIndex)
+    },
+    /**
+     * 获取非附件类型的展示值
+     */
+    getCommonShowValue(item) {
+      return getFormFieldShowName(item.form_type, item.value, '', item)
+    },
+
+    /**
+     * 是整行展示字段
+     */
+    isBlockShowField(item) {
+      return [
+        'map_address',
+        'file',
+        'detail_table'].includes(item.form_type)
     }
   }
 }
@@ -629,6 +660,9 @@ export default {
   padding-top: 30px;
   overflow-y: auto;
   width: 100%;
+}
+.is-block {
+  flex-basis: 100% !important;
 }
 
 // 行程 报销效果

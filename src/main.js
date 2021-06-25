@@ -68,6 +68,9 @@ Vue.use(FileUpload)
 import WkFileSelect from '@/components/NewCom/WkFile/Select/main.js'
 Vue.use(WkFileSelect)
 
+import WkImport from '@/components/WkImport/main.js'
+Vue.use(WkImport)
+
 /** 懒加载图片 */
 import VueSrc from './directives/src'
 Vue.directive('src', VueSrc)

@@ -26,6 +26,8 @@
           :pool_id="seasPoolId"
           :pool-auth="poolAuth"
           :crm-type="crmType"
+          :page-list="pageList"
+          @pageChange="pageChange"
           @handle="detailHeadHandle"
           @close="hideView">
           <template slot="name">
@@ -61,7 +63,7 @@
                 :is-seas="isSeasDetail"
                 :crm-type="crmType"
                 :contacts-id.sync="firstContactsId"
-                @on-handle="detailHeadHandle" />
+                @handle="detailHeadHandle" />
             </el-tab-pane>
           </el-tabs>
           <transition name="slide-fade">
@@ -182,7 +184,7 @@ export default {
       tabCurrentName: 'Activity',
       // 编辑操作
       createActionInfo: null,
-      createCRMType: '',
+      createCRMType: 'customer',
       isCreate: false,
       // 活动操作
       // 展示重要信息
@@ -441,29 +443,21 @@ export default {
       }
       this.isCreate = true
     },
-
     /**
      * 顶部头 操作
      * @param {*} data
      */
-    detailHeadHandle(data) {
+    detailHeadHandleClick(data) {
       if (data.type === 'edit') {
         this.createCRMType = 'customer'
         this.createActionInfo = {
           type: 'update',
-          action_id: this.id,
+          id: this.id,
           batchId: this.detailData.batchId
         }
         this.isCreate = true
-      } else if (data.type === 'delete' || data.type === 'exit-team') {
-        this.hideView()
+        return false
       }
-
-      if (data.type === 'edit' || data.type === 'deal_status') {
-        this.getDetial()
-      }
-
-      this.$emit('handle', data)
     }
   }
 }

@@ -8,13 +8,18 @@
         class="t-section__hd">
       <div class="t-section__bd">
         <div class="type-name">{{ typeName }}</div>
-        <p class="name"><el-tooltip
+        <flexbox class="type-content"><el-tooltip
           :disabled="!name"
           :content="name"
           effect="dark"
           placement="top-start">
-          <span>{{ name }}</span>
-        </el-tooltip><slot name="name" /></p>
+          <div class="name">{{ name }}</div>
+        </el-tooltip><slot name="name" />
+          <el-button-group v-if="pageList && pageList.length > 1" class="wk-header-page-btn">
+            <el-button icon="el-icon-arrow-left" @click="$emit('pageChange', 'left')"/>
+            <el-button icon="el-icon-arrow-right" @click="$emit('pageChange', 'right')"/>
+          </el-button-group>
+        </flexbox>
       </div>
       <div class="t-section__ft">
         <el-button
@@ -175,7 +180,8 @@ export default {
       default: () => {
         return []
       }
-    }
+    },
+    pageList: Array
   },
   data() {
     return {
@@ -667,6 +673,29 @@ export default {
   }
 }
 </script>
+
+<style lang="scss">
+.wk-header-page-btn {
+  flex-shrink: 0;
+  margin-left: 8px;
+  .el-button + .el-button {
+    margin-left: 0 !important;
+  }
+  .el-button {
+    padding: 3px 6px;
+    background-color: #F5F7FA;
+    i {
+      font-weight: bold;
+    }
+  }
+  .el-button:hover, .el-button:focus {
+    color: white;
+    border-color: #ff6a00;
+    background-color: #ff6a00;
+  }
+}
+</style>
+
 <style lang="scss" scoped>
 .container {
   position: relative;
@@ -691,16 +720,17 @@ export default {
       font-size: 12px;
       margin-bottom: 5px;
     }
-
-    .name {
-      color: #333;
-      font-size: 16px;
-      font-weight: 600;
-      text-overflow: ellipsis;
-      display: -webkit-box;
-      -webkit-line-clamp: 1;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
+    .type-content {
+      .name {
+        color: #333;
+        font-size: 16px;
+        font-weight: 600;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
     }
   }
 

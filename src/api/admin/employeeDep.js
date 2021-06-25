@@ -52,10 +52,19 @@ export function userAddAPI(params) {
   })
 }
 
+// // 角色列表
+// export function roleListAPI(data) {
+//   return request({
+//     url: 'admin/groups/index',
+//     method: 'post',
+//     data: data
+//   })
+// }
+
 // 角色列表
 export function roleListAPI(data) {
   return request({
-    url: 'admin/groups/index',
+    url: 'admin/rules/getgroupauth',
     method: 'post',
     data: data
   })
@@ -193,5 +202,43 @@ export function adminUserSetUserDeptPI(data) {
     headers: {
       'Content-Type': 'application/json;charset=UTF-8'
     }
+  })
+}
+
+/**
+ * 查询配置的角色范围
+ * @param {*} data
+ * @returns
+ */
+export function adminRoleQueryAuthRoleAPI(data) {
+  return request({
+    url: `admin/rules/groupauthId`,
+    method: 'post',
+    data
+  })
+}
+
+/**
+ * 更新配置的角色范围
+ * @param {*} data
+ * @returns
+ */
+export function adminRoleUpdateAuthRoleAPI(data) {
+  return request({
+    url: `admin/rules/upgroupauth`,
+    method: 'post',
+    data: data,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+// 部分角色列表
+export function adminRoleGetRoleListAPI(data) {
+  return request({
+    url: 'admin/rules/groupauth',
+    method: 'post',
+    data: data
   })
 }

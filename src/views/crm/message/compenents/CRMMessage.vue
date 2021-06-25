@@ -115,9 +115,22 @@
             <span :style="getStatusStyle(scope.row.check_status)" class="status-mark"/>
             <span>{{ getCRMStatusName(scope.row.check_status) }}</span>
           </template>
-          <template v-else>
-            {{ fieldFormatter(scope.row, scope.column) }}
+          <template v-else-if="item.prop == 'invoice_type'">
+            {{ fieldFormatter(scope.row, scope.column, scope.row[scope.column.property], item) }}
           </template>
+          <wk-field-view
+            v-else
+            :props="item"
+            :form_type="item.form_type"
+            :value="scope.row[scope.column.property]"
+          >
+            <template slot-scope="{ data }">
+              {{ fieldFormatter(scope.row, scope.column, scope.row[scope.column.property], item) }}
+            </template>
+          </wk-field-view>
+          <!-- <template v-else>
+            {{ fieldFormatter(scope.row, scope.column) }}
+          </template> -->
         </template>
       </el-table-column>
       <el-table-column :resizable="false"/>
@@ -157,6 +170,8 @@ import MessageTableMixin from '../mixins/MessageTable'
 import FilterForm from '@/views/crm/components/FilterForm'
 import FilterContent from '@/views/crm/components/FilterForm/FilterContent'
 import CRMAllDetail from '@/views/crm/components/CRMAllDetail'
+import WkFieldView from '@/components/NewCom/WkForm/WkFieldView'
+
 import { invoiceFilterFields } from '../../invoice/js/fields'
 
 export default {
@@ -166,7 +181,8 @@ export default {
   components: {
     FilterForm,
     FilterContent,
-    CRMAllDetail
+    CRMAllDetail,
+    WkFieldView
   },
 
   filters: {
@@ -422,7 +438,7 @@ export default {
                 .map(item => item[this.crmType + '_id'])
             }).then(res => {
               this.$message.success('操作成功')
-              this.refreshList()
+              this.$parent.requestNumCount()
 
               this.$emit('on-handle', {
                 type: 'follow',
@@ -450,7 +466,7 @@ export default {
         crmMessagzealByIdAPI(params).then(res => {
           this.$message.success('操作成功')
           this.getList()
-          this.$parent.refreshNum()
+          this.$parent.requestNumCount()
         }).catch(() => {})
       }
     },
@@ -525,7 +541,7 @@ export default {
         type: this.infoType
       }).then(res => {
         this.$message.success('操作成功')
-        this.$parent.refreshNum()
+        this.$parent.requestNumCount()
         this.getList()
       }).catch(() => {})
     },

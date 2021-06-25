@@ -6,38 +6,45 @@
     @close="close"
     @save="saveClick">
     <create-sections title="基本信息">
-      <wk-form
+      <el-form
         ref="crmForm"
         :model="fieldForm"
         :rules="fieldRules"
-        :field-from="fieldForm"
-        :field-list="fieldList"
+        :validate-on-rule-change="false"
         label-position="top"
-        @change="formChange"
+        class="wk-form"
       >
-        <template slot-scope="{ data }">
-          <crm-relative-cell
-            v-if="data && data.formType == 'customer'"
-            :value="fieldForm[data.field]"
-            :disabled="data.disabled"
-            relative-type="customer"
-            @value-change="otherChange($event, data)"
-          />
-          <crm-relative-cell
-            v-if="data && (data.formType == 'business' || data.formType == 'contacts')"
-            :value="fieldForm[data.field]"
-            :disabled="data.disabled"
-            :relation="data.relation"
-            :relative-type="data.formType"
-            @value-change="otherChange($event, data)"
-          />
-          <xh-product
-            v-if="data && data.formType == 'product'"
-            :value="fieldForm[data.field]"
-            @value-change="otherChange($event, data)"
-          />
-        </template>
-      </wk-form>
+        <wk-form-items
+          v-for="(children, index) in fieldList"
+          :key="index"
+          :field-from="fieldForm"
+          :field-list="children"
+          @change="formChange"
+        >
+          <template slot-scope="{ data }">
+            <crm-relative-cell
+              v-if="data && data.form_type == 'customer'"
+              :value="fieldForm[data.field]"
+              :disabled="data.disabled"
+              relative-type="customer"
+              @value-change="otherChange($event, data)"
+            />
+            <crm-relative-cell
+              v-if="data && (data.form_type == 'business' || data.form_type == 'contacts')"
+              :value="fieldForm[data.field]"
+              :disabled="data.disabled"
+              :relation="data.relation"
+              :relative-type="data.form_type"
+              @value-change="otherChange($event, data)"
+            />
+            <xh-product
+              v-if="data && data.form_type == 'product'"
+              :value="fieldForm[data.field]"
+              @value-change="otherChange($event, data)"
+            />
+          </template>
+        </wk-form-items>
+      </el-form>
     </create-sections>
     <create-sections
       v-if="isOpenExamine"
@@ -76,7 +83,7 @@ import { crmBusinessProductAPI } from '@/api/crm/business'
 
 import XrCreate from '@/components/XrCreate'
 import CreateSections from '@/components/CreateSections'
-import WkForm from '@/components/NewCom/WkForm'
+import WkFormItems from '@/components/NewCom/WkForm/WkFormItems'
 import {
   XhProduct,
   CrmRelativeCell
@@ -98,7 +105,7 @@ export default {
     CrmRelativeCell,
     XhProduct,
     CreateExamineInfo,
-    WkForm
+    WkFormItems
   },
 
   mixins: [CustomFieldsMixin],
@@ -174,13 +181,12 @@ export default {
     getField() {
       this.loading = true
       const params = {
-        // label: crmTypeModel.contract
         types: 'crm_contract',
         module: 'crm',
         controller: 'contract',
-        action: this.action.type
+        action: this.action.type,
+        format: 2
       }
-
       if (this.action.type == 'update') {
         params.action_id = this.action.id
       }
@@ -188,85 +194,87 @@ export default {
       filedGetFieldAPI(params)
         .then(res => {
           const list = res.data || []
+          const assistIds = this.getFormAssistIds(list)
 
+          const baseFields = []
           const fieldList = []
           const fieldRules = {}
           const fieldForm = {}
-          list.forEach(item => {
-            const temp = {}
-            temp.field = item.field
-            temp.formType = item.form_type
-            temp.fieldId = item.fieldId
-            temp.inputTips = item.input_tips
-            temp.name = item.name
-            temp.setting = item.setting
-            temp.value = item.value
-            const canEdit = this.getItemIsCanEdit(item, this.action.type)
-            // 是否能编辑权限
-            if (canEdit) {
+          list.forEach(children => {
+            const fields = []
+            children.forEach(item => {
+              const temp = this.getFormItemDefaultProperty(item)
+              temp.show = !assistIds.includes(item.formAssistId)
+
+              const canEdit = this.getItemIsCanEdit(item, this.action.type)
+              // 是否能编辑权限
+              if (canEdit) {
               // 自动生成编号
-              if (item.autoGeneNumber == 1) {
-                temp.placeholder = '根据编号规则自动生成，支持手动输入'
-                const copyItem = objDeepCopy(item)
-                copyItem.isNull = 0
-                fieldRules[temp.field] = this.getRules(copyItem)
-              } else {
-                fieldRules[temp.field] = this.getRules(item)
-              }
-            }
-
-            // 是否可编辑
-            temp.disabled = !canEdit
-
-            // 禁止某些业务组件选择
-            if (temp.formType == 'contacts' ||
-                temp.formType == 'customer' ||
-                temp.formType == 'business'
-            ) {
-              if (this.action.type == 'relative') {
-                const relativeDisInfos = {
-                  contacts: { customer: true },
-                  customer: { customer: true },
-                  business: { customer: true, business: true }
+                if (item.autoGeneNumber == 1) {
+                  temp.placeholder = '根据编号规则自动生成，支持手动输入'
+                  const copyItem = objDeepCopy(item)
+                  copyItem.isNull = 0
+                  fieldRules[temp.field] = this.getRules(copyItem)
+                } else {
+                  fieldRules[temp.field] = this.getRules(item)
                 }
+              }
 
-                // 在哪个类型下添加
-                const relativeTypeDisInfos = relativeDisInfos[this.action.crmType]
-                if (relativeTypeDisInfos) {
+              // 是否可编辑
+              temp.disabled = !canEdit
+
+              // 禁止某些业务组件选择
+              if (temp.form_type == 'contacts' ||
+                temp.form_type == 'customer' ||
+                temp.form_type == 'business'
+              ) {
+                if (this.action.type == 'relative') {
+                  const relativeDisInfos = {
+                    contacts: { customer: true },
+                    customer: { customer: true },
+                    business: { customer: true, business: true }
+                  }
+
+                  // 在哪个类型下添加
+                  const relativeTypeDisInfos = relativeDisInfos[this.action.crmType]
+                  if (relativeTypeDisInfos) {
                   // 包含的字段值
-                  temp.disabled = relativeTypeDisInfos[item.form_type] || false
-                }
-              } else if (this.action.type != 'update') {
-                temp.disabled = item.form_type === 'business' || item.form_type === 'contacts'
-              }
-            }
-
-            // 处理关联
-            if ((this.action.type == 'relative' || this.action.type == 'update') && (item.form_type == 'business' || item.form_type == 'contacts' || item.form_type == 'contract'
-            )) {
-              const customerItem = this.getItemRelatveInfo(list, 'customer')
-              if (customerItem) {
-                if (item.form_type == 'business' || item.form_type == 'contacts') {
-                  customerItem['moduleType'] = 'customer'
-                  temp['relation'] = customerItem
-                } else if (item.formType == 'contract') {
-                  customerItem['moduleType'] = 'customer'
-                  customerItem['params'] = { checkStatus: 2 }
-                  temp['relation'] = customerItem
+                    temp.disabled = relativeTypeDisInfos[item.form_type] || false
+                  }
+                } else if (this.action.type != 'update') {
+                  temp.disabled = item.form_type === 'business' || item.form_type === 'contacts'
                 }
               }
-            }
-            // 特殊字段允许多选
-            this.getItemRadio(item, temp)
 
-            // 获取默认值
-            // 非编辑情况下 填充默认值
-            if (this.action.type != 'update' && item.field === 'order_date') {
-              fieldForm[temp.field] = this.$moment().format('YYYY-MM-DD')
-            } else {
-              fieldForm[temp.field] = this.getItemValue(item, this.action.data, this.action.type)
-            }
-            fieldList.push(temp)
+              // 处理关联
+              if ((this.action.type == 'relative' || this.action.type == 'update') && (item.form_type == 'business' || item.form_type == 'contacts' || item.form_type == 'contract'
+              )) {
+                const customerItem = this.getItemRelatveInfo(list, 'customer')
+                if (customerItem) {
+                  if (item.form_type == 'business' || item.form_type == 'contacts') {
+                    customerItem['moduleType'] = 'customer'
+                    temp['relation'] = customerItem
+                  } else if (item.form_type == 'contract') {
+                    customerItem['moduleType'] = 'customer'
+                    customerItem['params'] = { checkStatus: 2 }
+                    temp['relation'] = customerItem
+                  }
+                }
+              }
+              // 特殊字段允许多选
+              this.getItemRadio(item, temp)
+
+              // 获取默认值
+              // 非编辑情况下 填充默认值
+              if (this.action.type != 'update' && item.field === 'order_date') {
+                fieldForm[temp.field] = this.$moment().format('YYYY-MM-DD')
+              } else {
+                fieldForm[temp.field] = this.getItemValue(item, this.action.data, this.action.type)
+              }
+              fields.push(temp)
+              baseFields.push(item)
+            })
+            fieldList.push(fields)
           })
 
 
@@ -286,7 +294,7 @@ export default {
             }
           }
 
-          this.baseFields = list
+          this.baseFields = baseFields
           this.fieldList = fieldList
           this.fieldForm = fieldForm
           this.fieldRules = fieldRules
@@ -304,7 +312,7 @@ export default {
      */
     saveClick(isDraft = false) {
       this.loading = true
-      const crmForm = this.$refs.crmForm.instance
+      const crmForm = this.$refs.crmForm
       crmForm.validate(valid => {
         if (valid) {
           if (this.isOpenExamine) {
@@ -410,86 +418,102 @@ export default {
      * change
      */
     formChange(field, index, value, valueList) {
+      // 审批流逻辑
+      // this.debouncedGetWkFlowList(field.field, this.fieldForm)
+
+      if ([
+        'select',
+        'checkbox'
+      ].includes(field.form_type) &&
+          field.remark === 'options_type' &&
+          field.optionsData) {
+        const { fieldForm, fieldRules } = this.getFormContentByOptionsChange(this.fieldList, this.fieldForm)
+        this.fieldForm = fieldForm
+        this.fieldRules = fieldRules
+      }
     },
 
     /**
      * 地址change
      */
     otherChange(data, field) {
-      if (field.formType === 'customer') {
+      if (field.form_type === 'customer') {
         let contractForCount = 0
-        for (let index = 0; index < this.fieldList.length; index++) {
-          const element = this.fieldList[index]
-          // 需要处理 需关联客户信息或客户下信息
-          const handleFields = [
-            'business_id',
-            'contacts_id',
-            'order_user_id'
-          ]
+        for (let mainIndex = 0; mainIndex < this.fieldList.length; mainIndex++) {
+          const children = this.fieldList[mainIndex]
+          for (let index = 0; index < children.length; index++) {
+            const element = children[index]
+            // 需要处理 需关联客户信息或客户下信息
+            const handleFields = [
+              'business_id',
+              'contacts_id',
+              'order_user_id'
+            ]
 
-          // 添加请求关联
-          const addRelation = ['business_id', 'contacts_id']
+            // 添加请求关联
+            const addRelation = ['business_id', 'contacts_id']
 
-          // 需要disabled
-          const addDisabled = ['business_id', 'contacts_id']
+            // 需要disabled
+            const addDisabled = ['business_id', 'contacts_id']
 
-          // 复制
-          const getValueObj = {
-            contacts_id: data => {
-              if (!data.contacts_id) {
-                return []
-              }
-              return [
-                {
-                  name: data.contactsName || '',
-                  contacts_id: data.contacts_id
+            // 复制
+            const getValueObj = {
+              contacts_id: data => {
+                if (!data.contacts_id) {
+                  return []
                 }
-              ]
-            },
-            order_user_id: data => {
-              if (!data.ownerUserId) {
-                return []
-              }
-              return [
-                {
-                  realname: data.owner_user_name || '',
-                  id: data.owner_user_id
+                return [
+                  {
+                    name: data.contactsName || '',
+                    contacts_id: data.contacts_id
+                  }
+                ]
+              },
+              order_user_id: data => {
+                if (!data.ownerUserId) {
+                  return []
                 }
-              ]
+                return [
+                  {
+                    realname: data.owner_user_name || '',
+                    id: data.owner_user_id
+                  }
+                ]
+              }
             }
-          }
 
-          if (handleFields.includes(element.field)) {
-            if (data.value.length > 0) {
-              element.disabled = false
+            if (handleFields.includes(element.field)) {
+              if (data.value.length > 0) {
+                element.disabled = false
 
-              // 增加关联信息
-              const customerItem = data.value[0]
-              if (addRelation.includes(element.field)) {
-                customerItem['moduleType'] = 'customer'
-                element['relation'] = customerItem
-              }
+                // 增加关联信息
+                const customerItem = data.value[0]
+                if (addRelation.includes(element.field)) {
+                  customerItem['moduleType'] = 'customer'
+                  element['relation'] = customerItem
+                }
 
-              // 填充值
-              if (getValueObj[element.field]) {
-                this.fieldForm[element.field] = getValueObj[element.field](customerItem)
+                // 填充值
+                if (getValueObj[element.field]) {
+                  this.fieldForm[element.field] = getValueObj[element.field](customerItem)
+                } else {
+                  this.fieldForm[element.field] = []
+                }
               } else {
+              // 禁用
+                element.disabled = !!addDisabled.includes(element.field)
+
+                if (addRelation.includes(element.field)) {
+                  element['relation'] = {}
+                }
+
                 this.fieldForm[element.field] = []
               }
-            } else {
-              // 禁用
-              element.disabled = !!addDisabled.includes(element.field)
 
-              if (addRelation.includes(element.field)) {
-                element['relation'] = {}
+              contractForCount++
+              if (contractForCount == handleFields.length) {
+                break
               }
-
-              this.fieldForm[element.field] = []
-            }
-
-            contractForCount++
-            if (contractForCount == handleFields.length) {
-              break
             }
           }
         }
@@ -501,7 +525,7 @@ export default {
           discount_rate: ''
         }
         this.fieldForm.money = ''
-      } else if (field.formType === 'business') {
+      } else if (field.form_type === 'business') {
         if (data.value.length > 0) {
           this.getBusinessProduct(data.value[0].business_id).then(resData => {
             const businessData = resData || {}
@@ -513,11 +537,11 @@ export default {
             this.fieldForm.money = businessData.total_price || ''
           }).catch(() => {})
         }
-      } else if (field.formType === 'product') {
+      } else if (field.form_type === 'product') {
         this.fieldForm.money = data.value.total_price || ''
       }
       this.$set(this.fieldForm, field.field, data.value)
-      this.$refs.crmForm.instance.validateField(field.field)
+      this.$refs.crmForm.validateField(field.field)
     },
 
     /**

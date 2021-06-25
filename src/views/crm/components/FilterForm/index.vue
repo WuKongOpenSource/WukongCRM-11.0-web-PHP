@@ -63,76 +63,133 @@
             </el-col>
 
             <el-col :span="1">&nbsp;</el-col>
-            <el-col :span="formItem.form_type === 'datetime' || formItem.form_type === 'date' || formItem.form_type === 'map_address' ? 13 : 8">
-              <el-select
-                v-if="formItem.form_type === 'check_status'
-                  || formItem.form_type === 'deal_status'
-                || (formItem.form_type === 'select' && getSettingValueType(formItem.setting) != 'string')"
-                v-model="formItem.value"
-                placeholder="请选择筛选条件">
-                <el-option
-                  v-for="item in formItem.setting"
-                  :key="item"
-                  :label="item"
-                  :value="item"/>
-              </el-select>
-              <el-select
-                v-else-if="formItem.form_type === 'select' || formItem.form_type === 'checkbox'"
-                v-model="formItem.value"
-                multiple
-                placeholder="请选择筛选条件">
-                <el-option
-                  v-for="item in formItem.setting"
-                  :key="item"
-                  :label="item"
-                  :value="item"/>
-              </el-select>
-              <el-date-picker
-                v-else-if="formItem.form_type === 'date' || formItem.form_type === 'datetime'"
-                v-model="formItem.value"
-                :value-format="formItem.form_type === 'date' ? 'yyyy-MM-dd' : 'yyyy-MM-dd HH:mm:ss'"
-                :type="formItem.form_type === 'date' ? 'daterange' : 'datetimerange'"
-                style="padding: 0px 10px;"
-                range-separator="-"
-                start-placeholder="开始日期"
-                end-placeholder="结束日期"/>
-              <el-select
-                v-else-if="formItem.form_type === 'business_type'"
-                v-model="formItem.status_id">
-                <el-option
-                  v-for="item in formItem.statusOption"
-                  :key="item.status_id"
-                  :label="item.name"
-                  :value="item.status_id"/>
-              </el-select>
-              <xh-user-cell
-                v-else-if="formItem.form_type === 'user' || formItem.form_type === 'single_user'"
-                :item="formItem"
-                :info-params="infoParams"
-                :value="formItem.value"
-                @value-change="arrayValueChange"/>
-              <xh-structure-cell
-                v-else-if="formItem.form_type === 'structure'"
-                :item="formItem"
-                :value="formItem.value"
-                @value-change="arrayValueChange"/>
-              <xh-prouct-cate
-                v-else-if="formItem.form_type === 'category'"
-                :item="formItem"
-                :value="formItem.value"
-                @value-change="arrayValueChange"/>
-              <v-distpicker
-                v-else-if="formItem.form_type === 'map_address'"
-                :province="formItem.address.state"
-                :city="formItem.address.city"
-                :area="formItem.address.area"
-                @province="selectProvince($event,formItem)"
-                @city="selectCity($event,formItem)"
-                @area="selectArea($event,formItem)"/>
-              <el-input
-                v-else
-                v-model="formItem.value"
-                placeholder="多个条件请用；隔开"/>
+            <el-col :span="getValueSpan(formItem.form_type, formItem.field) ? 8 : 13? 13 : 8" style="position: relative;">
+              <template
+                v-if="formItem.condition === 'isNull' ||
+                formItem.condition === 'isNotNull'">
+                &nbsp;
+              </template>
+              <template v-else>
+                <el-select
+                  v-if="formItem.form_type === 'check_status'
+                    || formItem.form_type === 'deal_status'
+                    || formItem.form_type === 'invoice_status'
+                  || (formItem.form_type === 'select' && getSettingValueType(formItem.setting) != 'string')"
+                  v-model="formItem.value"
+                  placeholder="请选择筛选条件">
+                  <el-option
+                    v-for="item in formItem.setting"
+                    :key="item"
+                    :label="item"
+                    :value="item"/>
+                </el-select>
+                <el-select
+                  v-else-if="formItem.form_type === 'select' || formItem.form_type === 'checkbox'"
+                  v-model="formItem.value"
+                  multiple
+                  placeholder="请选择筛选条件">
+                  <el-option
+                    v-for="item in formItem.setting"
+                    :key="item"
+                    :label="item"
+                    :value="item"/>
+                </el-select>
+                <template
+                  v-else-if="formItem.form_type == 'number' ||
+                    formItem.form_type == 'floatnumber' ||
+                  formItem.form_type == 'percent'">
+                  <div v-if="formItem.type === 14">
+                    <el-input-number
+                      v-model="formItem.min"
+                      :controls="false"
+                      style="width: 100px;"
+                      class="small"/>
+                    <span>-</span>
+                    <el-input-number
+                      v-model="formItem.max"
+                      :controls="false"
+                      style="width: 100px;"
+                      class="small"/>
+                  </div>
+                  <el-input-number
+                    v-else
+                    v-model="formItem.value"
+                    :controls="false"
+                    style="width: 200px;"
+                    class="small"/>
+                </template>
+                <template v-else-if="formItem.form_type === 'date' || formItem.form_type === 'datetime'">
+                  <el-date-picker
+                    v-show="formItem.type === 14"
+                    :ref="`wkDatePicker${index}`"
+                    v-model="formItem.range"
+                    :picker-options="getPickerOptions(formItem, index)"
+                    :type="formItem.form_type === 'date' ? 'daterange' : 'datetimerange'"
+                    :value-format="formItem.form_type === 'date' ? 'yyyy-MM-dd' : 'yyyy-MM-dd HH:mm:ss'"
+                    range-separator="-"
+                    start-placeholder="开始日期"
+                    end-placeholder="结束日期"
+                    align="right"
+                    @change="datePickerChange(formItem)"/>
+                  <div
+                    v-if="formItem.timeType"
+                    class="date-range-content"
+                    @click="dateRangeSelect(formItem, index)">{{ formItem.timeTypeName }}</div>
+                  <el-date-picker
+                    v-show="formItem.type !== 14"
+                    v-model="formItem.value"
+                    :value-format="formItem.form_type === 'date' ? 'yyyy-MM-dd' : 'yyyy-MM-dd HH:mm:ss'"
+                    :type="formItem.form_type"
+                    placeholder="选择日期"/>
+                </template>
+                <el-select
+                  v-else-if="formItem.form_type === 'business_type'"
+                  v-model="formItem.status_id">
+                  <el-option
+                    v-for="item in formItem.statusOption"
+                    :key="item.status_id"
+                    :label="item.name"
+                    :value="item.status_id"/>
+                </el-select>
+                <wk-user-select
+                  v-else-if="formItem.form_type === 'user' || formItem.form_type === 'single_user'"
+                  :info-params="infoParams"
+                  v-model="formItem.value"
+                  :radio="false"
+                  @change="userDepChange(formItem, arguments[0], arguments[1])"/>
+                <wk-dep-select
+                  v-else-if="formItem.form_type === 'structure'"
+                  v-model="formItem.value"
+                  :radio="false"
+                  @change="userDepChange(formItem, arguments[0], arguments[1])"/>
+                <el-switch
+                  v-else-if="formItem.form_type == 'boolean_value'"
+                  v-model="formItem.value"
+                  active-value="1"
+                  inactive-value="0"/>
+                <xh-prouct-cate
+                  v-else-if="formItem.form_type === 'category'"
+                  :item="formItem"
+                  :value="formItem.value"
+                  @value-change="arrayValueChange"/>
+                <v-distpicker
+                  v-else-if="formItem.form_type === 'map_address'"
+                  :province="formItem.address.state"
+                  :city="formItem.address.city"
+                  :area="formItem.address.area"
+                  @province="selectProvince($event,formItem)"
+                  @city="selectCity($event,formItem)"
+                  @area="selectArea($event,formItem)"/>
+                <wk-position
+                  v-else-if="formItem.form_type == 'position'"
+                  :show-detail="false"
+                  :props="{ checkStrictly: true }"
+                  v-model="formItem.value"/>
+                <el-input
+                  v-else
+                  v-model="formItem.value"
+                  placeholder="多个条件请用；隔开"/>
+              </template>
             </el-col>
             <el-col
               :span="1"
@@ -181,11 +238,15 @@
 </template>
 
 <script>
-import { XhUserCell, XhProuctCate, XhStructureCell } from '@/components/CreateCom'
+import { XhProuctCate } from '@/components/CreateCom'
 import VDistpicker from '@/components/VDistpicker'
+import WkPosition from '@/components/NewCom/WkPosition'
+import WkUserSelect from '@/components/NewCom/WkUserSelect'
+import WkDepSelect from '@/components/NewCom/WkDepSelect'
 
 import { objDeepCopy } from '@/utils'
 import AdvancedFilterMixin from '@/mixins/AdvancedFilter'
+import { isEmpty } from '@/utils/types'
 
 /**
  * fieldList: 高级筛选的字段
@@ -194,10 +255,11 @@ import AdvancedFilterMixin from '@/mixins/AdvancedFilter'
 export default {
   name: 'Index',
   components: {
-    XhUserCell,
     XhProuctCate,
     VDistpicker,
-    XhStructureCell
+    WkPosition,
+    WkUserSelect,
+    WkDepSelect
   },
   mixins: [AdvancedFilterMixin],
   props: {
@@ -327,6 +389,13 @@ export default {
         data.item.value = []
       }
     },
+    /**
+     * 用户部门change
+     */
+    userDepChange(formItem, dataIds, data) {
+      // 用于部门员工的展示
+      formItem.valueContent = data
+    },
 
     /**
      * 连接条件的变更
@@ -341,17 +410,17 @@ export default {
     /**
      * 是否展示条件
      */
-    showCalCondition(form_type) {
-      if (
-        form_type == 'date' ||
-        form_type == 'datetime' ||
-        form_type == 'business_type' ||
-        form_type == 'category' ||
-        form_type == 'map_address'
-      ) {
-        return false
+    showCalCondition(form_type, fieldName) {
+      return this.getAdvancedFilterOptions(form_type, fieldName).length > 0
+    },
+    /**
+     * 值span
+     */
+    getValueSpan(form_type, fieldName) {
+      if (form_type == 'business_type') {
+        return 8
       }
-      return true
+      return this.showCalCondition(form_type, fieldName) ? 8 : 13
     },
     /**
      * 聚焦
@@ -390,48 +459,74 @@ export default {
             area: ''
           }
         } else if (
-          formItem.form_type === 'date' ||
-          formItem.form_type === 'datetime' ||
+          // formItem.form_type === 'date' ||
+          // formItem.form_type === 'datetime' ||
           formItem.form_type === 'user' ||
           formItem.form_type === 'single_user' ||
           formItem.form_type === 'structure' ||
-          formItem.form_type === 'category'
+          formItem.form_type === 'category' ||
+          formItem.form_type === 'position'
         ) {
           formItem.value = []
+        } else if (
+          formItem.form_type === 'date' ||
+          formItem.form_type === 'datetime'
+        ) {
+          formItem.value = '' // 时间点
+          this.$set(formItem, 'timeType', '')
+          this.$set(formItem, 'timeTypeName', '')
+          this.$set(formItem, 'range', [])
         } else if (
           formItem.form_type == 'select' ||
           formItem.form_type === 'checkbox'
         ) {
           formItem.setting = obj.setting || []
           formItem.value = []
+        } else if (
+          formItem.form_type == 'number' ||
+          formItem.form_type == 'floatnumber' ||
+          formItem.form_type == 'percent'
+        ) {
+          formItem.min = ''
+          formItem.max = ''
+          formItem.value = ''
         } else {
           formItem.value = ''
         }
 
         // 条件校准
-        if (
-          formItem.form_type == 'checkbox' ||
-        formItem.form_type == 'check_status' ||
-        formItem.form_type == 'deal_status'
-        ) {
-          formItem.type = 1
-          formItem.condition = 'is'
-        } else if (
-          formItem.form_type == 'user' ||
-          formItem.form_type == 'single_user' ||
-          formItem.form_type == 'structure'
-        ) {
-          formItem.condition = 'is'
-          formItem.type = 1
-        } else if (
-          formItem.form_type == 'select'
-        ) {
-          formItem.condition = 'in'
-          formItem.type = 1
+        const conditions = this.getAdvancedFilterOptions(formItem.form_type, formItem.field)
+        if (conditions.length > 0) {
+          const conditionObj = conditions[0]
+          formItem.condition = conditionObj.value
+          formItem.type = conditionObj.type
         } else {
           formItem.condition = 'is'
           formItem.type = 1
         }
+        // if (
+        //   formItem.form_type == 'checkbox' ||
+        // formItem.form_type == 'check_status' ||
+        // formItem.form_type == 'deal_status'
+        // ) {
+        //   formItem.type = 1
+        //   formItem.condition = 'is'
+        // } else if (
+        //   formItem.form_type == 'user' ||
+        //   formItem.form_type == 'single_user' ||
+        //   formItem.form_type == 'structure'
+        // ) {
+        //   formItem.condition = 'is'
+        //   formItem.type = 1
+        // } else if (
+        //   formItem.form_type == 'select'
+        // ) {
+        //   formItem.condition = 'is'
+        //   formItem.type = 1
+        // } else {
+        //   formItem.condition = 'is'
+        //   formItem.type = 1
+        // }
       }
 
       this.getError()
@@ -492,13 +587,49 @@ export default {
           }
         } else if (
           o.form_type == 'date' ||
-          o.form_type == 'datetime' ||
+          o.form_type == 'datetime'
+        ) {
+          if (o.condition != 'isNull' && o.condition != 'isNotNull') {
+            if (o.type === 14) {
+              if (isEmpty(o.timeType) && isEmpty(o.range)) {
+                this.$message.error('筛选内容不能为空！')
+                return
+              }
+            } else {
+              if (isEmpty(o.value)) {
+                this.$message.error('筛选内容不能为空！')
+                return
+              }
+            }
+          }
+        } else if (
+          o.form_type == 'number' ||
+          o.form_type == 'floatnumber' ||
+          o.form_type == 'percent'
+        ) {
+          if (o.condition != 'isNull' && o.condition != 'isNotNull') {
+            if (o.type === 14) {
+              if (isEmpty(o.min) || isEmpty(o.max)) {
+                this.$message.error('筛选内容不能为空！')
+                return
+              }
+            } else {
+              if (isEmpty(o.value)) {
+                this.$message.error('筛选内容不能为空！')
+                return
+              }
+            }
+          }
+        } else if (
+          // o.form_type == 'date' ||
+          // o.form_type == 'datetime' ||
           o.form_type == 'user' ||
           o.form_type == 'single_user' ||
           o.form_type == 'structure' ||
           o.form_type == 'category' ||
           o.form_type == 'checkbox' ||
-          o.form_type == 'select'
+          o.form_type == 'position'
+          // o.form_type == 'select'
         ) {
           if (!o.value || o.value.length === 0) {
             if (o.condition != 'isNull' && o.condition != 'isNotNull') {
@@ -516,15 +647,25 @@ export default {
       const obj = []
       this.form.forEach(o => {
         if (o.form_type == 'datetime' || o.form_type == 'date') {
+          let dataValues = []
+          if (o.type === 14) {
+            if (!isEmpty(o.timeType)) {
+              dataValues = [o.timeType]
+            } else {
+              dataValues = o.range
+            }
+          } else {
+            dataValues = [o.value]
+          }
           obj.push({
             condition: o.condition,
             form_type: o.form_type,
             name: o.name,
             type: o.field,
             // type: o.form_type == 'date' ? 11 : 12,
-            value: o.value,
-            start: new Date(o.value[0]).getTime() / 1000,
-            end: new Date(o.value[1]).getTime() / 1000
+            value: dataValues
+            // start: new Date(o.value[0]).getTime() / 1000,
+            // end: new Date(o.value[1]).getTime() / 1000
           })
         } else if (o.form_type == 'business_type') {
           obj.push({
@@ -541,7 +682,7 @@ export default {
           obj.push({
             condition: o.condition,
             // type: o.type,
-            value: [o.value[0].id],
+            value: o.value,
             form_type: o.form_type,
             name: o.name,
             type: o.field
@@ -550,7 +691,7 @@ export default {
           obj.push({
             condition: o.condition,
             // type: o.type,
-            value: [o.value[0].id],
+            value: o.value,
             form_type: o.form_type,
             name: o.name,
             type: o.field
@@ -605,7 +746,9 @@ export default {
           })
         } else {
           let value = []
-          if (typeof o.value === 'string') {
+          if (o.form_type == 'number' && o.condition == 'range') {
+            value = [o.min, o.max]
+          } else if (typeof o.value === 'string') {
             const temp = o.value.replace(/；/g, ';')
             value = temp.split(';').filter(item => item !== '' && item !== null)
           } else {
@@ -676,6 +819,69 @@ export default {
         return typeof value
       }
       return []
+    },
+    /**
+     * 聚焦datepicker
+     */
+    dateRangeSelect(formItem, index) {
+      const datePicker = this.$refs[`wkDatePicker${index}`][0]
+      this.$nextTick(() => {
+        datePicker.focus()
+        datePicker.pickerVisible = true
+      })
+    },
+    /**
+     * datepicker change
+     */
+    datePickerChange(formItem) {
+      formItem.timeTypeName = ''
+      formItem.timeType = ''
+    },
+    /**
+     * 时间筛选配置
+     */
+    getPickerOptions(item, itemIndex) {
+      const types = [
+        { text: '本年度', value: 'year' },
+        { text: '上一年度', value: 'lastYear' },
+        { text: '下一年度', value: 'nextYear' },
+        { text: '上半年', value: 'firstHalfYear' },
+        { text: '下半年', value: 'nextHalfYear' },
+        { text: '本季度', value: 'quarter' },
+        { text: '上一季度', value: 'lastQuarter' },
+        { text: '下一季度', value: 'nextQuarter' },
+        { text: '本月', value: 'month' },
+        { text: '上月', value: 'lastMonth' },
+        { text: '下月', value: 'nextMonth' },
+        { text: '本周', value: 'week' },
+        { text: '上周', value: 'lastWeek' },
+        { text: '下周', value: 'nextWeek' },
+        { text: '今天', value: 'today' },
+        { text: '昨天', value: 'yesterday' },
+        { text: '明天', value: 'tomorrow' },
+        { text: '过去7天', value: 'previous7day' },
+        { text: '过去30天', value: 'previous30day' },
+        { text: '未来7天', value: 'future7day' },
+        { text: '未来30天', value: 'future30day' }
+      ]
+      const shortcuts = []
+      for (let index = 0; index < types.length; index++) {
+        const element = types[index]
+        shortcuts.push({
+          text: element.text,
+          onClick: (picker) => {
+            picker.$emit('pick', [], false)
+            this.$nextTick(() => {
+              item.timeTypeName = element.text
+              item.timeType = element.value
+            })
+          }
+        })
+      }
+
+      return {
+        shortcuts: shortcuts
+      }
     }
   }
 }
@@ -723,6 +929,26 @@ export default {
   .el-select,
   .el-date-editor {
     width: 100%;
+    /deep/ .el-range__icon {
+      line-height: 26px;
+    }
+  }
+  .el-input-number {
+    /deep/ input {
+      text-align: left;
+      padding: 0 8px;
+    }
+  }
+  .date-range-content {
+    position: absolute;
+    left: 30px;
+    right: 30px;
+    top: 4px;
+    height: 30px;
+    line-height: 30px;
+    background: white;
+    font-size: 13px;
+    cursor: pointer;
   }
 }
 

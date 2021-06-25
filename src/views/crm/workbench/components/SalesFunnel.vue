@@ -141,9 +141,9 @@ export default {
     initChart() {
       this.chartObj = echarts.init(document.getElementById('sales-funnel'))
       this.chartObj.setOption(this.chartOption, true)
-      // this.chartObj.on('click', params => {
-      //   this.$emit('chart-click', params, this.dataList[params.dataIndex])
-      // })
+      this.chartObj.on('click', params => {
+        this.$emit('chart-click', params, this.dataList[params.dataIndex])
+      })
     },
     /**
      * 获取统计数据

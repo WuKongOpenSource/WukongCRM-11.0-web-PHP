@@ -1,134 +1,114 @@
 <template>
-  <create-view
+  <xr-create
     :loading="loading"
-    :body-style="{ height: '100%'}">
-    <flexbox
-      direction="column"
-      align="stretch"
-      class="crm-create-container">
-      <flexbox class="crm-create-header">
-        <div style="flex:1;font-size:17px;color:#333;font-weight: bold;">{{ title }}</div>
-        <i
-          class="el-icon-close close"
-          @click="hidenView" />
-      </flexbox>
-      <div class="crm-create-flex">
-        <!-- 基本信息 -->
-        <create-sections title="基本信息">
-          <flexbox
-            direction="column"
-            align="stretch">
-            <div class="crm-create-body">
-              <el-form
-                ref="crmForm"
-                :model="crmForm"
-                label-position="top"
-                class="crm-create-box">
-                <el-form-item
-                  v-for="(item, index) in crmForm.crmFields"
-                  :key="item.key"
-                  :prop="'crmFields.' + index + '.value'"
-                  :class="{ 'crm-create-block-item': item.showblock, 'crm-create-item': !item.showblock }"
-                  :rules="crmRules[item.key]"
-                  :style="{'padding-left': getPaddingLeft(item, index), 'padding-right': getPaddingRight(item, index)}">
-                  <div
-                    slot="label"
-                    style="display: inline-block;">
-                    <div class="form-label">
-                      {{ item.data.name }}
-                      <span style="color:#999;">
-                        {{ item.data.inputTips ? '（'+item.data.inputTips+'）':'' }}
-                      </span>
-                    </div>
-                  </div>
-                  <!-- 员工 和部门 为多选（radio=false）  relation 相关合同商机使用-->
-                  <component
-                    :is="item.data.form_type | typeToComponentName"
-                    :value="item.value"
-                    :index="index"
-                    :item="item"
-                    :relation="item.relation"
-                    :radio="false"
-                    :disabled="item.disabled"
-                    @value-change="fieldValueChange"/>
-                </el-form-item>
-              </el-form>
-            </div>
-          </flexbox>
-        </create-sections>
-        <!-- 图片附件 -->
-        <div class="img-accessory">
-          <div class="img-box">
-            <el-upload
-              ref="imageUpload"
-              :action="crmFileSaveUrl"
-              :headers="httpHeader"
-              :data="{type: 'img', batchId: batchId}"
-              :on-preview="handleFilePreview"
-              :before-remove="beforeRemove"
-              :on-success="imgFileUploadSuccess"
-              :file-list="imgFileList"
-              name="file"
-              multiple
-              accept="image/*"
-              list-type="picture-card">
-              <p class="add-img">
-                <span class="el-icon-picture"/>
-                <span>添加图片</span>
-              </p>
-              <i class="el-icon-plus"/>
-            </el-upload>
-          </div>
-          <p class="add-accessory">
-            <el-upload
-              ref="fileUpload"
-              :action="crmFileSaveUrl"
-              :headers="httpHeader"
-              :data="{type: 'file', batchId: batchId}"
-              :on-preview="handleFilePreview"
-              :before-remove="handleFileRemove"
-              :on-success="fileUploadSuccess"
-              :file-list="fileList"
-              name="file"
-              multiple
-              accept="*.*">
-              <p>
-                <i class="wukong wukong-file" />
-                添加附件
-              </p>
-            </el-upload>
-          </p>
-        </div>
-        <!-- 相关信息 -->
-        <related-business
-          :selected-infos="relatedBusinessInfo"
-          class="related-business"
-          @value-change="relativeValueChange"/>
-        <!-- 审核信息 -->
-        <create-sections
-          v-if="showExamine"
-          title="审核信息">
-          <template slot="header">
-            <div
-              v-if="examineInfo.config===1 || examineInfo.config===0"
-              class="examine-type">{{ examineInfo.config===1 ? '固定审批流' : '授权审批人' }}</div>
-            <el-tooltip
-              v-if="examineInfo && examineInfo.remark"
-              :content="examineInfo.remark"
-              effect="dark"
-              placement="top">
-              <i class="wk wk-help wk-help-tips" style="height: 13px;"/>
-            </el-tooltip>
-          </template>
-          <create-examine-info
-            ref="examineInfo"
-            :types-id="categoryId"
-            types="oa_examine"
-            @value-change="examineValueChange"/>
-        </create-sections>
-      </div>
+    :title="title"
+    @close="hidenView"
+    @save="saveClick">
 
-      <div class="handle-bar">
+    <!-- 基本信息 -->
+    <create-sections title="基本信息">
+      <el-form
+        ref="crmForm"
+        :model="fieldForm"
+        :rules="fieldRules"
+        :validate-on-rule-change="false"
+        class="wk-form"
+        label-position="top">
+        <wk-form-items
+          v-for="(children, index) in fieldList"
+          :key="index"
+          :field-from="fieldForm"
+          :field-list="children"
+          @change="formChange"
+        >
+          <template slot-scope="{ data }">
+            <xh-expenses
+              v-if="data && data.form_type == 'examine_cause'"
+              :value="fieldForm[data.field]"
+              @value-change="otherChange($event, data)"
+            />
+            <xh-leaves
+              v-if="data && data.form_type == 'business_cause'"
+              :value="fieldForm[data.field]"
+              @value-change="otherChange($event, data)"
+            />
+          </template>
+        </wk-form-items>
+      </el-form>
+    </create-sections>
+    <!-- 图片附件 -->
+    <div class="img-accessory">
+      <div class="img-box">
+        <el-upload
+          ref="imageUpload"
+          :action="crmFileSaveUrl"
+          :headers="httpHeader"
+          :data="{type: 'img', batchId: batchId}"
+          :on-preview="handleFilePreview"
+          :before-remove="beforeRemove"
+          :on-success="imgFileUploadSuccess"
+          :file-list="imgFileList"
+          name="file"
+          multiple
+          accept="image/*"
+          list-type="picture-card">
+          <p class="add-img">
+            <span class="el-icon-picture"/>
+            <span>添加图片</span>
+          </p>
+          <i class="el-icon-plus"/>
+        </el-upload>
+      </div>
+      <p class="add-accessory">
+        <el-upload
+          ref="fileUpload"
+          :action="crmFileSaveUrl"
+          :headers="httpHeader"
+          :data="{type: 'file', batchId: batchId}"
+          :on-preview="handleFilePreview"
+          :before-remove="handleFileRemove"
+          :on-success="fileUploadSuccess"
+          :file-list="fileList"
+          name="file"
+          multiple
+          accept="*.*">
+          <p>
+            <i class="wukong wukong-file" />
+            添加附件
+          </p>
+        </el-upload>
+      </p>
+    </div>
+    <!-- 相关信息 -->
+    <related-business
+      :selected-infos="relatedBusinessInfo"
+      class="related-business"
+      @value-change="relativeValueChange"/>
+    <!-- 审核信息 -->
+    <create-sections
+      v-if="showExamine"
+      title="审核信息">
+      <template slot="header">
+        <div
+          v-if="examineInfo.config===1 || examineInfo.config===0"
+          class="examine-type">{{ examineInfo.config===1 ? '固定审批流' : '授权审批人' }}</div>
+        <el-tooltip
+          v-if="examineInfo && examineInfo.remark"
+          :content="examineInfo.remark"
+          effect="dark"
+          placement="top">
+          <i class="wk wk-help wk-help-tips" style="height: 13px;"/>
+        </el-tooltip>
+      </template>
+      <create-examine-info
+        ref="examineInfo"
+        :types-id="categoryId"
+        types="oa_examine"
+        @value-change="examineValueChange"/>
+    </create-sections>
+
+
+    <!-- <div class="handle-bar">
         <el-button
           class="handle-button"
           @click.native="hidenView">取消</el-button>
@@ -136,9 +116,9 @@
           v-debounce="saveField"
           class="handle-button"
           type="primary">保存</el-button>
-      </div>
-    </flexbox>
-  </create-view>
+      </div> -->
+
+  </xr-create>
 </template>
 <script type="text/javascript">
 import { filedGetFieldAPI } from '@/api/crm/common'
@@ -146,21 +126,23 @@ import { oaExamineGetFieldAPI } from '@/api/oa/examine'
 import { crmFileDeleteAPI, crmFileSaveUrl } from '@/api/common'
 import { oaExamineSaveAndUpdateAPI } from '@/api/oa/examine'
 
-import CreateView from '@/components/CreateView'
+// import CreateView from '@/components/CreateView'
+import WkFormItems from '@/components/NewCom/WkForm/WkFormItems'
+
+import XrCreate from '@/components/XrCreate'
 import CreateSections from '@/components/CreateSections'
 import CreateExamineInfo from '@/components/Examine/CreateExamineInfo'
 import XhExpenses from './XhExpenses' // 报销事项
 import XhLeaves from './XhLeaves' // 出差事项
 import RelatedBusiness from './RelatedBusiness'
 import { isEmpty } from '@/utils/types'
+import CustomFieldsMixin from '@/mixins/CustomFields'
+// import WkApprovalFlowApplyMixin from '@/components/Examine/mixins/WkApprovalFlowApply'
+
 
 import axios from 'axios'
 
 import {
-  regexIsCRMNumber,
-  regexIsCRMMoneyNumber,
-  regexIsCRMMobile,
-  regexIsCRMEmail,
   guid,
   objDeepCopy,
   getImageData
@@ -182,7 +164,7 @@ import {
 export default {
   name: 'ExamineCreateView', // 所有新建效果的view
   components: {
-    CreateView,
+    XrCreate,
     CreateSections,
     CreateExamineInfo, // 审核信息
     XhInput,
@@ -197,49 +179,12 @@ export default {
     CrmRelativeCell,
     XhExpenses,
     XhLeaves,
-    RelatedBusiness
+    RelatedBusiness,
+    WkFormItems
   },
-  filters: {
-    /** 根据type 找到组件 */
-    typeToComponentName(form_type) {
-      if (
-        form_type == 'text' ||
-        form_type == 'number' ||
-        form_type == 'floatnumber' ||
-        form_type == 'mobile' ||
-        form_type == 'email'
-      ) {
-        return 'XhInput'
-      } else if (form_type == 'textarea') {
-        return 'XhTextarea'
-      } else if (form_type == 'select') {
-        return 'XhSelect'
-      } else if (form_type == 'checkbox') {
-        return 'XhMultipleSelect'
-      } else if (form_type == 'date') {
-        return 'XhDate'
-      } else if (form_type == 'datetime') {
-        return 'XhDateTime'
-      } else if (form_type == 'user') {
-        return 'XhUserCell'
-      } else if (form_type == 'structure') {
-        return 'XhStructureCell'
-      } else if (form_type == 'file') {
-        return 'XhFiles'
-      } else if (
-        form_type == 'contacts' ||
-        form_type == 'customer' ||
-        form_type == 'contract' ||
-        form_type == 'business'
-      ) {
-        return 'CrmRelativeCell'
-      } else if (form_type == 'examine_cause') {
-        return 'XhExpenses'
-      } else if (form_type == 'business_cause') {
-        return 'XhLeaves'
-      }
-    }
-  },
+
+  filters: {},
+  mixins: [CustomFieldsMixin],
   props: {
     // 类型ID
     categoryId: {
@@ -272,11 +217,15 @@ export default {
       title: '',
       loading: false,
       // 自定义字段验证规则
-      crmRules: {},
-      // 自定义字段信息表单
-      crmForm: {
-        crmFields: []
-      },
+      // crmRules: {},
+      // // 自定义字段信息表单
+      // crmForm: {
+      //   crmFields: []
+      // },
+      baseFields: [],
+      fieldList: [],
+      fieldForm: {},
+      fieldRules: {},
       batchId: guid(),
       // 图片附件
       imgFileList: [],
@@ -323,44 +272,78 @@ export default {
     relativeValueChange(data) {
       this.relatedBusinessInfo = data.value
     },
+    /**
+     * change
+     */
+    formChange(field, index, value, valueList) {
+      // 审批流逻辑
+      // this.debouncedGetWkFlowList(field.field, this.fieldForm)
+
+      if ([
+        'select',
+        'checkbox'
+      ].includes(field.form_type) &&
+          field.remark === 'options_type' &&
+          field.optionsData) {
+        const { fieldForm, fieldRules } = this.getFormContentByOptionsChange(this.fieldList, this.fieldForm)
+        this.fieldForm = fieldForm
+        this.fieldRules = fieldRules
+      }
+    },
     // 审批信息值更新
     examineValueChange(data) {
       this.examineInfo = data
     },
-    // 字段的值更新
-    fieldValueChange(data) {
-      var item = this.crmForm.crmFields[data.index]
-      item.value = data.value
 
+    /**
+     * change
+     */
+    otherChange(data, field) {
       // 出差事项
-      if (item.data.form_type == 'business_cause' && item.value.update) {
-        for (let index = 0; index < this.crmForm.crmFields.length; index++) {
-          const element = this.crmForm.crmFields[index]
-          if (element.key === 'duration') {
-            element.value = item.value.duration
-            break
-          }
-        }
-        // 报销
-      } else if (item.data.form_type == 'examine_cause' && item.value.update) {
-        for (let index = 0; index < this.crmForm.crmFields.length; index++) {
-          const element = this.crmForm.crmFields[index]
-          if (element.key === 'money') {
-            element.value = item.value.money
-            break
-          }
+      if (data.value.update) {
+        if (field.form_type == 'business_cause') {
+          this.$set(this.fieldForm, 'duration', data.value.duration)
+        } else if (field.form_type == 'examine_cause') {
+          this.$set(this.fieldForm, 'money', data.value.money)
         }
       }
-
-      // 无事件的处理 后期可换成input实现
-      if (
-        item.data.form_type == 'user' ||
-        item.data.form_type == 'structure' ||
-        item.data.form_type == 'file'
-      ) {
-        this.$refs.crmForm.validateField('crmFields.' + data.index + '.value')
-      }
+      this.$set(this.fieldForm, field.field, data.value)
     },
+
+    // 字段的值更新
+    // fieldValueChange(data) {
+    //   var item = this.crmForm.crmFields[data.index]
+    //   item.value = data.value
+
+    //   // 出差事项
+    //   if (item.data.form_type == 'business_cause' && item.value.update) {
+    //     for (let index = 0; index < this.crmForm.crmFields.length; index++) {
+    //       const element = this.crmForm.crmFields[index]
+    //       if (element.key === 'duration') {
+    //         element.value = item.value.duration
+    //         break
+    //       }
+    //     }
+    //     // 报销
+    //   } else if (item.data.form_type == 'examine_cause' && item.value.update) {
+    //     for (let index = 0; index < this.crmForm.crmFields.length; index++) {
+    //       const element = this.crmForm.crmFields[index]
+    //       if (element.key === 'money') {
+    //         element.value = item.value.money
+    //         break
+    //       }
+    //     }
+    //   }
+
+    //   // 无事件的处理 后期可换成input实现
+    //   if (
+    //     item.data.form_type == 'user' ||
+    //     item.data.form_type == 'structure' ||
+    //     item.data.form_type == 'file'
+    //   ) {
+    //     this.$refs.crmForm.validateField('crmFields.' + data.index + '.value')
+    //   }
+    // },
     // 获取自定义字段
     getField() {
       this.loading = true
@@ -370,7 +353,8 @@ export default {
         module: 'oa',
         controller: 'examine',
         action: 'save',
-        types_id: this.categoryId
+        types_id: this.categoryId,
+        format: 2
       }
       // params.label = 10
       // params.id = this.categoryId
@@ -395,7 +379,8 @@ export default {
           }
           this.loading = false
         })
-        .catch(() => {
+        .catch((e) => {
+          console.log(e)
           this.loading = false
         })
     },
@@ -457,285 +442,270 @@ export default {
     },
     // 根据自定义字段获取自定义字段规则
     getcrmRulesAndModel(list) {
-      let showStyleIndex = -1
-      for (let index = 0; index < list.length; index++) {
-        const item = list[index]
-        showStyleIndex += 1
-        /**
+      const assistIds = this.getFormAssistIds(list)
+      const baseFields = []
+      const fieldList = []
+      const fieldRules = {}
+      const fieldForm = {}
+      list.forEach(children => {
+        const fields = []
+        children.forEach(item => {
+          const temp = this.getFormItemDefaultProperty(item)
+          temp.show = !assistIds.includes(item.formAssistId)
+
+          fieldRules[temp.field] = this.getRules(item)
+
+          /**
          *
          * 规则数据
          */
-        var tempList = []
-        // 验证必填
-        if (item.is_null == 1) {
-          if (item.form_type == 'business_cause') {
-            var validateFunction = (rule, value, callback) => {
-              if (!value.list) {
-                callback(new Error('请完善明细'))
-              } else {
-                var hasError = false
-                for (let index = 0; index < value.list.length; index++) {
-                  const item = value.list[index]
-                  const keys = [
-                    'start_address',
-                    'end_address',
-                    'start_time',
-                    'end_time',
-                    'duration'
-                  ]
-                  for (let keyIndex = 0; keyIndex < keys.length; keyIndex++) {
-                    const key = keys[keyIndex]
-                    if (key == 'duration') {
-                      if (item.duration <= 0) {
+          // var tempList = []
+          // 验证必填
+          if (item.is_null == 1) {
+            if (item.form_type == 'business_cause') {
+              var validateFunction = (rule, value, callback) => {
+                if (!value.list) {
+                  callback(new Error('请完善明细'))
+                } else {
+                  var hasError = false
+                  for (let index = 0; index < value.list.length; index++) {
+                    const item = value.list[index]
+                    const keys = [
+                      'start_address',
+                      'end_address',
+                      'start_time',
+                      'end_time',
+                      'duration'
+                    ]
+                    for (let keyIndex = 0; keyIndex < keys.length; keyIndex++) {
+                      const key = keys[keyIndex]
+                      if (key == 'duration') {
+                        if (item.duration <= 0) {
+                          hasError = true
+                          callback(new Error(`行程明细（${index + 1}）时长应大于0`))
+                          break
+                        }
+                      } else if (isEmpty(item[key])) {
                         hasError = true
-                        callback(new Error(`行程明细（${index + 1}）时长应大于0`))
+                        callback(new Error('请完善明细'))
                         break
                       }
-                    } else if (isEmpty(item[key])) {
+                    }
+                  }
+                  if (!hasError) {
+                    callback()
+                  }
+                }
+              }
+
+              fieldRules[temp.field] = [{
+                validator: validateFunction,
+                trigger: []
+              }]
+            } else if (item.form_type == 'examine_cause') {
+              var validateFunction = (rule, value, callback) => {
+                if (!value.list) {
+                  callback(new Error('请完善明细'))
+                } else {
+                  var hasError = false
+                  for (let index = 0; index < value.list.length; index++) {
+                    const item = value.list[index]
+                    const keys = [
+                      'start_address',
+                      'end_address',
+                      'start_time',
+                      'end_time',
+                      'traffic',
+                      'stay',
+                      'diet',
+                      'other'
+                    ]
+                    for (let keyIndex = 0; keyIndex < keys.length; keyIndex++) {
+                      const key = keys[keyIndex]
+                      if (isEmpty(item[key])) {
+                        hasError = true
+                        callback(new Error('请完善明细'))
+                        break
+                      }
+                    }
+
+                    if (item.money <= 0) {
                       hasError = true
-                      callback(new Error('请完善明细'))
+                      callback(new Error(`费用明细（${index + 1}）合计应大于0`))
                       break
                     }
                   }
-                }
-                if (!hasError) {
-                  callback()
-                }
-              }
-            }
-
-            tempList.push({
-              validator: validateFunction,
-              trigger: []
-            })
-          } else if (item.form_type == 'examine_cause') {
-            var validateFunction = (rule, value, callback) => {
-              if (!value.list) {
-                callback(new Error('请完善明细'))
-              } else {
-                var hasError = false
-                for (let index = 0; index < value.list.length; index++) {
-                  const item = value.list[index]
-                  const keys = [
-                    'start_address',
-                    'end_address',
-                    'start_time',
-                    'end_time',
-                    'traffic',
-                    'stay',
-                    'diet',
-                    'other'
-                  ]
-                  for (let keyIndex = 0; keyIndex < keys.length; keyIndex++) {
-                    const key = keys[keyIndex]
-                    if (isEmpty(item[key])) {
-                      hasError = true
-                      callback(new Error('请完善明细'))
-                      break
-                    }
-                  }
-
-                  if (item.money <= 0) {
-                    hasError = true
-                    callback(new Error(`费用明细（${index + 1}）合计应大于0`))
-                    break
+                  if (!hasError) {
+                    callback()
                   }
                 }
-                if (!hasError) {
-                  callback()
-                }
               }
-            }
 
-            tempList.push({
-              validator: validateFunction,
-              trigger: []
-            })
-          } else {
+              fieldRules[temp.field] = [{
+                validator: validateFunction,
+                trigger: []
+              }]
+            } else {
             // 出差审批 差旅报销 提示修改
-            if ((item.field == 'duration' && this.type == 3) ||
+              if ((item.field == 'duration' && this.type == 3) ||
           (item.field == 'money' && this.type == 5)) {
-              tempList.push({
-                required: true,
-                message: '请完善明细',
-                trigger: ['blur', 'change']
-              })
-            } else {
-              tempList.push({
-                required: true,
-                message: item.name + '不能为空',
-                trigger: ['blur', 'change']
-              })
-            }
-          }
-        }
-
-        // 特殊字符
-        if (item.form_type == 'number') {
-          var validateCRMNumber = (rule, value, callback) => {
-            if (!value || value == '' || regexIsCRMNumber(value)) {
-              callback()
-            } else {
-              callback(new Error('数字的整数部分须少于12位，小数部分须少于4位'))
-            }
-          }
-          tempList.push({
-            validator: validateCRMNumber,
-            item: item,
-            trigger: ['blur']
-          })
-        } else if (item.form_type == 'floatnumber') {
-          var validateCRMMoneyNumber = (rule, value, callback) => {
-            if (!value || value == '' || regexIsCRMMoneyNumber(value)) {
-              callback()
-            } else {
-              callback(new Error('货币的整数部分须少于10位，小数部分须少于2位'))
-            }
-          }
-          tempList.push({
-            validator: validateCRMMoneyNumber,
-            item: item,
-            trigger: ['blur']
-          })
-        } else if (item.form_type == 'mobile') {
-          var validateCRMMobile = (rule, value, callback) => {
-            if (!value || value == '' || regexIsCRMMobile(value)) {
-              callback()
-            } else {
-              callback(new Error('手机格式有误'))
-            }
-          }
-          tempList.push({
-            validator: validateCRMMobile,
-            item: item,
-            trigger: ['blur']
-          })
-        } else if (item.form_type == 'email') {
-          var validateCRMEmail = (rule, value, callback) => {
-            if (!value || value == '' || regexIsCRMEmail(value)) {
-              callback()
-            } else {
-              callback(new Error('邮箱格式有误'))
-            }
-          }
-          tempList.push({
-            validator: validateCRMEmail,
-            item: item,
-            trigger: ['blur']
-          })
-        }
-
-        this.crmRules[item.field || item.name] = tempList
-
-        /**
-         *
-         *
-         *
-         *
-         *
-         *
-         *
-         *
-         * 表单数据
-         */
-        if (item.form_type == 'datetime') {
-          // 返回的时间戳  要处理为格式化时间（编辑的时候）
-          // 关联产品信息比较多 用字典接收
-          var params = {}
-
-          if (this.action.type == 'update') {
-            params['value'] = item.value || ''
-          } else {
-            params['value'] = item.defaultValue // 加入默认值 可能编辑的时候需要调整
-          }
-
-          params['key'] = item.field || item.name
-          params['data'] = item
-          params['disabled'] = false // 是否可交互
-          params['styleIndex'] = showStyleIndex
-          this.crmForm.crmFields.push(params)
-        } else if (
-          item.form_type == 'examine_cause' ||
-          item.form_type == 'business_cause'
-        ) {
-          // 报销事项
-          var params = {}
-
-          if (this.action.type == 'update') {
-            const list = item.value.map(element => {
-              if (element.imgList) {
-                element.imgList = objDeepCopy(element.imgList || []).map(item => {
-                  if (item.file_path) {
-                    item.url = item.file_path
-                  }
-                  return item
-                })
-              } else {
-                element.imgList = []
+                fieldRules[temp.field] = [{
+                  required: true,
+                  message: '请完善明细',
+                  trigger: ['blur', 'change']
+                }]
               }
-              return element
-            })
-            params['value'] = { list: list } // 编辑的值 在value字段
-          } else {
-            params['value'] = {} // 加入默认值 可能编辑的时候需要调整
-          }
-          params['key'] = item.field || item.name
-          params['data'] = item
-          params['disabled'] = false // 是否可交互
-          params['showblock'] = true // 展示整行效果
-          if (index % 2 == 0) {
-            showStyleIndex = -1
-          }
-          this.crmForm.crmFields.push(params)
-        } else if (
-          // 出差审批 差旅报销
-          (item.field == 'duration' && this.type == 3) ||
-          (item.field == 'money' && this.type == 5)
-        ) {
-          // 报销事项
-          var params = {}
-
-          if (this.action.type == 'update') {
-            params['value'] = item.value // 编辑的值 在value字段
-          } else {
-            params['value'] = item.defaultValue || '' // 加入默认值 可能编辑的时候需要调整
-          }
-          params['key'] = item.field || item.name
-          params['data'] = item
-          params['disabled'] = true // 是否可交互
-          params['styleIndex'] = showStyleIndex
-          this.crmForm.crmFields.push(params)
-        } else {
-          var params = {}
-          if (this.action.type == 'update') {
-            params['value'] = item.value // 编辑的值 在value字段
-          } else {
-            if (
-              item.form_type == 'user' ||
-              item.form_type == 'structure' ||
-              item.form_type == 'file' ||
-              item.form_type == 'category' ||
-              item.form_type == 'customer' ||
-              item.form_type == 'business' ||
-              item.form_type == 'contract'
-            ) {
-              params['value'] = item.defaultValue
-                ? objDeepCopy(item.defaultValue)
-                : []
-            } else {
-              params['value'] = item.defaultValue || ''
+              // else {
+              //   tempList.push({
+              //     required: true,
+              //     message: item.name + '不能为空',
+              //     trigger: ['blur', 'change']
+              //   })
+              // }
             }
           }
-          params['key'] = item.field || item.name
-          params['data'] = item
-          params['disabled'] = false // 是否可交互
-          params['styleIndex'] = showStyleIndex
-          this.crmForm.crmFields.push(params)
-        }
-      }
+          // disabled
+          if (
+          // 出差审批 差旅报销
+            (item.field == 'duration' && this.type == 3) ||
+          (item.field == 'money' && this.type == 5)
+          ) {
+            temp.disabled = true
+          }
+          // 特殊字段允许多选
+          this.getItemRadio(item, temp)
+
+          // 获取默认值
+          if (item.form_type == 'examine_cause' ||
+          item.form_type == 'business_cause') {
+            if (this.action.type == 'update') {
+              const itemValue = item.value || []
+              const list = itemValue.map(element => {
+                if (element.img) {
+                  element.imgList = objDeepCopy(element.img || [])
+                } else {
+                  element.imgList = []
+                }
+                return element
+              })
+              fieldForm[temp.field] = { list: list } // 编辑的值 在value字段
+            } else {
+              fieldForm[temp.field] = {} // 加入默认值 可能编辑的时候需要调整
+            }
+          } else {
+            if (temp.show) {
+              fieldForm[temp.field] = this.getItemValue(item, this.action.data, this.action.type)
+            }
+          }
+          //   /**
+          //  * 表单数据
+          //  */
+          //   if (item.form_type == 'datetime') {
+          //   // 返回的时间戳  要处理为格式化时间（编辑的时候）
+          //   // 关联产品信息比较多 用字典接收
+          //     var params = {}
+
+          //     if (this.action.type == 'update') {
+          //       params['value'] = item.value || ''
+          //     } else {
+          //       params['value'] = item.defaultValue // 加入默认值 可能编辑的时候需要调整
+          //     }
+
+          //     params['key'] = item.field || item.name
+          //     params['data'] = item
+          //     params['disabled'] = false // 是否可交互
+          //     params['styleIndex'] = showStyleIndex
+          //     this.crmForm.crmFields.push(params)
+          //   } else if (
+          //     item.form_type == 'examine_cause' ||
+          //   item.form_type == 'business_cause'
+          //   ) {
+          //   // 报销事项
+          //     var params = {}
+
+          //     if (this.action.type == 'update') {
+          //       const list = item.value.map(element => {
+          //         if (element.imgList) {
+          //           element.imgList = objDeepCopy(element.imgList || []).map(item => {
+          //             if (item.file_path) {
+          //               item.url = item.file_path
+          //             }
+          //             return item
+          //           })
+          //         } else {
+          //           element.imgList = []
+          //         }
+          //         return element
+          //       })
+          //       params['value'] = { list: list } // 编辑的值 在value字段
+          //     } else {
+          //       params['value'] = {} // 加入默认值 可能编辑的时候需要调整
+          //     }
+          //     params['key'] = item.field || item.name
+          //     params['data'] = item
+          //     params['disabled'] = false // 是否可交互
+          //     params['showblock'] = true // 展示整行效果
+          //     if (index % 2 == 0) {
+          //       showStyleIndex = -1
+          //     }
+          //     this.crmForm.crmFields.push(params)
+          //   } else if (
+          //   // 出差审批 差旅报销
+          //     (item.field == 'duration' && this.type == 3) ||
+          //   (item.field == 'money' && this.type == 5)
+          //   ) {
+          //   // 报销事项
+          //     var params = {}
+
+          //     if (this.action.type == 'update') {
+          //       params['value'] = item.value // 编辑的值 在value字段
+          //     } else {
+          //       params['value'] = item.defaultValue || '' // 加入默认值 可能编辑的时候需要调整
+          //     }
+          //     params['key'] = item.field || item.name
+          //     params['data'] = item
+          //     params['disabled'] = true // 是否可交互
+          //     params['styleIndex'] = showStyleIndex
+          //     this.crmForm.crmFields.push(params)
+          //   } else {
+          //     var params = {}
+          //     if (this.action.type == 'update') {
+          //       params['value'] = item.value // 编辑的值 在value字段
+          //     } else {
+          //       if (
+          //         item.form_type == 'user' ||
+          //       item.form_type == 'structure' ||
+          //       item.form_type == 'file' ||
+          //       item.form_type == 'category' ||
+          //       item.form_type == 'customer' ||
+          //       item.form_type == 'business' ||
+          //       item.form_type == 'contract'
+          //       ) {
+          //         params['value'] = item.defaultValue
+          //           ? objDeepCopy(item.defaultValue)
+          //           : []
+          //       } else {
+          //         params['value'] = item.defaultValue || ''
+          //       }
+          //     }
+          //     params['key'] = item.field || item.name
+          //     params['data'] = item
+          //     params['disabled'] = false // 是否可交互
+          //     params['styleIndex'] = showStyleIndex
+          //     this.crmForm.crmFields.push(params)
+          //   }
+          fields.push(temp)
+          baseFields.push(item)
+        })
+        fieldList.push(fields)
+      })
+      this.baseFields = baseFields
+      this.fieldList = fieldList
+      this.fieldForm = fieldForm
+      this.fieldRules = fieldRules
     },
     // 保存数据
-    saveField() {
+    saveClick() {
       this.loading = true
       this.$refs.crmForm.validate(valid => {
         if (valid) {
@@ -763,14 +733,15 @@ export default {
                       return item.file_id
                     }
                   })],
-                  oaExamineRelation: {}
-
+                  oaExamineRelation: {},
+                  field: [],
+                  oaExamineTravelList: []
                 }
                 params.category_id = this.categoryId
-                // this.getSubmiteParams(this.crmForm.crmFields, params)
-                this.crmForm.crmFields.map(item => {
-                  params[item.data.field] = item.value
-                })
+                this.getSubmiteParams([].concat.apply([], this.fieldList), params)
+                // this.crmForm.crmFields.map(item => {
+                //   params[item.data.field] = item.value
+                // })
                 if (this.examineInfo.config === 0) {
                   params['check_user_id'] = this.examineInfo.value[0].id
                 }
@@ -801,7 +772,9 @@ export default {
                   return item.file_id
                 }
               })],
-              oaExamineRelation: {}
+              oaExamineRelation: {},
+              field: [],
+              oaExamineTravelList: []
             }
             this.crmForm.crmFields.map(item => {
               params[item.data.field] = item.value
@@ -857,26 +830,30 @@ export default {
     getSubmiteParams(array, params) {
       for (let index = 0; index < array.length; index++) {
         const element = array[index]
-        if (element.key == 'cause') {
-          if (element.data.form_type == 'business_cause') {
-            params.oaExamineTravelList = element.value.list
+        const dataValue = this.fieldForm[element.field]
+        if (element.field == 'cause') {
+          if (element.form_type == 'business_cause') {
+            // params.oaExamineTravelList = dataValue.list
+            params[element.field] = dataValue
             // params['duration'] = element.value.duration
-          } else if (element.data.form_type == 'examine_cause') {
-            var causeList = []
-            for (let index = 0; index < element.value.list.length; index++) {
-              const cause = element.value.list[index]
+          } else if (element.form_type == 'examine_cause') {
+            // var causeList = []
+            for (let index = 0; index < dataValue.list.length; index++) {
+              const cause = dataValue.list[index]
               var causeCopy = Object.assign({}, cause)
               delete causeCopy['imgList']
               params.oaExamineTravelList.push(causeCopy)
             }
-            params[element.key] = causeList
+            params[element.field] = dataValue
           }
         } else {
-          if (element.data.fieldType == 1) {
-            params.oaExamine[element.key] = this.getRealParams(element)
-          } else {
-            element.data.value = this.getRealParams(element)
-            params.field.push(element.data)
+          if (element.fieldType == 1) {
+            params.oaExamine[element.field] = this.getRealParams(element)
+          } else if (element.form_type !== 'desc_text') { //  描述文字忽略
+            element.value = this.getRealParams(element, dataValue)
+            params[element.field] = element.value
+            // field.value = this.getRealParams(field, dataValue, data)
+            // params[field.field] = field.value
           }
         }
       }
@@ -1017,49 +994,49 @@ export default {
         return true
       }
     },
-    // 关联客户 联系人等数据要特殊处理
-    getRealParams(element) {
-      if (
-        element.key == 'customer_id' ||
-        element.key == 'contacts_id' ||
-        element.key == 'business_id' ||
-        element.key == 'leads_id' ||
-        element.key == 'contract_id'
-      ) {
-        if (element.value.length) {
-          return element.value[0][element.key]
-        } else {
-          return ''
-        }
-      } else if (element.key == 'categoryId') {
-        if (element.value.length) {
-          return element.value[element.value.length - 1]
-        } else {
-          return ''
-        }
-      } else if (
-        element.data.form_type == 'user' ||
-        element.data.form_type == 'structure'
-      ) {
-        return element.value
-          .map(function(item, index, array) {
-            return element.data.form_type == 'user' ? item.id : item.id
-          })
-          .join(',')
-      } else if (element.data.form_type == 'file') {
-        if (element.value && element.value.length > 0) {
-          return element.value[0].batchId
-        }
-        return ''
-      } else if (element.data.form_type == 'checkbox') {
-        if (element.value && element.value.length > 0) {
-          return element.value.join(',')
-        }
-        return ''
-      }
+    // // 关联客户 联系人等数据要特殊处理
+    // getRealParams(element) {
+    //   if (
+    //     element.key == 'customer_id' ||
+    //     element.key == 'contacts_id' ||
+    //     element.key == 'business_id' ||
+    //     element.key == 'leads_id' ||
+    //     element.key == 'contract_id'
+    //   ) {
+    //     if (element.value.length) {
+    //       return element.value[0][element.key]
+    //     } else {
+    //       return ''
+    //     }
+    //   } else if (element.key == 'categoryId') {
+    //     if (element.value.length) {
+    //       return element.value[element.value.length - 1]
+    //     } else {
+    //       return ''
+    //     }
+    //   } else if (
+    //     element.data.form_type == 'user' ||
+    //     element.data.form_type == 'structure'
+    //   ) {
+    //     return element.value
+    //       .map(function(item, index, array) {
+    //         return element.data.form_type == 'user' ? item.id : item.id
+    //       })
+    //       .join(',')
+    //   } else if (element.data.form_type == 'file') {
+    //     if (element.value && element.value.length > 0) {
+    //       return element.value[0].batchId
+    //     }
+    //     return ''
+    //   } else if (element.data.form_type == 'checkbox') {
+    //     if (element.value && element.value.length > 0) {
+    //       return element.value.join(',')
+    //     }
+    //     return ''
+    //   }
 
-      return element.value
-    },
+    //   return element.value
+    // },
     hidenView() {
       this.$emit('hiden-view')
     },
@@ -1187,7 +1164,7 @@ export default {
   padding-bottom: 10px;
 }
 
-.el-form-item /deep/ .el-form-item__label {
+/* .el-form-item /deep/ .el-form-item__label {
   line-height: normal;
   font-size: 13px;
   color: #333333;
@@ -1207,7 +1184,7 @@ export default {
   position: absolute;
   left: 0;
   top: 5px;
-}
+} */
 
 .form-label {
   margin: 5px 0;

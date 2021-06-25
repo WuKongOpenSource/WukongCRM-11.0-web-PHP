@@ -113,7 +113,7 @@ export default [
     }, {
       name: 'workbenchHandlefield',
       path: 'workbench-custom-field/:type/:id/:label',
-      component: () => import('@/views/admin/crm/HandleField'),
+      component: () => import('@/views/admin/fields'),
       hidden: true,
       meta: {
         activeMenu: '/manage/system-workbench'
@@ -203,6 +203,16 @@ export default [
         title: '业绩目标设置',
         requiresAuth: true,
         permissions: ['manage', 'crm', 'achievement']
+      }
+    }, {
+      name: 'customField',
+      path: 'custom-field/:type/:label/:id',
+      component: () => import('@/views/admin/fields'),
+      hidden: true,
+      meta: {
+        activeMenu: '/manage/customer/custom-field',
+        requiresAuth: true,
+        permissionList: [['manage', 'crm', 'field'], ['manage', 'crm', 'activityForm']]
       }
     }, {
       name: 'handlefield',

@@ -566,12 +566,14 @@ export default {
       this.reportData.placeholder = '请输入商机名称'
       this.reportData.crmType = 'business'
       this.reportData.params = this.getBaseParams()
-      this.reportData.params.entity = {
-        formType: 'business_type',
-        name: 'statusId',
-        type: 1,
-        values: [data.typeId, data.statusId]
-      }
+      this.reportData.params.type_id = data.type_id
+      this.reportData.params.status_id = data.status_id
+      // this.reportData.params.entity = {
+      //   formType: 'business_type',
+      //   name: 'statusId',
+      //   type: 1,
+      //   values: [data.typeId, data.statusId]
+      // }
       this.fieldReportList = null
       this.reportData.request = crmInstrumentSellFunnelBusinessListAPI
       this.reportData.paging = true

@@ -40,10 +40,6 @@
               type="text"
               size="small"
               @click="handleCustomField('edit', scope.row, scope.$index)">编辑</el-button>
-            <el-button
-              type="text"
-              size="small"
-              @click="handleCustomField('preview', scope.row, scope.$index)">预览</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -115,7 +111,7 @@ export default {
     handleCustomField(type, item, index) {
       if (type == 'edit') {
         this.$router.push({
-          name: 'handlefield',
+          name: 'customField',
           params: {
             // type: {
             //   1: 'crm_leads',
@@ -137,7 +133,9 @@ export default {
               'crm_business': 5,
               'crm_contract': 6,
               'crm_receivables': 7,
-              'crm_visit': 17
+              'crm_visit': 17,
+              'crm_invoice': 18,
+              'crm_receivables_plan': 19
             }[item.types]
           }
         })
@@ -167,6 +165,10 @@ export default {
         return require('@/assets/img/crm/receivables.png')
       } else if (types === 'crm_visit') {
         return require('@/assets/img/crm/visit.png')
+      } else if (types === 'crm_invoice') {
+        return require('@/assets/img/crm/invoice.png')
+      } else if (types === 'crm_receivables_plan') {
+        return require('@/assets/img/crm/receivables_plan.png')
       }
       return require('@/assets/img/crm/product.png')
     }

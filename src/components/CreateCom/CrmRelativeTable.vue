@@ -376,7 +376,6 @@ export default {
 
           params[this.action.data.moduleType + '_id'] = this.action.data[ this.action.data.moduleType + 'Id'] || this.action.data[ this.action.data.moduleType + '_id']
 
-
           if (this.action.data.params) {
             for (const field in this.action.data.params) {
               params[field] = this.action.data.params[field]

@@ -108,7 +108,7 @@ export function crmIndexFunnelAPI(data) {
  */
 export function crmInstrumentSellFunnelBusinessListAPI(data) {
   return request({
-    url: 'crmInstrument/sellFunnelBusinessList',
+    url: 'crm/index/businessList',
     method: 'post',
     data: data,
     headers: {
@@ -251,44 +251,55 @@ export function crmIndexUnContactCustomerAPI(data) {
 
 //* **********************************
 /**
- *
+ *  跟进记录导出
  * @param {*} data
  */
 export function crmInstrumentExportRecordListAPI(data) {
+  var param = new FormData()
+  Object.keys(data).forEach(key => {
+    param.append(key, data[key])
+  })
   return request({
-    url: '',
+    url: 'crm/activity/excelExport',
     method: 'post',
-    data: data,
+    data: param,
+    responseType: 'blob',
     headers: {
-      'Content-Type': 'application/json;charset=UTF-8'
-    }
+      'Content-Type': 'multipart/form-data'
+    },
+    timeout: 60000
   })
 }
 
 /**
- *
+ * 跟进记录导入
  * @param {*} data
  */
 export function crmInstrumentImportRecordListAPI(data) {
+  var param = new FormData()
+  Object.keys(data).forEach(key => {
+    param.append(key, data[key])
+  })
   return request({
-    url: '',
+    url: 'crm/activity/excelImport',
     method: 'post',
-    data: data,
+    data: param,
     headers: {
-      'Content-Type': 'application/json;charset=UTF-8'
+      'Content-Type': 'multipart/form-data'
     }
   })
 }
 
 /**
- *
+ * 日志导入模板下载
  * @param {*} data
  */
 export function crmInstrumentDownloadRecordExcelAPI(data) {
   return request({
-    url: '',
+    url: 'crm/activity/excelDownload',
     method: 'post',
     data: data,
+    responseType: 'blob',
     headers: {
       'Content-Type': 'application/json;charset=UTF-8'
     }

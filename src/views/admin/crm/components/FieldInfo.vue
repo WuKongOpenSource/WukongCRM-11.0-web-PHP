@@ -121,7 +121,7 @@
         字数上限
       </div>
       <el-input
-        v-model="field.maxLength"
+        v-model="field.max_length"
         :maxlength="4"
         :disabled="disabled"/>
       <div class="input-tips"><span>*</span>上限为2000字</div>
@@ -200,7 +200,7 @@ export default {
           is_null: false, // 是否必填
           is_hidden: false, // 是否隐藏字段
           input_tips: '', // 输入提示
-          maxLength: '', // textarea 多行文本有最大数量
+          max_length: '', // textarea 多行文本有最大数量
           default_value: '', // 默认值
           setting: '', // 接口返回setting数据
           showSetting: '', // 单选选项

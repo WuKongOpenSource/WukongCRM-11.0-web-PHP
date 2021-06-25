@@ -23,6 +23,8 @@
           :head-details="headDetails"
           :id="id"
           :crm-type="crmType"
+          :page-list="pageList"
+          @pageChange="pageChange"
           @handle-click="deadHandleClick"
           @handle="detailHeadHandle"
           @close="hideView">
@@ -58,7 +60,7 @@
                 :id="id"
                 :handle="activityHandle"
                 :crm-type="crmType"
-                @on-handle="detailHeadHandle" />
+                @handle="detailHeadHandle" />
             </el-tab-pane>
           </el-tabs>
         </div>

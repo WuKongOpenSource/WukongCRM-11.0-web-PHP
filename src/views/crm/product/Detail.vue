@@ -23,6 +23,8 @@
           :head-details="headDetails"
           :id="id"
           :crm-type="crmType"
+          :page-list="pageList"
+          @pageChange="pageChange"
           @handle="detailHeadHandle"
           @close="hideView"/>
         <flexbox class="d-container-bd" align="stretch">
@@ -41,7 +43,9 @@
                 :is="item.name"
                 :detail="detailData"
                 :id="id"
-                :crm-type="crmType">
+                :crm-type="crmType"
+                :ignore-fields="['status']"
+                @handle="detailHeadHandle">
                 <sections
                   class="b-cells"
                   title="图片信息"

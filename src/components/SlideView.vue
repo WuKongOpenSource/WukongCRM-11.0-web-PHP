@@ -10,7 +10,7 @@
       class="slide-detail-card-container">
       <el-button
         v-if="showClose"
-        class="close-btn"
+        class="close-btn xr-btn--orange"
         type="primary"
         icon="el-icon-close"
         @click="close"/>
@@ -218,8 +218,8 @@ export default {
 
 .close-btn {
   position: absolute;
-  top: 160px;
-  left: -40px;
+  top: 153px;
+  left: -46px;
   z-index: 1;
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
@@ -227,6 +227,7 @@ export default {
 
   /deep/ i {
     font-size: 26px;
+    margin-left: 0;
   }
 }
 </style>

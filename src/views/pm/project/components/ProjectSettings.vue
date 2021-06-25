@@ -10,13 +10,13 @@
         v-loading="loading"
         class="project-settings-box">
         <p class="project-settings-title-top">
-          <span>项目设置</span>
+          <span>{{ tabTypeName }}</span>
           <span
             class="el-icon-close rt"
             @click="close"/>
         </p>
         <div class="content">
-          <p class="title-checked">
+          <!-- <p class="title-checked">
             <span
               :class="{'is-select ': tabType == 'base'}"
               class="span-item"
@@ -26,7 +26,7 @@
               :class="{'is-select ': tabType == 'member'}"
               class="span-item"
               @click="tabType = 'member'">成员管理</span>
-          </p>
+          </p> -->
           <!-- 基础设置 -->
           <div
             v-show="tabType == 'base'"
@@ -140,7 +140,7 @@
       <p
         slot="reference"
         class="title"
-        @click="projectSetting">项目设置</p>
+        @click.stop="projectSetting">{{ tabTypeName }}</p>
     </el-popover>
   </div>
 </template>
@@ -167,6 +167,10 @@ export default {
   },
 
   props: {
+    tabType: {
+      type: String,
+      default: 'base'
+    }, // base 基础设置 member 成员设置
     workId: [Number, String],
     title: String,
     color: String,
@@ -205,7 +209,7 @@ export default {
         '#F24D70',
         '#FF6F6F'
       ],
-      tabType: 'base', // base 基础设置 member 成员设置
+      // tabType: 'base', // base 基础设置 member 成员设置
       // 动态背景
       setColor: '',
       setTitle: '',
@@ -228,7 +232,14 @@ export default {
       projectRoleList: []
     }
   },
-
+  computed: {
+    tabTypeName() {
+      return {
+        base: '项目设置',
+        member: '成员管理'
+      }[this.tabType]
+    }
+  },
   watch: {
     addMembersData() {
       this.membersList = objDeepCopy(this.addMembersData || [])
@@ -237,14 +248,10 @@ export default {
     projectSetShow(val) {
       if (val) {
         this.membersList = objDeepCopy(this.addMembersData || [])
-      }
-    },
-
-    tabType(val) {
-      if (val == 'member' && this.optionList.length == 0) {
         this.getGroupList()
       }
     }
+
   },
 
   created() {
@@ -273,8 +280,8 @@ export default {
       this.setColor = this.color
       this.setTitle = this.title
       this.setIsOpen = this.isOpen
-      this.tabType = 'base'
-      this.$emit('click')
+      // this.tabType = 'base'
+      // this.$emit('click')
     },
 
     /**
@@ -378,13 +385,24 @@ export default {
      * 删除一个成员
      */
     deleteMember(data, index) {
-      workWorkOwnerDelAPI({
-        work_id: this.workId,
-        owner_user_id: data.id
-      }).then(res => {
-        this.membersList.splice(index, 1)
-        this.$message.success('删除成功')
-      }).catch(() => {})
+      this.$confirm('确定删除?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(_ => {
+        workWorkOwnerDelAPI({
+          work_id: this.workId,
+          owner_user_id: data.id
+        }).then(res => {
+          this.membersList.splice(index, 1)
+          this.$message.success('删除成功')
+        }).catch(() => {})
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      })
     },
 
     /**

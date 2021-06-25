@@ -145,8 +145,10 @@ export default {
           }
         })
         this.$emit('input', ids)
+        this.$emit('change', val)
       } else {
         this.$emit('input', [])
+        this.$emit('change', [])
       }
     },
 

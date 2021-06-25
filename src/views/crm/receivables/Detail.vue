@@ -23,6 +23,8 @@
           :head-details="headDetails"
           :id="id"
           :crm-type="crmType"
+          :page-list="pageList"
+          @pageChange="pageChange"
           @handle="detailHeadHandle"
           @close="hideView" />
         <examine-info
@@ -48,7 +50,8 @@
                 :is="item.name"
                 :detail="detailData"
                 :id="id"
-                :crm-type="crmType" />
+                :crm-type="crmType"
+                @handle="detailHeadHandle" />
             </el-tab-pane>
           </el-tabs>
         </div>
@@ -73,6 +76,7 @@ import CRMEditBaseInfo from '../components/CRMEditBaseInfo' // 基本信息
 import RelativeFiles from '../components/RelativeFiles' // 相关附件
 import RelativeHandle from '../components/RelativeHandle' // 相关操作
 import RelativePrint from '../components/RelativePrint' // 相关打印
+import RelativeTeam from '../components/RelativeTeam' // 团队成员
 import CRMAllCreate from '../components/CRMAllCreate' // 新建页面
 import ExamineInfo from '@/components/Examine/ExamineInfo'
 
@@ -90,7 +94,8 @@ export default {
     RelativeHandle,
     RelativePrint,
     ExamineInfo,
-    CRMAllCreate
+    CRMAllCreate,
+    RelativeTeam
   },
   mixins: [DetailMixin],
   props: {
@@ -147,7 +152,7 @@ export default {
         },
         { label: '操作记录', name: 'RelativeHandle' }
       ]
-
+      tempsTabs.push({ label: this.getTabName('团队成员', this.tabsNumber.memberCount), name: 'RelativeTeam' })
       if (this.crm.receivables && this.crm.receivables.print) {
         tempsTabs.push({ label: '打印记录', name: 'RelativePrint' })
       }

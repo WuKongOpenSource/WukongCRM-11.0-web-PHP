@@ -114,6 +114,7 @@
       slot="footer"
       class="dialog-footer">
       <el-popover
+        v-if="config.historyShow"
         v-model="historyPopoverShow"
         placement="top"
         width="800"
@@ -181,9 +182,11 @@ import merge from '@/utils/merge'
 
 const DefaultProps = {
   typeName: '', // 模块名称
-  ownerSelectShow: true,
+  historyShow: true,
+  ownerSelectShow: false,
   poolSelectShow: false,
   repeatHandleShow: true,
+  importParams: null, // 导入参数
   repeatRuleShow: true, // 步骤二的重复规则是否展示
   importRequest: null, // 导入请求
   templateRequest: null // 模板请求
@@ -419,10 +422,12 @@ export default {
      * 第一步上传
      */
     firstUpdateFile(result) {
-      const params = {}
+      let params = {}
       params.config = this.repeatHandling
       params.file = this.file
-      params.owner_user_id = this.user.length > 0 ? this.user[0].id : ''
+      if (this.config.ownerSelectShow) {
+        params.owner_user_id = this.user.length > 0 ? this.user[0].id : ''
+      }
       if (this.config.poolSelectShow) {
         params.pool_id = this.pool_id
       }
@@ -434,6 +439,12 @@ export default {
         product: crmProductExcelImportAPI
       }[this.crmType]
       this.loading = true
+      if (this.config.importParams) {
+        params = {
+          ...params,
+          ...this.config.importParams
+        }
+      }
       request(params)
         .then(res => {
           if (result) {
@@ -524,7 +535,7 @@ export default {
         contacts: crmContactsDownloadExcelAPI,
         product: crmProductDownloadExcelAPI
       }[this.crmType]
-      request({ pool_id: this.config.poolSelectShow && this.pool_id })
+      request(this.config.templateParams || { pool_id: this.config.poolSelectShow && this.pool_id })
         .then(res => {
           downloadExcelWithResData(res)
         })

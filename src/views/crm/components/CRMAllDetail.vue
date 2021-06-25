@@ -4,10 +4,12 @@
     :is="tabName"
     :crm-type="crmType"
     :id="id"
+    v-bind="$attrs"
     :listener-ids="listenerIDs"
     :no-listener-ids="noListenerIDs"
     :no-listener-class="noListenerClass"
     class="d-view"
+    v-on="$listeners"
     @handle="detailHandle"
     @hide-view="hiddenView"/>
 </template>

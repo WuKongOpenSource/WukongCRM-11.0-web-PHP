@@ -5,26 +5,32 @@
     @close="close"
     @save="saveClick">
     <create-sections title="基本信息">
-      <wk-form
+      <el-form
         ref="crmForm"
         :model="fieldForm"
         :rules="fieldRules"
-        :field-from="fieldForm"
-        :field-list="fieldList"
-        label-position="top"
-        @change="formChange"
-      >
-        <template slot-scope="{ data }">
-          <crm-relative-cell
-            v-if="data && (data.formType == 'customer' || data.formType == 'contract')"
-            :value="fieldForm[data.field]"
-            :relative-type="data.formType"
-            :disabled="data.disabled"
-            :relation="data.relation"
-            @value-change="otherChange($event, data)"
-          />
-        </template>
-      </wk-form>
+        :validate-on-rule-change="false"
+        class="wk-form"
+        label-position="top">
+        <wk-form-items
+          v-for="(children, index) in fieldList"
+          :key="index"
+          :field-from="fieldForm"
+          :field-list="children"
+          @change="formChange"
+        >
+          <template slot-scope="{ data }">
+            <crm-relative-cell
+              v-if="data && (data.form_type == 'customer' || data.form_type == 'contract')"
+              :value="fieldForm[data.field]"
+              :relative-type="data.form_type"
+              :disabled="data.disabled"
+              :relation="data.relation"
+              @value-change="otherChange($event, data)"
+            />
+          </template>
+        </wk-form-items>
+      </el-form>
     </create-sections>
   </xr-create>
 </template>
@@ -35,7 +41,8 @@ import { crmReceivablesPlanSaveAPI } from '@/api/crm/receivables'
 
 import XrCreate from '@/components/XrCreate'
 import CreateSections from '@/components/CreateSections'
-import WkForm from '@/components/NewCom/WkForm'
+import WkFormItems from '@/components/NewCom/WkForm/WkFormItems'
+
 import {
   CrmRelativeCell
 } from '@/components/CreateCom'
@@ -51,7 +58,7 @@ export default {
     XrCreate,
     CreateSections,
     CrmRelativeCell,
-    WkForm
+    WkFormItems
   },
 
   mixins: [CustomFieldsMixin],
@@ -105,7 +112,8 @@ export default {
         types: crmTypeModel.receivables_plan,
         module: 'crm',
         controller: 'receivables_plan',
-        action: this.action.type
+        action: this.action.type,
+        format: 2
       }
 
       if (this.action.type == 'update') {
@@ -116,63 +124,67 @@ export default {
         .then(res => {
           const list = res.data || []
 
+          const assistIds = this.getFormAssistIds(list)
+
+          const baseFields = []
           const fieldList = []
           const fieldRules = {}
           const fieldForm = {}
-          list.forEach(item => {
-            const temp = {}
-            temp.field = item.field
-            temp.formType = item.form_type
-            temp.fieldId = item.fieldId
-            temp.inputTips = item.input_tips
-            temp.name = item.name
-            temp.setting = item.setting
+          list.forEach(children => {
+            const fields = []
+            children.forEach(item => {
+              const temp = this.getFormItemDefaultProperty(item)
+              temp.show = !assistIds.includes(item.formAssistId)
 
-            const canEdit = this.getItemIsCanEdit(item, this.action.type)
-            // 是否能编辑权限
-            if (canEdit) {
-              fieldRules[temp.field] = this.getRules(item)
-            }
+              const canEdit = this.getItemIsCanEdit(item, this.action.type)
+              // 是否能编辑权限
+              if (canEdit) {
+                fieldRules[temp.field] = this.getRules(item)
+              }
 
-            // 是否可编辑
-            temp.disabled = !canEdit
+              // 是否可编辑
+              temp.disabled = !canEdit
 
-            // 禁止某些业务组件选择
-            if (temp.formType == 'contract' || temp.formType == 'customer') {
-              if (this.action.type == 'relative') {
-                const relativeDisInfos = {
-                  contract: { customer: true, contract: true },
-                  customer: { customer: true }
-                }
+              // 禁止某些业务组件选择
+              if (temp.form_type == 'contract' || temp.form_type == 'customer') {
+                if (this.action.type == 'relative') {
+                  const relativeDisInfos = {
+                    contract: { customer: true, contract: true },
+                    customer: { customer: true }
+                  }
 
-                // 在哪个类型下添加
-                const relativeTypeDisInfos = relativeDisInfos[this.action.crmType]
-                if (relativeTypeDisInfos) {
+                  // 在哪个类型下添加
+                  const relativeTypeDisInfos = relativeDisInfos[this.action.crmType]
+                  if (relativeTypeDisInfos) {
                   // 包含的字段值
-                  temp.disabled = relativeTypeDisInfos[item.form_type] || false
+                    temp.disabled = relativeTypeDisInfos[item.form_type] || false
+                  }
                 }
               }
-            }
 
-            // 处理关联
-            if ((this.action.type == 'relative' || this.action.type == 'update') && item.form_type == 'contract') {
-              const customerItem = this.getItemRelatveInfo(list, 'customer')
-              if (customerItem) {
-                customerItem['moduleType'] = 'customer'
-                customerItem['params'] = { check_status: 2 }
-                temp['relation'] = customerItem
+              // 处理关联
+              if ((this.action.type == 'relative' || this.action.type == 'update') && item.form_type == 'contract') {
+                const customerItem = this.getItemRelatveInfo(list, 'customer')
+                if (customerItem) {
+                  customerItem['moduleType'] = 'customer'
+                  customerItem['params'] = { check_status: 2 }
+                  temp['relation'] = customerItem
+                }
               }
-            }
 
-            // 特殊字段允许多选
-            this.getItemRadio(item, temp)
+              // 特殊字段允许多选
+              this.getItemRadio(item, temp)
 
-            // 获取默认值
-            fieldForm[temp.field] = this.getItemValue(item, this.action.data, this.action.type)
-            fieldList.push(temp)
+              // 获取默认值
+              if (temp.show) {
+                fieldForm[temp.field] = this.getItemValue(item, this.action.data, this.action.type)
+              }
+              fields.push(temp)
+              baseFields.push(item)
+            })
+            fieldList.push(fields)
           })
-
-          this.baseFields = list
+          this.baseFields = baseFields
           this.fieldList = fieldList
           this.fieldForm = fieldForm
           this.fieldRules = fieldRules
@@ -190,7 +202,7 @@ export default {
      */
     saveClick() {
       this.loading = true
-      const crmForm = this.$refs.crmForm.instance
+      const crmForm = this.$refs.crmForm
       crmForm.validate(valid => {
         if (valid) {
           const params = this.getSubmiteParams(this.baseFields, this.fieldForm)
@@ -258,7 +270,7 @@ export default {
      */
     otherChange(data, field) {
       this.$set(this.fieldForm, field.field, data.value)
-      this.$refs.crmForm.instance.validateField(field.field)
+      this.$refs.crmForm.validateField(field.field)
     },
 
     /**

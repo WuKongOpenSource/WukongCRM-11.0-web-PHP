@@ -55,14 +55,21 @@
           :formatter="fieldFormatter"
           sortable="custom"
           show-overflow-tooltip>
-          <template slot-scope="scope">
+          <template slot-scope="{row,column}">
             <template v-if="item.prop == 'check_status'">
-              <span :style="getStatusStyle(scope.row.check_status)" class="status-mark"/>
-              <span>{{ getCRMStatusName(scope.row.check_status) }}</span>
+              <span :style="getStatusStyle(row.check_status)" class="status-mark"/>
+              <span>{{ getCRMStatusName(row.check_status) }}</span>
             </template>
-            <template v-else>
-              {{ fieldFormatter(scope.row, scope.column) }}
-            </template>
+            <wk-field-view
+              v-else
+              :props="item"
+              :form_type="item.form_type"
+              :value="row[column.property]"
+            >
+              <template slot-scope="{ data }">
+                {{ fieldFormatter(row, column, row[column.property], item) }}
+              </template>
+            </wk-field-view>
           </template>
         </el-table-column>
         <el-table-column/>
@@ -78,6 +85,14 @@
               @change="setSave"/>
           </template>
         </el-table-column>
+        <wk-empty
+          slot="empty"
+          :props="{
+            buttonTitle: '新建回款',
+            showButton: saveAuth
+          }"
+          @click="createClick"
+        />
       </el-table>
       <div class="p-contianer">
         <el-pagination
@@ -98,7 +113,9 @@
     <c-r-m-all-detail
       :visible.sync="showDview"
       :crm-type="rowType"
-      :id="rowID"
+      :id.sync="rowID"
+      :page-list="crmType == rowType ? list : []"
+      :page-index.sync="rowIndex"
       class="d-view"
       @handle="handleHandle"/>
 
