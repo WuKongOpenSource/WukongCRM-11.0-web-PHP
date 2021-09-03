@@ -70,7 +70,7 @@ export default {
      * 获取提示语
      */
     getTips(data) {
-      const tips = data.tips || data.inputTips
+      const tips = data.tips || data.input_tips
       return tips ? `（${tips}）` : ''
     },
     /**

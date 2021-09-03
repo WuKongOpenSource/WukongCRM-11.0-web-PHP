@@ -667,6 +667,24 @@ export default {
             // start: new Date(o.value[0]).getTime() / 1000,
             // end: new Date(o.value[1]).getTime() / 1000
           })
+        } else if (
+          o.form_type == 'number' ||
+          o.form_type == 'floatnumber' ||
+          o.form_type == 'percent'
+        ) {
+          let dataValues = []
+          if (o.type === 14) {
+            dataValues = [isEmpty(o.min) ? '' : o.min, isEmpty(o.max) ? '' : o.max]
+          } else {
+            dataValues = [o.value]
+          }
+          obj.push({
+            condition: o.condition,
+            form_type: o.form_type,
+            name: o.name,
+            type: o.field,
+            value: dataValues
+          })
         } else if (o.form_type == 'business_type') {
           obj.push({
             // condition: o.condition,

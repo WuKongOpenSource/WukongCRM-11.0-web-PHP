@@ -17,14 +17,14 @@
             <div
               v-if="getShowValue(item)"
               :key="index"
-              :class="[`is-${item.formType}`]"
+              :class="[`is-${item.form_type}`]"
               :label="item.name"
               :style="{width: item.stylePercent ? `${item.stylePercent}%` : 'auto'}"
               class="wk-form-item">
               <div class="wk-form-item__label">{{ item.name }}</div>
               <wk-field-view
                 :props="item"
-                :form-type="item.formType"
+                :form_type="item.form_type"
                 :value="fieldForm[sectionIndex][item.field]"
               >
                 <template slot-scope="{ data }">
@@ -50,11 +50,11 @@
           :key="index"
           :prop="item.field"
           :label="item.name"
-          :min-width="getMinWidth(item.formType)">
+          :min-width="getMinWidth(item.form_type)">
           <template slot-scope="{ row, column, $index }">
             <wk-field-view
               :props="item"
-              :form-type="item.formType"
+              :form_type="item.form_type"
               :value="row[item.field]"
             >
               <template slot-scope="{ data }">
@@ -115,12 +115,12 @@ export default {
   beforeDestroy() {},
 
   methods: {
-    getMinWidth(formType) {
-      if (formType === 'date_interval' ||
-      formType === 'dateRange' ||
-       formType === 'file' ||
-       formType === 'location' ||
-       formType === 'position') {
+    getMinWidth(form_type) {
+      if (form_type === 'date_interval' ||
+      form_type === 'dateRange' ||
+       form_type === 'file' ||
+       form_type === 'location' ||
+       form_type === 'position') {
         return 250
       }
       return 150

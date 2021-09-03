@@ -86,7 +86,7 @@
 import WkDistpicker from '@/components/NewCom/WkDistpicker'
 
 import { isEmpty, isArray } from '@/utils/types'
-import { regexIsCRMMobile, regexIsCRMEmail, objDeepCopy } from '@/utils'
+import { objDeepCopy } from '@/utils'
 import { getFieldAuth } from '../../utils'
 
 export default {
@@ -217,64 +217,65 @@ export default {
   methods: {
     inputBlur() {
       // this.$emit('input', this.value)
-      if (!this.field.default_value) return
-      if (this.field.form_type === 'mobile') {
-        // 校验手机号
-        if (!regexIsCRMMobile(this.field.default_value)) {
-          this.$message.error('输入的手机格式有误')
-          this.field.default_value = ''
-        }
-      } else if (this.field.form_type === 'email') {
-        // 校验邮箱
-        if (!regexIsCRMEmail(this.field.default_value)) {
-          this.$message.error('输入的邮箱格式有误')
-          this.field.default_value = ''
-        }
-      } else if (this.type === 'number') {
-        // 校验数字类型
-        const num = Number(this.field.default_value) // 去0
-        if (isNaN(num)) {
-          this.field.default_value = null
-          return
-        }
-        this.field.default_value = String(num)
-        const arr = String(num).split('.')
+      // if (!this.field.default_value) return
+      // if (this.field.form_type === 'mobile') {
+      //   // 校验手机号
+      //   if (!regexIsCRMMobile(this.field.default_value)) {
+      //     this.$message.error('输入的手机格式有误')
+      //     this.field.default_value = ''
+      //   }
+      // } else if (this.field.form_type === 'email') {
+      //   // 校验邮箱
+      //   if (!regexIsCRMEmail(this.field.default_value)) {
+      //     this.$message.error('输入的邮箱格式有误')
+      //     this.field.default_value = ''
+      //   }
+      // } else if (this.type === 'number') {
+      //   console.log(111)
+      //   // 校验数字类型
+      //   const num = Number(this.field.default_value) // 去0
+      //   if (isNaN(num)) {
+      //     this.field.default_value = null
+      //     return
+      //   }
+      //   this.field.default_value = String(num)
+      //   const arr = String(num).split('.')
 
-        const len = String(num)
-          .replace('.', '')
-          .replace('-', '')
-          .length
-        const maxlength = this.field.form_type === 'percent' ? 10 : 15
-        if (len > maxlength) {
-          this.$message.error(`最多支持${maxlength}位数字（包含小数位）`)
-          this.field.default_value = null
-          return
-        }
+      //   const len = String(num)
+      //     .replace('.', '')
+      //     .replace('-', '')
+      //     .length
+      //   const maxlength = this.field.form_type === 'percent' ? 10 : 15
+      //   if (len > maxlength) {
+      //     this.$message.error(`最多支持${maxlength}位数字（包含小数位）`)
+      //     this.field.default_value = null
+      //     return
+      //   }
 
-        const min = isEmpty(this.field.minNumRestrict) ? -Infinity : Number(this.field.minNumRestrict || -Infinity)
-        const max = isEmpty(this.field.maxNumRestrict) ? Infinity : Number(this.field.maxNumRestrict || Infinity)
-        if (num < min) {
-          this.$message.error('默认值不能小于最小值')
-          this.field.default_value = null
-          return
-        }
-        if (num > max) {
-          this.$message.error('默认值不能大于最大值')
-          this.field.default_value = null
-          return
-        }
+      //   const min = isEmpty(this.field.minNumRestrict) ? -Infinity : Number(this.field.minNumRestrict || -Infinity)
+      //   const max = isEmpty(this.field.maxNumRestrict) ? Infinity : Number(this.field.maxNumRestrict || Infinity)
+      //   if (num < min) {
+      //     this.$message.error('默认值不能小于最小值')
+      //     this.field.default_value = null
+      //     return
+      //   }
+      //   if (num > max) {
+      //     this.$message.error('默认值不能大于最大值')
+      //     this.field.default_value = null
+      //     return
+      //   }
 
-        // null 不支持小数  0 不限制小数位
-        if (isEmpty(this.field.precisions)) {
-          this.field.default_value = arr[0]
-          return
-        }
-        if (this.field.precisions === 0) return
-        if (arr.length > 1 && arr[1].length > Number(this.field.precisions)) {
-          this.$message.error(`默认值的小数位不能大于${this.field.precisions}`)
-          this.field.default_value = null
-        }
-      }
+      //   // null 不支持小数  0 不限制小数位
+      //   if (isEmpty(this.field.precisions)) {
+      //     this.field.default_value = arr[0]
+      //     return
+      //   }
+      //   if (this.field.precisions === 0) return
+      //   if (arr.length > 1 && arr[1].length > Number(this.field.precisions)) {
+      //     this.$message.error(`默认值的小数位不能大于${this.field.precisions}`)
+      //     this.field.default_value = null
+      //   }
+      // }
     },
 
     /**

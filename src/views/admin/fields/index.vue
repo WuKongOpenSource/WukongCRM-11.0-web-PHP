@@ -120,6 +120,7 @@ import Field from './field'
 import FieldTypeLib from './fieldTypeLib'
 import { objDeepCopy } from '@/utils/index'
 import { typeToComponent } from './utils'
+import { regexIsCRMMobile, regexIsCRMEmail } from '@/utils'
 
 export default {
   name: 'FieldsIndex',
@@ -504,6 +505,7 @@ export default {
       const copyField = objDeepCopy(field)
       delete copyField.field_id
       delete copyField.fieldName
+      delete copyField.field
       delete copyField.relevant
       copyField.field_type = 0
       copyField.operating = 255
@@ -733,6 +735,75 @@ export default {
 
         if (item.hasOwnProperty('optionsData')) {
           delete item.optionsData
+        }
+
+        if (item.form_type === 'mobile' && item.default_value) {
+        // 校验手机号
+          if (!regexIsCRMMobile(item.default_value)) {
+            this.$message.error('输入的手机格式有误')
+            this.loading = false
+            return
+          }
+        }
+        if (item.form_type === 'email' && item.default_value) {
+        // 校验邮箱
+          if (!regexIsCRMEmail(item.default_value)) {
+            this.$message.error('输入的邮箱格式有误')
+
+            this.loading = false
+            return
+          }
+        }
+        if (item.form_type === 'number' && item.default_value) {
+          // 校验数字类型
+          const num = Number(item.default_value) // 去0
+          if (isNaN(num)) {
+            this.$message.error('数字输入错误')
+            this.loading = false
+            return
+          }
+          item.default_value = String(num)
+          const arr = String(num).split('.')
+
+          const len = String(num)
+            .replace('.', '')
+            .replace('-', '')
+            .length
+          const maxlength = item.form_type === 'percent' ? 10 : 15
+          if (len > maxlength) {
+            this.$message.error(`最多支持${maxlength}位数字（包含小数位）`)
+
+            this.loading = false
+            return
+          }
+
+          const min = isEmpty(item.minNumRestrict) ? -Infinity : Number(item.minNumRestrict || -Infinity)
+          const max = isEmpty(item.maxNumRestrict) ? Infinity : Number(item.maxNumRestrict || Infinity)
+          if (num < min) {
+            this.$message.error('默认值不能小于最小值')
+
+            this.loading = false
+            return
+          }
+          if (num > max) {
+            this.$message.error('默认值不能大于最大值')
+
+            this.loading = false
+            return
+          }
+
+          // null 不支持小数  0 不限制小数位
+          if (isEmpty(item.precisions)) {
+            this.loading = false
+            return
+          }
+          if (item.precisions === 0) return
+          if (arr.length > 1 && arr[1].length > Number(item.precisions)) {
+            this.$message.error(`默认值的小数位不能大于${item.precisions}`)
+
+            this.loading = false
+            return
+          }
         }
       }
 

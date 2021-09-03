@@ -117,7 +117,7 @@
         </div>
 
         <div
-          v-if="fieldAuth.uniqueEdit"
+          v-if="fieldAuth.uniqueEdit && !['checkbox','file'].includes(field.form_type)"
           class="item-check-section">
           <el-checkbox
             v-model="field.is_unique"

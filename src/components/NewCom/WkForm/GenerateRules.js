@@ -8,7 +8,7 @@ import {
   regexIsCRMMobile,
   regexIsCRMEmail
 } from '@/utils'
-import { isEmpty } from '@/utils/types'
+import { isEmpty, isObject, isArray } from '@/utils/types'
 
 
 export default {
@@ -41,6 +41,32 @@ export default {
           message: item.name + '不能为空',
           trigger: ['blur', 'change']
         })
+        if (item.form_type == 'detail_table') {
+          tempList.push({
+            validator: ({ item }, value, callback) => {
+              if (this.getDetailTableIsEmpty(item.fieldExtendList, value)) {
+                callback(new Error(item.name + '不能为空'))
+              } else {
+                callback()
+              }
+            },
+            item: item,
+            trigger: ['blur', 'change']
+          })
+        } else if (item.form_type == 'checkbox') {
+          tempList.push({
+            validator: ({ item }, value, callback) => {
+              if (!isArray(value) || value.length === 0) {
+                callback(new Error(item.name + '不能为空'))
+              } else {
+                const emptyObj = value.find(valueItem => isEmpty(valueItem))
+                emptyObj === '' ? callback(new Error(item.name + '不能为空')) : callback()
+              }
+            },
+            item: item,
+            trigger: ['blur', 'change']
+          })
+        }
       }
 
       // 验证唯一
@@ -65,18 +91,22 @@ export default {
           validator: validateUnique,
           item: item,
           trigger:
-            item.formType == 'checkbox' || item.formType == 'select' || item.form_type == 'checkbox' || item.form_type == 'select'
+            item.form_type == 'checkbox' || item.form_type == 'select'
               ? ['change']
               : ['blur']
         })
       }
       // 特殊类型
-      if (item.formType === 'number' || item.form_type === 'number') {
+      if (item.form_type === 'number' || item.form_type === 'percent') {
         const validateCRMNumber = (rule, value, callback) => {
-          if (isEmpty(value) || regexIsCRMNumber(value)) {
-            callback()
+          if (item.hasOwnProperty('precisions')) {
+            this._getNumberRule(rule, value, callback)
           } else {
-            callback(new Error('数字的整数部分须少于15位，小数部分须少于4位'))
+            if (isEmpty(value) || regexIsCRMNumber(value)) {
+              callback()
+            } else {
+              callback(new Error('数字的整数部分须少于15位，小数部分须少于4位'))
+            }
           }
         }
         tempList.push({
@@ -84,12 +114,16 @@ export default {
           item: item,
           trigger: ['blur']
         })
-      } else if (item.formType === 'floatnumber' || item.form_type === 'floatnumber') {
+      } else if (item.form_type === 'floatnumber') {
         const validateCRMMoneyNumber = (rule, value, callback) => {
-          if (isEmpty(value) || regexIsCRMMoneyNumber(value)) {
-            callback()
+          if (item.hasOwnProperty('precisions')) {
+            this._getNumberRule(rule, value, callback)
           } else {
-            callback(new Error('货币的整数部分须少于15位，小数部分须少于2位'))
+            if (isEmpty(value) || regexIsCRMMoneyNumber(value)) {
+              callback()
+            } else {
+              callback(new Error('货币的整数部分须少于15位，小数部分须少于2位'))
+            }
           }
         }
         tempList.push({
@@ -97,7 +131,7 @@ export default {
           item: item,
           trigger: ['blur']
         })
-      } else if (item.formType === 'mobile' || item.form_type === 'mobile') {
+      } else if (item.form_type === 'mobile') {
         const validateCRMMobile = (rule, value, callback) => {
           if (isEmpty(value) || regexIsCRMMobile(value)) {
             callback()
@@ -110,7 +144,7 @@ export default {
           item: item,
           trigger: ['blur']
         })
-      } else if (item.formType === 'email' || item.form_type === 'email') {
+      } else if (item.form_type === 'email') {
         const validateCRMEmail = (rule, value, callback) => {
           if (isEmpty(value) || regexIsCRMEmail(value)) {
             callback()
@@ -123,9 +157,90 @@ export default {
           item: item,
           trigger: ['blur']
         })
+      } else if (item.form_type === 'location' && item.is_null == 1) {
+        const validateLocation = (rule, value, callback) => {
+          if (!isObject(value) || (
+            isObject(value) && isEmpty(value.lat) && isEmpty(value.lng) && isEmpty(value.address)
+          )) {
+            callback(new Error(item.name + '不能为空'))
+          } else {
+            callback()
+          }
+        }
+        tempList.push({
+          validator: validateLocation,
+          item: item,
+          trigger: ['change']
+        })
       }
 
       return tempList
+    },
+
+    /**
+     * 获取数值规则
+     */
+    _getNumberRule(rule, value, callback) {
+      const field = rule.item
+
+      const arr = String(value).split('.')
+
+      const len = String(value)
+        .replace('.', '')
+        .replace('-', '')
+        .length
+      const maxlength = field.form_type === 'percent' ? 10 : 15
+
+      const min = isEmpty(field.minNumRestrict) ? -Infinity : Number(field.minNumRestrict || -Infinity)
+      const max = isEmpty(field.maxNumRestrict) ? Infinity : Number(field.maxNumRestrict || Infinity)
+
+      if (len > maxlength) {
+        callback(new Error(`最多支持${maxlength}位数字（包含小数位）`))
+      } else if (isEmpty(field.precisions) && String(value).includes('.')) {
+        // null 不支持小数  0 不限制小数位
+        callback(new Error(`不支持小数`))
+      } else if (arr.length > 1 && arr[1].length > Number(field.precisions)) {
+        callback(new Error(`小数位不能大于${field.precisions}`))
+      } else if (value < min) {
+        callback(new Error(`不能小于${min}`))
+      } else if (value > max) {
+        callback(new Error(`不能大于${max}`))
+      } else {
+        callback()
+      }
+    },
+
+    /**
+     * 判断明细表格是否是空
+     * @param {*} fieldList
+     * @param {*} valueObj
+     */
+    getDetailTableIsEmpty(fieldList, valueObjs) {
+      for (let index = 0; index < valueObjs.length; index++) {
+        const valueObj = valueObjs[index]
+        if (this.judgeFormValueIsEmpty(fieldList, valueObj)) {
+          return true
+        }
+      }
+      return false
+    },
+
+    /**
+     * 判断对象值是否是空
+     */
+    judgeFormValueIsEmpty(fieldList, valueObj) {
+      for (let index = 0; index < fieldList.length; index++) {
+        const field = fieldList[index]
+        const value = valueObj[field.field]
+        if (field.form_type === 'location') {
+          if (isObject(value) && (!isEmpty(value.lat) || !isEmpty(value.lng) || !isEmpty(value.address))) {
+            return false
+          }
+        } else if (!isEmpty(value)) {
+          return false
+        }
+      }
+      return true
     }
   }
 }

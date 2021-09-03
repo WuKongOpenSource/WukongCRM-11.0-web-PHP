@@ -42,7 +42,11 @@ export function getFormFieldShowName(form_type, value, placeholder = '--', item)
     if (isEmpty(newValue)) {
       return placeholder
     } else {
-      return newValue
+      if (isArray(newValue)) {
+        return newValue.join(',')
+      } else {
+        return newValue
+      }
     }
   } else if (form_type === 'structure') {
     if (isArray(value)) {

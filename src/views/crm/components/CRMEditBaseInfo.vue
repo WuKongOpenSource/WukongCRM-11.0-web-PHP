@@ -733,7 +733,7 @@ export default {
     editClick(item) {
       let dataValue = objDeepCopy(this.allForm[item.fieldName])
       // 明细表格是空时，需要填充一条空数据，展示时未处理。这里增加
-      if (item.formType === 'detail_table' && isEmpty(dataValue)) {
+      if (item.form_type === 'detail_table' && isEmpty(dataValue)) {
         dataValue = this.getItemValue(objDeepCopy(item), null, 'update')
       }
       this.$set(this.editForm, item.fieldName, dataValue)
@@ -784,7 +784,7 @@ export default {
       for (let index = 0; index < this.editFieldData.length; index++) {
         const field = this.editFieldData[index]
         // 获取当前编辑 和 隐藏的字段
-        if (field.formType !== 'desc_text' && (field.isEdit || !field.show)) {
+        if (field.form_type !== 'desc_text' && (field.isEdit || !field.show)) {
           list.push({
             fieldName: field.fieldName,
             field: field.field,

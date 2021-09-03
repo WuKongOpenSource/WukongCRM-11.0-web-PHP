@@ -43,8 +43,10 @@
               :key="index"
               :prop="field.fieldName"
               :label="field.name">
-              <template slot-scope="scope">
-                <div class="input-box" />
+              <template slot-scope="{ row, column }">
+                <div class="input-box" >
+                  {{ row[column.property] }}
+                </div>
               </template>
             </el-table-column>
             <el-table-column label="操作" fixed="right">
@@ -115,9 +117,9 @@ export default {
         fallbackClass: 'draggingStyle',
         filter: '.empty-box'
       },
-      selectedPoint: [null, null],
+      selectedPoint: [null, null]
 
-      tableData: [{}]
+      // tableData: [{}]
     }
   },
   computed: {
@@ -129,9 +131,28 @@ export default {
     },
     list() {
       return this.isEmpty ? [] : this.field.fieldExtendList
+    },
+    tableData() {
+      const obj = {}
+      this.list.forEach(item => {
+        obj[item.fieldName] = this.formatterDefaultValue(item)
+      })
+      return [obj]
     }
   },
   methods: {
+    formatterDefaultValue(data) {
+      if (!data.default_value) return ''
+      if (data.form_type === 'boolean_value') {
+        return { '0': '不选中', '1': '选中' }[data.default_value] || '不选中'
+      } else if (data.form_type === 'datatime' || data.form_type === 'date_interval') {
+        return data.default_value.join('-')
+      } else if (data.form_type === 'checkbox') {
+        return data.default_value.join(',')
+      } else if (typeof data.default_value === 'string') {
+        return data.default_value
+      }
+    },
     dragListEnd(evt) {
       // console.log('table drag list end', evt)
     },
@@ -204,7 +225,7 @@ export default {
     width: 100%;
     height: 30px;
     border: 1px solid #dcdfe6;
-    padding: 3px 0;
+    padding: 3px 5px;
   }
 
   .table-field {

@@ -17,10 +17,10 @@ export default {
      */
     getItemValue(item, detail, type) {
       detail = detail || {}
-      if ((item.form_type || item.form_type) == 'contacts' ||
-          (item.form_type || item.form_type) == 'customer' ||
-          (item.form_type || item.form_type) == 'contract' ||
-          (item.form_type || item.form_type) == 'business'
+      if (item.form_type == 'contacts' ||
+          item.form_type == 'customer' ||
+          item.form_type == 'contract' ||
+          item.form_type == 'business'
       ) {
         // crm相关信息特殊处理
         if (type === 'update') {
@@ -55,12 +55,10 @@ export default {
             ? objDeepCopy(item.default_value.id)
             : ''
         }
-      } else if (item.form_type == 'user' ||
-            item.form_type == 'structure' ||
-            item.form_type == 'file' ||
-            item.form_type == 'user' ||
-            item.form_type == 'structure' ||
-            item.form_type == 'file'
+      } else if (
+        item.form_type == 'user' ||
+        item.form_type == 'structure' ||
+        item.form_type == 'file'
       ) {
         if (type === 'update') {
           return item.value ? objDeepCopy(item.value) : []
@@ -72,11 +70,8 @@ export default {
       } else {
         if (
           item.form_type == 'number' ||
-        item.form_type == 'floatnumber' ||
-        item.form_type == 'percent' ||
-        item.form_type == 'number' ||
-        item.form_type == 'floatnumber' ||
-        item.form_type == 'percent'
+          item.form_type == 'floatnumber' ||
+          item.form_type == 'percent'
         ) {
           if (type == 'update') {
             return isEmpty(item.value) ? undefined : item.value
@@ -453,9 +448,9 @@ export default {
         }
         return ''
       } else if (field.form_type == 'checkbox') {
-        if (isArray(dataValue)) {
-          return dataValue.join(',')
-        }
+        // if (isArray(dataValue)) {
+        //   return dataValue.join(',')
+        // }
         return dataValue
       } else if (field.form_type == 'date') {
         if (dataValue) {
@@ -506,11 +501,12 @@ export default {
       for (let index = 0; index < fieldList.length; index++) {
         const field = fieldList[index]
         const value = valueObj[field.field]
-        if (field.form_type === 'select' || field.form_type === 'checkbox') {
-          if (isObject(value) && !isEmpty(value.select)) {
-            return false
-          }
-        } else if (field.form_type === 'location') {
+        // if (field.form_type === 'select' || field.form_type === 'checkbox') {
+        //   if (isObject(value) && !isEmpty(value.select)) {
+        //     return false
+        //   }
+        // } else if (field.form_type === 'location') {
+        if (field.form_type === 'location') {
           if (isObject(value) && (!isEmpty(value.lat) || !isEmpty(value.lng) || !isEmpty(value.address))) {
             return false
           }

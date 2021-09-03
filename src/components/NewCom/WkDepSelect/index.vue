@@ -3,11 +3,12 @@
     v-elclickoutside="handleClose"
     ref="reference"
     :class="[disabled ? 'is_disabled' : 'is_valid', { 'is_focus': visible }]"
+    :style="{ height: `${height}px` }"
     wrap="wrap"
     class="wk-dep-select xh-form-border"
     @click="containerClick">
 
-    <div class="el-select__tags">
+    <div ref="tags" class="el-select__tags">
       <span
         v-for="(item, index) in showSelects"
         :key="index"
@@ -119,6 +120,7 @@ export default {
       visible: false,
       dataValue: [], // 校准传入值
       loading: false,
+      height: 34,
 
       optionsList: []
     }
@@ -175,6 +177,12 @@ export default {
           this.$emit('input', this.dataValue)
         }
       }
+    },
+    showSelects: {
+      handler() {
+        this.resetHeight()
+      },
+      immediate: true
     }
   },
 
@@ -183,6 +191,16 @@ export default {
   },
 
   methods: {
+    resetHeight() {
+      const tags = this.$refs.tags
+      if (tags) {
+        this.$nextTick(() => {
+          this.height = tags.clientHeight > 34 ? tags.clientHeight + 6 : 34
+        })
+      } else {
+        this.height = 34
+      }
+    },
 
     /**
      * 获取展示的数组
@@ -215,7 +233,7 @@ export default {
       }
 
       if (this.radio && (Array.isArray(this.value) || this.value === null || this.value === undefined)) {
-        this.$emit('input', '')
+        // this.$emit('input', '')
       }
 
       if (this.radio) {
@@ -318,8 +336,10 @@ export default {
       this.$nextTick(() => {
         if (this.radio) {
           this.dispatch('ElFormItem', 'el.form.change', this.dataValue && this.dataValue.length ? this.dataValue[0] : '')
+          this.$emit('input', this.dataValue && this.dataValue.length ? this.dataValue[0] : '')
         } else {
           this.dispatch('ElFormItem', 'el.form.change', this.dataValue)
+          this.$emit('input', this.dataValue)
         }
         this.$emit('change', this.dataValue, this.selects)
       })
@@ -358,6 +378,7 @@ export default {
     color: #ddd;
     line-height: 34px;
     cursor: pointer;
+    user-select: none;
   }
   .delete-icon {
     color: #999;

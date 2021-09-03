@@ -127,4 +127,12 @@ export default {
   padding: 12px 12px 0;
   margin-bottom: 0;
 }
+.el-form-item.is-user {
+  display: flex ;
+  flex-direction: column ;
+}
+.el-form-item.is-structure {
+  display: flex;
+  flex-direction: column;
+}
 </style>
